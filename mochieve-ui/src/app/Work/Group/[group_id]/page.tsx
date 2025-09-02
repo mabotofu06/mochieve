@@ -160,9 +160,9 @@ import { TemplatesWorkGroup } from "@/app/_components/templates/WorkGroup";
 // }
 
 type Props = {
-  params:{
+  params: Promise<{
     group_id: string;
-  }
+  }>
 }
 
 export default async function WorkGroupDetail(props: Props) {

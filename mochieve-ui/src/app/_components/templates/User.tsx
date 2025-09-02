@@ -25,6 +25,8 @@ export default function TemplatesUser() {
   const initialTab = navigationMenu[0].code;
   const iconSize = "w-25 h-25";
 
+  return (<div></div>)
+
   return (
     <div className="flex flex-col justify-between bg-white h-screen">
       <div className="h-[600px]">
@@ -71,9 +73,9 @@ export default function TemplatesUser() {
       <div className="flex flex-col" style={{height: "calc(100vh - 600px)"}}>
         <OrganismsTabMenu tabMenu={navigationMenu} activeTab={initialTab} onChange={()=>{}}>
           <div className="flex-1 overflow-y-auto">
-            {Array.from({ length: 5 }, (_, index) => (
+            {/* {Array.from({ length: 5 }, (_, index) => (
               <OrganismsGroupCard className="mt-3" key={index} />
-            ))}
+            ))} */}
           </div>
         </OrganismsTabMenu>
         {/* <NavigationTab activeTab={activeTab} onChange={setActiveTab} />

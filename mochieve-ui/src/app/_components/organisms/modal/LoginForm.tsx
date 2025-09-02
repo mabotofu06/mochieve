@@ -72,7 +72,7 @@ export default function OrganismsLoginForm() {
     setError("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "http://localhost:3000/Redirect/Login" }
+      options: { redirectTo: "http://localhost:3000/Redirect/Login" }//TODO:環境ごとに変えられるように
     });
 
     if (error) {

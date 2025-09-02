@@ -33,9 +33,11 @@ export default function TemplatesWippro() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const iconSize = "w-15 h-15";
 
+  return (<div></div>);
+
   return (
     <div className="flex flex-col bg-white h-screen">
-      <OrganismsPostListHeaderCard
+      {/* <OrganismsPostListHeaderCard
         userInfo={userInfo}
         editable={true}
         updated={new Date(postData.update).toLocaleDateString()}
@@ -47,7 +49,7 @@ export default function TemplatesWippro() {
         isBookmark={false}
         stamps={[]}
         postNum={postData.postNum}
-      />
+      /> */}
 
       {/* 表示切替タブ（アイコンボタン） */}
       <div className="flex items-center justify-between my-4">
@@ -89,7 +91,7 @@ export default function TemplatesWippro() {
 
       <div className="flex flex-col" style={{minHeight: "calc(100vh - 350px)"}}>
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {activeTab === 0 ? (
+          {/* {activeTab === 0 ? (
             Array.from({ length: 13 }, (_, index) => (
               <OrganismsPostCard className="mt-3" key={index} />
             ))
@@ -105,7 +107,7 @@ export default function TemplatesWippro() {
                 <OrganismsPostCard key={index} />
               ))}
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
