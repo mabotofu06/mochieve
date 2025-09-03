@@ -3,11 +3,13 @@ export const APP_VERSION = '0.0.1';
 
 export const BL_INFO = {
   HOST: "https://localhost",
-  PORT: 500,
+  PORT: 5000,
   API_ENDPOINT: {
     READINESS_HEALTH_CHECK: "/api/health",
-    LOGIN: "/api/user/login",
-    LOGOUT: "/api/user/logout",
+    AUTH_CALLBACK: "/api/v1/callback/auth",
+    LOGIN: "/api/v1/login",
+    LOGOUT: "/api/v1/logout",
+    GET_TIMELINE: "/api/v1/timeline/work",
     // USER_REGISTER: "/api/user/register",
     // USER_PROFILE: "/api/user/profile",
     // USER_UPDATE: "/api/user/update",

@@ -32,7 +32,6 @@ export function OrganismsGroupCard(props: Props) {
   const total = props.group.images.length;
   const handlePrev = () => setImgIdx(idx => (idx - 1 + total) % total);
   const handleNext = () => setImgIdx(idx => (idx + 1) % total);
-  console.log(props.group)
 
   const NavigateToWorkGroupPage = (groupId: string) => {
     //セッションに本ワークグループを登録

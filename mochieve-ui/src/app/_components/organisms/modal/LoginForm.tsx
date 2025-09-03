@@ -7,7 +7,8 @@ import { store } from "@/app/_state/store";
 import { useSelector } from "react-redux";
 import { closeLoginModal } from "@/app/_state/slice/modal";
 import { setUserInfo } from "@/app/_composables/userInfo";
-import { APP_NAME } from "@/app/_constants/app";
+import { APP_NAME, BL_INFO } from "@/app/_constants/app";
+import { postFetch } from "@/app/_constants/fetch";
 
 const INFO_MESSAGE = (
   <span className="text-center">
@@ -54,6 +55,7 @@ export default function OrganismsLoginForm() {
   const handleLogin = async () => {
     // setLoading(true);
     setError("");
+    await postFetch(BL_INFO.API_ENDPOINT.LOGIN, { email, password });
     setUserInfo({
       id: email,
       name: email.split('@')[0],
@@ -70,8 +72,11 @@ export default function OrganismsLoginForm() {
   const handleGoogleAuth = async () => {
     setLoading(true);
     setError("");
+    // const data = await postFetch(BL_INFO.API_ENDPOINT.LOGIN, { provider: "google" });
+    // console.log(data);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      // options: { redirectTo: "http://localhost:3000/api/v1/callback/auth" }//TODO:環境ごとに変えられるように
       options: { redirectTo: "http://localhost:3000/Redirect/Login" }//TODO:環境ごとに変えられるように
     });
 
