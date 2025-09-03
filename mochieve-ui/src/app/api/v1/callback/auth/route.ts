@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { serverSupabaseClient } from '@/app/_constants/supabase/server/client';
+import { UserInfo } from '@/app/_type/data';
+import { fetchUserInfoByUid } from '@/app/_constants/supabase/userClient';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse<{data:UserInfo|null}>> {
   try {
     const { refreshToken, accessToken } = await req.json();
 
@@ -16,14 +18,21 @@ export async function POST(req: NextRequest) {
 
     //TODO:このまま使い続けるのはリスキーな可能性あるためアクセストークンを再発行する
     const { data: userData, error } = await supabase.auth.getUser(accessToken);
+    const uid = userData?.user?.id;
+    const userInfo = await fetchUserInfoByUid(uid??'');
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 401 });
+      return NextResponse.json({data:null}, { status: 401 });
     }
 
     console.log("User Data:", userData);
 
-    const response = NextResponse.redirect("http://localhost:3000/Top");
+    const response = NextResponse.json({
+      data: {
+        name: userInfo?.name,
+        id: userInfo?.user_id || "",
+        iconImg: userInfo?.icon_image || "",
+      }});
     response.cookies.set('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -41,16 +50,8 @@ export async function POST(req: NextRequest) {
 
     return response;
 
-    // if (!code) {
-    //   return NextResponse.json({ error: 'Missing code parameter' }, { status: 400 });
-    // }
-
-    // const redirectTo = process.env.NEXT_PUBLIC_AUTH_REDIRECT || '/';
-    // const redirectUrl = new URL(redirectTo, req.url).toString();
-
-    // return NextResponse.redirect(redirectUrl);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message ?? String(err) }, { status: 500 });
+    return NextResponse.json({ data: null }, { status: 500 });
   }
 }
 

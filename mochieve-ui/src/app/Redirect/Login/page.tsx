@@ -6,24 +6,25 @@ import { postFetch } from "@/app/_constants/fetch";
 import { supabase } from "@/app/_constants/supabase/client";
 import { fetchUserInfoByUid } from "@/app/_constants/supabase/userClient";
 import { UserInfo } from "@/app/_type/data";
-import { access } from "fs";
 import { useEffect } from "react";
 
-const sendSession = async () => {
+const fetchUserInfo = async (): Promise<UserInfo> => {
   const { data, error } = await supabase.auth.getSession();
   if (error) {
     console.error("Error fetching session:", error);
-    return null;
+    throw new Error("User not found");
   }
   
   const session = data.session;
-  if(!session) return;
+  if(!session) throw new Error("User not found");
 
-  await postFetch(BL_INFO.API_ENDPOINT.AUTH_CALLBACK, {
+  const res = await postFetch<any, {data: UserInfo}>(BL_INFO.API_ENDPOINT.AUTH_CALLBACK, {
     accessToken: session.access_token,
     refreshToken: session.refresh_token,
   });
-}
+
+  return res.data;
+};
 
 const fetchLoginUserInfo = async (): Promise<UserInfo> => {
   const { data, error } = await supabase.auth.getUser();
@@ -51,8 +52,9 @@ const GUEST_USER_INFO: UserInfo = {
 
 export default function RedirectLoginPage() {
   useEffect(() => {
-    sendSession().then(() => {
+    fetchUserInfo().then((userInfo) => {
       console.log("Session sent successfully");
+      setUserInfo(userInfo);
     })
     .catch(err => {
       console.error("Error fetching user info:", err);
