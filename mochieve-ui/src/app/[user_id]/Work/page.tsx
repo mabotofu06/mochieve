@@ -1,7 +1,7 @@
 import { TemplatesMyWorks } from "@/app/_components/templates/MyWorks";
-import { supabaseUrl, supabaseKey } from "@/app/_constants/supabase/client";
-import { serverSupabaseClient } from "@/app/_constants/supabase/server/client";
-import { createClient } from "@supabase/supabase-js";
+import { APP_HOST, BL_INFO } from "@/app/_constants/app";
+import { getFetch } from "@/app/_constants/fetch";
+import { UserInfo } from "@/app/_type/data";
 import { cookies } from "next/headers";
 
 type Props = {
@@ -14,52 +14,22 @@ type Props = {
 export default async function MyWorkGroup(props: Props) {
   const params = await props.params;
   const userId = decodeURIComponent(params.user_id);
-  const cookieStore = await cookies();
+  const cookie = await cookies();
+  const accessToken = cookie.get("accessToken")?.value;
+  const refreshToken = cookie.get("refreshToken")?.value;
 
-  console.log("Cookies:", cookieStore.getAll());
-
-  const accessTokenCookie = cookieStore.get("accessToken");
-  const accessToken = accessTokenCookie ? accessTokenCookie.value : undefined;
-  const { data: user, error } = await serverSupabaseClient.auth.getUser(accessToken);
-
-  console.log("User:", user);
-  console.log("Error:", error);
-
-  if (error) {
-    // Handle error
-    throw new Error("Authentication error");
-  }
-  if(!user) {
-    throw new Error("Unauthorized");
-  }
-
-  const authedClient = createClient(
-    supabaseUrl,
-    supabaseKey,
+  const userInfo = await getFetch<UserInfo>(APP_HOST+BL_INFO.API_ENDPOINT.CACHE_USER_INFO,
     {
-      global: {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
+      headers: {
+        Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
+      }
     }
-  );
+  )
+
   // 認証情報付きでSQLリクエスト
-  const { data: userInfo, error: userInforror } = await authedClient
-    .from("user_info")
-    .select("*")
-    .eq("auth_id", user.user?.id)
-    .single();
-
-
   console.log("User Info:", userInfo);
-  console.log("User Info Error:", userInforror);
 
-  if (userInforror) {
-    // Handle error
-    throw new Error("User info retrieval error");
-  }
-  if(!userInfo || userInfo.user_id !== userId) {
+  if(!userInfo || userInfo.id !== userId) {
     throw new Error("User info not found");
   }
 

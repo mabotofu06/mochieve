@@ -1,5 +1,6 @@
 export const APP_NAME = 'Mochieve';
 export const APP_VERSION = '0.0.1';
+export const APP_HOST = "http://localhost:3000";
 
 export const BL_INFO = {
   HOST: "https://localhost",
@@ -10,6 +11,7 @@ export const BL_INFO = {
     LOGIN: "/api/v1/login",
     LOGOUT: "/api/v1/logout",
     GET_TIMELINE: "/api/v1/timeline/work",
+    CACHE_USER_INFO: "/api/v1/cache/user/info",
     // USER_REGISTER: "/api/user/register",
     // USER_PROFILE: "/api/user/profile",
     // USER_UPDATE: "/api/user/update",

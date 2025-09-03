@@ -3,8 +3,8 @@ import { OrganismsReactionButton } from "./ActionButton";
 import { OrganismsStampButton } from "./StampButton";
 
 type Props = {
+  isAuthor: boolean;
   userInfo: UserInfo;
-  editable: boolean;
   updated: string;
 
   title: string;
@@ -34,10 +34,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
             </div>
           </div>
           <div className="flex items-center">
-            <div className="post-update text-gray-500 mr-4">
-              更新：{new Date(props.updated).toLocaleDateString()}
-            </div>
-            {props.editable && (
+            {props.isAuthor && (
               <button
                 className="edit-button bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
                 onClick={props.onEditClick || (() => {})}
@@ -45,6 +42,9 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
                 編集
               </button>
             )}
+            <div className="post-update text-gray-500 ml-4">
+              更新：{new Date(props.updated).toLocaleDateString()}
+            </div>
           </div>
         </div>
 

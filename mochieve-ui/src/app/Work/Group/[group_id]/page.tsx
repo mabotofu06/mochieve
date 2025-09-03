@@ -1,8 +1,13 @@
 import { fetchWorkGroupByGroupId } from "@/app/_constants/supabase/workGroupClient";
 import { GetPostsData } from "@/app/_type/supabase";
-import { WorkGroup, WorkPost } from "@/app/_type/data";
+import { UserInfo, WorkGroup, WorkPost } from "@/app/_type/data";
 import { fetchPostsByGroupId } from "@/app/_constants/supabase/postClient";
 import { TemplatesWorkGroup } from "@/app/_components/templates/WorkGroup";
+import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
+import { cookies, headers } from "next/headers";
+import { fetchUserInfoByUid } from "@/app/_constants/supabase/server/userInfoClient";
+import { getFetch } from "@/app/_constants/fetch";
+import { APP_HOST, APP_SERVICE, BL_INFO } from "@/app/_constants/app";
 
 // const fetchWorkGroupDetail = async (groupId: string)=>{
 //   const workGroupRes = await fetchWorkGroupByGroupId(groupId);
@@ -180,6 +185,18 @@ export default async function WorkGroupDetail(props: Props) {
     throw new Error("Failed to fetch work group detail");
   }
 
+  const cookie = await cookies();
+  const accessToken = cookie.get("accessToken")?.value;
+  const refreshToken = cookie.get("refreshToken")?.value;
+
+  const userInfo = await getFetch<UserInfo>(APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO,{
+    headers:{
+      Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
+    }
+  });
+
+  console.log("User Info:", userInfo);
+
   const newWorkGroup: WorkGroup = {
     id: workGroupRes.group_id,
     userInfo: {
@@ -208,6 +225,11 @@ export default async function WorkGroupDetail(props: Props) {
         createdAt: item.create_datetime,
       }));
 
-  //TODO:リクエストしたユーザがこのグループの編集可能か判定し、反映する
-  return <TemplatesWorkGroup workGroup={newWorkGroup} workPosts={newWorkPosts} />;
+  return (
+    <TemplatesWorkGroup
+      isAuthor={userInfo.id === newWorkGroup.userInfo.id}
+      workGroup={newWorkGroup}
+      workPosts={newWorkPosts}
+    />
+  )
 }

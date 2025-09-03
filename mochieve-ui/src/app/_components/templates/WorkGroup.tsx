@@ -1,8 +1,12 @@
+'use client'
 import { WorkGroup, WorkPost } from "@/app/_type/data";
 import { OrganismsPostCard } from "../organisms/PostCard";
 import { OrganismsPostListHeaderCard } from "../organisms/PostListHeaderCard";
+import { store } from "@/app/_state/store";
+import { openPostFormModal } from "@/app/_state/slice/modal";
 
 type Props = {
+  isAuthor: boolean;
   workGroup: WorkGroup;
   workPosts: WorkPost[];
 }
@@ -12,7 +16,7 @@ export const TemplatesWorkGroup = (props: Props) => {
     <div>
       <OrganismsPostListHeaderCard
         userInfo={props.workGroup.userInfo}
-        editable={false}
+        isAuthor={props.isAuthor}
         title={props.workGroup.title}
         note={props.workGroup.note}
         likeNum={0}
@@ -29,11 +33,16 @@ export const TemplatesWorkGroup = (props: Props) => {
         ))}
       </div>
 
-      <div className="flex justify-center absolute bottom-0 w-[800px] py-5">
-        <button className="bg-green-600 text-white px-4 py-2 rounded-3xl text-xl opacity-50 hover:opacity-100">
-          進捗を投稿
-        </button>
-      </div>
+      {props.isAuthor &&
+        <div className="flex justify-center absolute bottom-0 w-[800px] py-5">
+          <button
+            className="bg-green-600 text-white px-4 py-2 rounded-3xl text-xl opacity-50 hover:opacity-100"
+            onClick={()=>store.dispatch(openPostFormModal())}
+          >
+            進捗を投稿
+          </button>
+        </div>
+      }
     </div>
   );
 }
