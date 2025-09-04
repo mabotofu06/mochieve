@@ -1,6 +1,7 @@
 import { TemplatesMyWorks } from "@/app/_components/templates/MyWorks";
 import { APP_HOST, BL_INFO } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
+import { ApiResponse, SuccessResponse } from "@/app/_type/api";
 import { UserInfo } from "@/app/_type/data";
 import { cookies } from "next/headers";
 
@@ -18,13 +19,17 @@ export default async function MyWorkGroup(props: Props) {
   const accessToken = cookie.get("accessToken")?.value;
   const refreshToken = cookie.get("refreshToken")?.value;
 
-  const userInfo = await getFetch<UserInfo>(APP_HOST+BL_INFO.API_ENDPOINT.CACHE_USER_INFO,
-    {
-      headers: {
-        Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
-      }
-    }
-  )
+  const res: ApiResponse<UserInfo>
+    = await getFetch<UserInfo>(
+        APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO,
+        { headers: { Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}` } }
+      )
+
+  if(res.status !== 200) {
+    throw new Error("Failed to fetch user info");
+  }
+
+  const userInfo = (res as SuccessResponse<UserInfo>).data;
 
   // 認証情報付きでSQLリクエスト
   console.log("User Info:", userInfo);

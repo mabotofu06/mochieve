@@ -6,6 +6,8 @@ import { UserInfo } from "@/app/_type/data";
 import { openLoginModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { getUserInfo } from "@/app/_composables/userInfo";
+import { getFetch } from "@/app/_constants/fetch";
+import { BL_INFO } from "@/app/_constants/app";
 
 
 const guestMenuList = [
@@ -86,7 +88,8 @@ const userMenuList = [
         <path d="M8 15h8" />
       </svg>
     ),
-    onClick: ()=>{
+    onClick: async ()=>{
+      await getFetch(BL_INFO.API_ENDPOINT.LOGOUT);
       if(typeof window === 'undefined') return;
       localStorage.removeItem("user_info");
       window.location.href = "/";

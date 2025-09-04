@@ -13,7 +13,7 @@ type Props = {
 
 export const TemplatesWorkGroup = (props: Props) => {
   return (
-    <div>
+    <div className="relative w-full h-screen">
       <OrganismsPostListHeaderCard
         userInfo={props.workGroup.userInfo}
         isAuthor={props.isAuthor}
@@ -34,7 +34,7 @@ export const TemplatesWorkGroup = (props: Props) => {
       </div>
 
       {props.isAuthor &&
-        <div className="flex justify-center absolute bottom-0 w-[800px] py-5">
+        <div className="flex w-full justify-center absolute bottom-0 py-5">
           <button
             className="bg-green-600 text-white px-4 py-2 rounded-3xl text-xl opacity-50 hover:opacity-100"
             onClick={()=>store.dispatch(openPostFormModal())}

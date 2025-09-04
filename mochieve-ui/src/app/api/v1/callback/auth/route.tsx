@@ -4,18 +4,20 @@ import { getAuthServerClient } from '@/app/_constants/supabase/server/client';
 import { fetchUserInfoByUid } from '@/app/_constants/supabase/server/userInfoClient';
 import { postFetch } from '@/app/_constants/fetch';
 import { APP_HOST, BL_INFO } from '@/app/_constants/app';
+import { resInternalServerError, resSuccess, resUnauthorized } from '@/app/_constants/utils/apiUtils';
+import { ApiResponse } from '@/app/_type/api';
 
-export async function POST(req: NextRequest): Promise<NextResponse<{data:UserInfo|null}>> {
+export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<UserInfo|null>>> {
   try {
     const { refreshToken, accessToken } = await req.json();
     if (!refreshToken || !accessToken) {
-      return NextResponse.json({data:null}, { status: 401 });
+      return resUnauthorized();
     }
 
     const supabase = getAuthServerClient(accessToken);
     const { data: userData, error } = await supabase.auth.getUser(accessToken);    
     if (error) {
-      return NextResponse.json({data:null}, { status: 401 });
+      return resUnauthorized();
     }
     const uid = userData?.user?.id;
     const userInfo = await fetchUserInfoByUid(supabase, uid??'');
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<{data:UserInf
     // ユーザ情報取得後、アクセストークンをリフレッシュ
     const { data: refreshedSession, error: refreshError } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
     if (refreshError || !refreshedSession?.session?.access_token) {
-      return NextResponse.json({ data: null }, { status: 401 });
+      return resUnauthorized();
     }
     const newAccessToken = refreshedSession.session.access_token;
     const newRefreshToken = refreshedSession.session.refresh_token;
@@ -45,12 +47,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<{data:UserInf
       }
     );
 
-    const response = NextResponse.json({
-      data: {
-        name: userInfo?.name || "",
-        id: userInfo?.user_id || "",
-        iconImg: userInfo?.icon_image || "",
-      }});
+    const response = resSuccess({
+      name: userInfo?.name || "",
+      id: userInfo?.user_id || "",
+      iconImg: userInfo?.icon_image || "",
+    });
     response.cookies.set('accessToken', newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<{data:UserInf
 
   } catch (err: any) {
     console.error("Error in auth callback:", err);
-    return NextResponse.json({ data: null }, { status: 500 });
+    return resInternalServerError();
   }
 }
 

@@ -12,6 +12,8 @@ export const BL_INFO = {
     LOGOUT: "/api/v1/logout",
     GET_TIMELINE: "/api/v1/timeline/work",
     CACHE_USER_INFO: "/api/v1/cache/user/info",
+    WORK_POST: "/api/v1/work/post",
+    WORK_GROUP: "/api/v1/work/group",
     // USER_REGISTER: "/api/user/register",
     // USER_PROFILE: "/api/user/profile",
     // USER_UPDATE: "/api/user/update",

@@ -8,6 +8,7 @@ import { cookies, headers } from "next/headers";
 import { fetchUserInfoByUid } from "@/app/_constants/supabase/server/userInfoClient";
 import { getFetch } from "@/app/_constants/fetch";
 import { APP_HOST, APP_SERVICE, BL_INFO } from "@/app/_constants/app";
+import { ApiResponse, SuccessResponse } from "@/app/_type/api";
 
 // const fetchWorkGroupDetail = async (groupId: string)=>{
 //   const workGroupRes = await fetchWorkGroupByGroupId(groupId);
@@ -185,18 +186,6 @@ export default async function WorkGroupDetail(props: Props) {
     throw new Error("Failed to fetch work group detail");
   }
 
-  const cookie = await cookies();
-  const accessToken = cookie.get("accessToken")?.value;
-  const refreshToken = cookie.get("refreshToken")?.value;
-
-  const userInfo = await getFetch<UserInfo>(APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO,{
-    headers:{
-      Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
-    }
-  });
-
-  console.log("User Info:", userInfo);
-
   const newWorkGroup: WorkGroup = {
     id: workGroupRes.group_id,
     userInfo: {
@@ -225,9 +214,30 @@ export default async function WorkGroupDetail(props: Props) {
         createdAt: item.create_datetime,
       }));
 
+
+  //以下、認証しているユーザ情報を元に投稿者かどうかを判定
+  const cookie = await cookies();
+  const accessToken = cookie.get("accessToken")?.value;
+  const refreshToken = cookie.get("refreshToken")?.value;
+
+  const res: ApiResponse<UserInfo> = await getFetch<UserInfo>(APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO,{
+    headers:{
+      Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
+    }
+  });
+
+  let userInfo: UserInfo|undefined;
+  if(res.status === 200){
+    userInfo = (res as SuccessResponse<UserInfo>).data;
+    console.log("認証されたユーザの情報:", userInfo);
+  }
+  else{
+    console.log("認証されたユーザの投稿でないため閲覧専用として表示");
+  }
+
   return (
     <TemplatesWorkGroup
-      isAuthor={userInfo.id === newWorkGroup.userInfo.id}
+      isAuthor={userInfo?.id === newWorkGroup.userInfo.id}
       workGroup={newWorkGroup}
       workPosts={newWorkPosts}
     />

@@ -1,8 +1,9 @@
+import { ApiResponse } from "../_type/api";
 import { BL_INFO } from "./app";
 
 const API_URL = "" //`${BL_INFO.HOST}:${BL_INFO.PORT}`;TODO: 後々BFF追加の場合は修正
 
-export const getFetch = async <T>(url: string, options = {}): Promise<T> => {
+export const getFetch = async <T>(url: string, options = {}): Promise<ApiResponse<T>> => {
   const response = await fetch(API_URL + url, {
     method: "GET",
     headers: {
@@ -16,11 +17,11 @@ export const getFetch = async <T>(url: string, options = {}): Promise<T> => {
     throw new Error("Network response was not ok");
   }
 
-  const resBody = await response.json();
+  const resBody: ApiResponse<T> = await response.json();
   return resBody;
 }
 
-export const postFetch = async <T, U>(url: string, body: T, options = {}): Promise<U> => {
+export const postFetch = async <T, U>(url: string, body: T, options = {}): Promise<ApiResponse<U>> => {
   const response = await fetch(API_URL + url, {
     method: "POST",
     headers: {
@@ -35,11 +36,11 @@ export const postFetch = async <T, U>(url: string, body: T, options = {}): Promi
     throw new Error("Network response was not ok");
   }
 
-  const resBody: U = await response.json();
+  const resBody: ApiResponse<U> = await response.json();
   return resBody;
 }
 
-export const putFetch = async <T, U>(url: string, body: T, options = {}): Promise<U> => {
+export const putFetch = async <T, U>(url: string, body: T, options = {}): Promise<ApiResponse<U>> => {
   const response = await fetch(API_URL + url, {
     method: "PUT",
     headers: {
@@ -54,6 +55,21 @@ export const putFetch = async <T, U>(url: string, body: T, options = {}): Promis
     throw new Error("Network response was not ok");
   }
 
-  const resBody: U = await response.json();
+  const resBody: ApiResponse<U> = await response.json();
   return resBody;
+}
+
+export const deleteFetch = async (url: string, options = {}): Promise<void> => {
+  const response = await fetch(API_URL + url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...(options as any).headers,
+    },
+    credentials: "include",
+    ...options,
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
 }
