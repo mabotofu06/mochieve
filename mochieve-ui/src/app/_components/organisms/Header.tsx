@@ -18,7 +18,7 @@ export default function OrganismsHeader() {
   const createNewWorks = () => {
     //TODO:認証したユーザの投稿状況を確認し、新しい投稿を作成できるか確認する（MAX3件）
     console.log("新しいプロジェクトを作成");
-    store.dispatch(openPostFormModal());
+    store.dispatch(openPostFormModal({ groupId: null }));
   };
 
   return (

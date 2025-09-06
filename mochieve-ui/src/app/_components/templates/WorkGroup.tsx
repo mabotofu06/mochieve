@@ -38,7 +38,7 @@ export const TemplatesWorkGroup = (props: Props) => {
         <div className="flex w-full justify-center absolute bottom-0 py-5">
           <button
             className="bg-green-600 text-white py-4 px-6 rounded-4xl text-2xl opacity-50 hover:opacity-100"
-            onClick={()=>store.dispatch(openPostFormModal())}
+            onClick={()=>store.dispatch(openPostFormModal({ groupId: props.workGroup.id }))}
           >
             進捗を投稿
           </button>

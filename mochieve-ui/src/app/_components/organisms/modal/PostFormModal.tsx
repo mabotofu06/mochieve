@@ -1,52 +1,74 @@
 "use client";
 import { useState } from "react";
 import { MoleculesModal } from "../../molecules/Modal";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { closePostFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
-import { postFetch } from "@/app/_constants/fetch";
+import { postFetch, putFetch } from "@/app/_constants/fetch";
 import { BL_INFO } from "@/app/_constants/app";
 import { ApiResponse, PostRequestBody } from "@/app/_type/api";
 import { encodeBlob2Base64, fileToWebp } from "@/app/_constants/utils/fileUtil";
 
 export const OrganismsPostFormModal = () => {
-  const modalOpen = useSelector((state: any) => state.modal.openPostFormModal);
+  const modalOpen = useSelector((state: {modal: {openPostFormModal: boolean}}) => state.modal.openPostFormModal);
+  const targetGroupId = useSelector((state: {modal: {postTargetGroupId: string | null}}) => state.modal.postTargetGroupId);
 
   const [note, setNote] = useState("");
   const [image, setImage] = useState<File | null>(null);
 
-  const deleteImage = () => {
-    setImage(null);
-  }
-
-  const closeModal = ()=>{
+  /**
+   * モーダルを閉じると同時に、フォームの内容をクリアする
+   */
+  const closeModal = (): void => {
     setImage(null);
     setNote("");
     store.dispatch(closePostFormModal());
   }
 
-  const submitForm = async () => {
-    //バリデーションチェック
+  /**
+   * バリデーションチェック
+   * フォームの入力内容が正しいかどうかを検証する
+   * ・画像が選択されていること
+   * ・説明文が入力されていて150文字以内であること
+   * @returns 
+   */
+  const validationCheck = (): boolean => {
     if(!image) {
       console.error("No image selected");
-      return
+      return false;
     }
     if(!note || note.length > 150){
       console.error("Note is required and must be less than 150 characters");
-      return;
+      return false;
     }
-    console.log("submitForm", { note, image });
+    return true;
+  }
+
+  /**
+   * フォームの内容をサーバに送信する
+   * @returns 
+   */
+  const submitWorkPost = async () => {
+    //バリデーションチェック
+    if(!validationCheck()) return;
 
     // ファイルをwebpに変換し、base64にエンコード
-    const webpImage = await fileToWebp(image);
+    const webpImage = await fileToWebp(image as File);
     const imageFile = await encodeBlob2Base64(webpImage);
 
-    const reqBody: PostRequestBody = { note, imageFile }
-    const response = await postFetch<PostRequestBody, ApiResponse<any>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody);
+    const reqBody: PostRequestBody
+      = {
+        groupId: targetGroupId ?? undefined,
+        note,
+        imageFile
+      };
 
-    setImage(null);
-    setNote("");
-    store.dispatch(closePostFormModal());
+    const response = 
+      targetGroupId
+        ? await putFetch<PostRequestBody, ApiResponse<boolean>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody)
+        : await postFetch<PostRequestBody, ApiResponse<boolean>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody);
+
+    closeModal();
   }
 
   if (!modalOpen) return null;
@@ -67,7 +89,7 @@ export const OrganismsPostFormModal = () => {
                     }
                   }}
                 />
-                <button className="absolute top-0 right-3 text-red-500 rounded-full text-5xl" onClick={deleteImage}>
+                <button className="absolute top-0 right-3 text-red-500 rounded-full text-5xl" onClick={closeModal}>
                 ×
                 </button>
               </div>) : (
@@ -129,7 +151,7 @@ export const OrganismsPostFormModal = () => {
           <button
             type="submit"
             className="w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-lg mt-4"
-            onClick={submitForm}
+            onClick={submitWorkPost}
           >
             投稿する
           </button>

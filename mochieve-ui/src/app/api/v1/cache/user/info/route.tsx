@@ -28,7 +28,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<SuccessRespons
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  console.log("Access Token:", accessToken);
+  console.log("Access Token:", accessToken?(accessToken.slice(0,10) + "..."):accessToken);
 
   if (!accessToken) {
     return resSuccess(null);
@@ -44,7 +44,7 @@ export async function DELETE(req: NextRequest): Promise<NextResponse<ApiResponse
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
 
-  console.log("Access Token for deletion:", accessToken);
+  console.log("Access Token:", accessToken?(accessToken.slice(0,10) + "..."):accessToken);
 
   if (!accessToken) return resValidationError("Bad Request", "No access token provided");
 

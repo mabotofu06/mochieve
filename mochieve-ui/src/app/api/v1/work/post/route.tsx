@@ -1,13 +1,40 @@
 import { APP_HOST, BL_INFO } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
+import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
 import { resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { decodeBase64ToBuffer, validBase64MimeType } from "@/app/_constants/utils/fileUtil";
 import { ApiResponse, ErrorResponse, PostRequestBody, SuccessResponse } from "@/app/_type/api";
 import { UserInfo } from "@/app/_type/data";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+
+const uploadImage = async (authedClient: SupabaseClient, file: string): Promise<string | null> => {
+  //ファイルをアップロードして公開リンクを取得
+  const { data, error }
+    = await authedClient.storage
+      .from("post-content")
+      .upload(`images/${Date.now()}.webp`,
+      decodeBase64ToBuffer(file),{
+        contentType: "image/webp"
+      });  
+  if (error) {
+    console.error("Storage upload error:", error);
+    return null;
+  }
+  const { data: publicUrlData }
+    = await authedClient.storage
+      .from("post-content")
+      .getPublicUrl(data.path);
+  if (!publicUrlData) {
+    console.error("Failed to get public URL");
+    return null;
+  }
+
+  return publicUrlData.publicUrl;
+};
 
 /**
  * 作業ポスト新規投稿API
@@ -15,6 +42,7 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns 
  */
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
+  console.log("===== POST /api/v1/work/post =====");
   const cookie = await cookies();
   const accessToken = cookie.get("accessToken")?.value;
   if (!accessToken) return resUnauthorized();
@@ -41,33 +69,50 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
     return resValidationError("Invalid image format", "Only webp images are allowed");
   }
 
+  // クローズしていない投稿数が3個を超えていないかチェック
+  const { count: openGroupNum, error: openGroupError } = await supabase
+    .from("work_group")
+    .select('count', { count: 'exact' })
+    .eq("user_id", userInfo.id)
+    .eq("delete_flag", false)
+    .eq("close_flag", false);
+
+  if (openGroupError || !openGroupNum) {
+    console.error("Failed to retrieve open groups:", openGroupError);
+    return resInternalServerError("Failed to retrieve open groups");
+  }
+  if (openGroupNum >= 3) {
+    return resValidationError("Too many open groups", "You can only have 3 open groups at a time");
+  }
+
   const authedClient = getAuthServerClient(accessToken);
 
-  //TODO: 投稿数が3個を超えていないかチェック
-
+  // const { data, error }
+  //   = await authedClient.storage
+  //     .from("post-content")
+  //     .upload(`images/${Date.now()}.webp`,
+  //     decodeBase64ToBuffer(imageFile),{
+  //       contentType: "image/webp"
+  //     });  
+  // if (error) {
+  //   console.error("Storage upload error:", error);
+  //   return resInternalServerError("Failed to upload image");
+  // }
+  // const { data: publicUrlData }
+  //   = await authedClient.storage
+  //     .from("post-content")
+  //     .getPublicUrl(data.path);
+  // if (!publicUrlData) {
+  //   console.error("Failed to get public URL");
+  //   return resInternalServerError("Failed to get public URL");
+  // }
 
   //ファイルをアップロードして公開リンクを取得
-  const { data, error }
-    = await authedClient.storage
-      .from("post-content")
-      .upload(`images/${Date.now()}.webp`,
-      decodeBase64ToBuffer(imageFile),{
-        contentType: "image/webp"
-      });  
-  if (error) {
-    console.error("Storage upload error:", error);
+  const imageUrl = await uploadImage(authedClient, imageFile);
+  if (!imageUrl) {
+    console.error("Failed to upload image");
     return resInternalServerError("Failed to upload image");
   }
-  const { data: publicUrlData }
-    = await authedClient.storage
-      .from("post-content")
-      .getPublicUrl(data.path);
-  if (!publicUrlData) {
-    console.error("Failed to get public URL");
-    return resInternalServerError("Failed to get public URL");
-  }
-
-  const imageUrl = publicUrlData.publicUrl;
 
   const { data: rpcData, error: rpcError } = await authedClient
   .rpc("create_group_and_post", {
@@ -101,6 +146,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
  * @returns 
  */
 export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
+  console.log("===== PUT /api/v1/work/post =====");
+
   const cookie = await cookies();
   const accessToken = cookie.get("accessToken")?.value;
   if (!accessToken) return resUnauthorized();
@@ -117,15 +164,46 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
 
   // リクエストボディを取得
   const {groupId, note, imageFile}: PostRequestBody = await req.json();
-  if(!groupId || !imageFile) return resValidationError();
+  if(!groupId || !imageFile || !note) return resValidationError();
 
-  //TODO: 作業グループの存在チェック
-  const workGroup = {};
-  // その後、クローズされていないかチェック
-  const isClosed = false; //TODO: 実際にはバックエンドでチェック
+  //作業グループを取得
+  const {data: workGroup, error} = await supabase
+    .from("work_group")
+    .select("group_id, images")
+    .eq("group_id", groupId)
+    .eq("user_id", userInfo.id)
+    .eq("delete_flag", false)
+    .eq("close_flag", false)
+    .single();
+  if(error || !workGroup) {
+    console.error("Failed to retrieve work group:", error);
+    return resInternalServerError("Failed to retrieve work group");
+  }
 
+  const authedClient = getAuthServerClient(accessToken);
   //ファイルをアップロードして公開リンクを取得
-  const imageUrl = "https://example.com/path/to/uploaded/image.jpg"; //TODO: 実際にはバックエンドでアップロードしてそのURLを取得
+  const imageUrl = await uploadImage(authedClient, imageFile);
+  if (!imageUrl) {
+    console.error("Failed to upload image");
+    return resInternalServerError("Failed to upload image");
+  }
+
+  //TODO:work_groupの更新日が反映されていないため更新されるように
+  const { data: rpcData, error: rpcError } = await authedClient.rpc(
+    "update_group_and_post",
+    {
+      p_group_id: workGroup.group_id,
+      p_user_id: userInfo.id,
+      p_note: note,
+      p_image_url: imageUrl,
+    }
+  );
+
+  if(rpcError){
+    //TODO:この時アップした画像を削除する
+    console.error("RPC error:", rpcError);
+    return resInternalServerError("Failed to update work group and post");
+  }
 
   //問題なければグループ投稿を更新
   const putBody = {
