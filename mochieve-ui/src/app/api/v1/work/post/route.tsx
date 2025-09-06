@@ -4,7 +4,7 @@ import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
 import { resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { decodeBase64ToBuffer, validBase64MimeType } from "@/app/_constants/utils/fileUtil";
-import { ApiResponse, ErrorResponse, PostRequestBody, SuccessResponse } from "@/app/_type/api";
+import { ApiResponse, PostRequestBody, SuccessResponse } from "@/app/_type/api";
 import { UserInfo } from "@/app/_type/data";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -86,26 +86,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   }
 
   const authedClient = getAuthServerClient(accessToken);
-
-  // const { data, error }
-  //   = await authedClient.storage
-  //     .from("post-content")
-  //     .upload(`images/${Date.now()}.webp`,
-  //     decodeBase64ToBuffer(imageFile),{
-  //       contentType: "image/webp"
-  //     });  
-  // if (error) {
-  //   console.error("Storage upload error:", error);
-  //   return resInternalServerError("Failed to upload image");
-  // }
-  // const { data: publicUrlData }
-  //   = await authedClient.storage
-  //     .from("post-content")
-  //     .getPublicUrl(data.path);
-  // if (!publicUrlData) {
-  //   console.error("Failed to get public URL");
-  //   return resInternalServerError("Failed to get public URL");
-  // }
 
   //ファイルをアップロードして公開リンクを取得
   const imageUrl = await uploadImage(authedClient, imageFile);
@@ -203,15 +183,6 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     //TODO:この時アップした画像を削除する
     console.error("RPC error:", rpcError);
     return resInternalServerError("Failed to update work group and post");
-  }
-
-  //問題なければグループ投稿を更新
-  const putBody = {
-    groupId,
-    note,
-    imageUrl,
-    userId: userInfo.id,
-    // 作業ポストを更新
   }
 
   return NextResponse.json({ message: "Success" });

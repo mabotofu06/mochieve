@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { fetchWorkGroupsByUserId } from "@/app/_constants/supabase/workGroupClient";
 import { OrganismsTabMenu } from "../organisms/TabMenu";
 import { MY_WORK_NAV_MENU } from "@/app/_constants/app";
+import { store } from "@/app/_state/store";
+import { setLoading } from "@/app/_state/slice/modal";
 
 type Props = {
   userId: string;
@@ -35,17 +37,18 @@ export const TemplatesMyWorks = (props: Props) => {
 
       setGroups(groups);
     })
+    .catch(console.error)
+    .finally(() => {store.dispatch(setLoading(false));});
   }, []);
 
   return (
-    <div>
-      <OrganismsTabMenu tabMenu={MY_WORK_NAV_MENU} activeTab={initialTab} onChange={()=>{}}>
-      <div className="timeline overflow-y-scroll custom-scrollbar px-3 h-screen">
+    <div className="flex flex-col bg-white h-screen">
+      <OrganismsTabMenu tabMenu={MY_WORK_NAV_MENU} activeTab={initialTab} onChange={()=>{}} />
+      <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
         {groups.map((group, index) => (
           <OrganismsGroupCard className="mt-3" key={index} group={group} />
         ))}
       </div>
-      </OrganismsTabMenu>
     </div>
 
   );

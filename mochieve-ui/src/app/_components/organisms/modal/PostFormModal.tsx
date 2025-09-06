@@ -75,7 +75,7 @@ export const OrganismsPostFormModal = () => {
   return (
     <div>
       <MoleculesModal onClickCloseBtn={closeModal}>
-        <div className="project-form m-8 w-[800px]">
+        <div className="project-form m-8 w-[650px]">
           <div className="mb-4">
             {image ? (
               <div className="relative mt-2 w-full h-[300px] overflow-hidden">
@@ -154,6 +154,13 @@ export const OrganismsPostFormModal = () => {
             onClick={submitWorkPost}
           >
             投稿する
+          </button>
+          <button
+            type="submit"
+            className="w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-lg mt-4"
+            onClick={submitWorkPost}
+          >
+            この投稿で完了にする
           </button>
       </div>
       </MoleculesModal>

@@ -6,6 +6,8 @@ import { OrganismsReactionButton } from "./ActionButton";
 import { OrganismsStampButton } from "./StampButton";
 import { WorkGroup } from "@/app/_type/data";
 import { addWorkGroupDetail } from "@/app/_state/storage";
+import { openImageModal } from "@/app/_state/slice/modal";
+import { store } from "@/app/_state/store";
 
 export const ActionMenu = ()=>{
   return(
@@ -39,6 +41,10 @@ export function OrganismsGroupCard(props: Props) {
     location.href = `/Work/Group/${groupId}`;
   }
 
+  const openImage =(src: string) => {
+    store.dispatch(openImageModal(src));
+  }
+
   return createElement("div", { className: `post-card relative border rounded-lg overflow-hidden ${props.className}` }, (
     <div>
       {/* Header */}
@@ -60,7 +66,7 @@ export function OrganismsGroupCard(props: Props) {
       <img
         src={props.group.images[imgIdx]}
         alt={`Post Image ${imgIdx+1}`}
-        onClick={() => NavigateToWorkGroupPage(props.group.id)}
+        onClick={()=>{openImage(props.group.images[imgIdx])}}
       />
       </div>
       {/* 画像スライダー */}
@@ -95,17 +101,23 @@ export function OrganismsGroupCard(props: Props) {
             ))}
           </div>
         </div>,
-        <div key="footer-details" className="post-details flex w-full max-h-16">
-          <div className="w-4/5 overflow-hidden">
-            <h2 className="post-title text-xl font-semibold">{props.group.title}</h2>
-            <p className="post-content">{props.group.note}</p>
+        <div key="footer-details" className="post-details flex flex-col w-full items-center">
+          <div className="flex max-h-16 justify-between w-full items-center">
+            <div className="w-4/5 overflow-hidden">
+              <h2 className="post-title text-xl font-semibold">{props.group.title}</h2>
+              <p className="post-content">{props.group.note}</p>
+            </div>
+            <div className="ms-8">
+              投稿数:
+              <span className="post-num text-green-600 font-semibold ms-3">
+                {props.group.images.length}
+              </span>
+            </div>
+
           </div>
-          <div className="ms-8">
-            投稿数:
-            <span className="post-num text-green-600 font-semibold ms-3">
-              {props.group.images.length}
-            </span>
-          </div>
+          <button className="mt-2 hover:underline cursor-pointer" onClick={() => NavigateToWorkGroupPage(props.group.id)}>
+            →これまでの作業内容をみる
+          </button>
         </div>
         // TODO:v0.1以降実装 <ActionMenu />
       ])}

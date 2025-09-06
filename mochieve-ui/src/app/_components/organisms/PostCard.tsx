@@ -1,9 +1,10 @@
 "use client";
 
 import { createElement, useState } from "react";
-import { OrganismsReactionButton } from "./ActionButton";
 import { OrganismsStampButton } from "./StampButton";
 import { WorkPost } from "@/app/_type/data";
+import { store } from "@/app/_state/store";
+import { openImageModal } from "@/app/_state/slice/modal";
 
 export const ActionMenu = ()=>{
   return(
@@ -25,7 +26,6 @@ export function OrganismsPostCard(props: Props) {
   const [footerOpen, setFooterOpen] = useState(false);
   const [footerAnim, setFooterAnim] = useState<'expand'|'collapse'|''>('');
   const [showFooter, setShowFooter] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
 
   const handleFooterToggle = () => {
     if (footerOpen) {
@@ -48,29 +48,15 @@ export function OrganismsPostCard(props: Props) {
       <div className="header absolute top-0 p-2 w-full bg-white border-b border-green-500">
         <span>投稿日: {new Date(props.post.createdAt).toLocaleDateString()}</span>
       </div>
-      {/* 画像 全体表示（高さは画像に合わせる） */}
+
+      {/* 画像 */}
       <div className="flex justify-center items-center bg-gray-100">
         <img
           src={props.post.image}
           alt="Post Image"
-          onClick={() => setShowOverlay(true)}
+          onClick={() => store.dispatch(openImageModal(props.post.image))}
         />
       </div>
-
-      {/* オーバーレイ画像表示 */}
-      {showOverlay && (
-        <div
-          className="overlay"
-          onClick={() => setShowOverlay(false)}
-        >
-          <img
-            src={props.post.image}
-            alt="拡大画像"
-            style={{maxWidth: "90vw", maxHeight: "90vh", borderRadius: "16px", boxShadow: "0 0 32px #0008"}}
-            onClick={e => e.stopPropagation()}
-          />
-        </div>
-      )}
 
       {/* フッター */}
       <div className="footer absolute bottom-0 bg-white p-2 w-full border-green-500 border-t">

@@ -7,10 +7,11 @@ import { WorkGroup } from "@/app/_type/data";
 import { BL_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { ApiResponse, SuccessResponse } from "@/app/_type/api";
+import { store } from "@/app/_state/store";
+import { setLoading } from "@/app/_state/slice/modal";
 
 export default function TemplateTop() {
   const [groups, setGroups] = useState<WorkGroup[]>([]);
-  const [loading, setLoading] = useState(true);
   useEffect(() => {
     getFetch<WorkGroup[]>(BL_INFO.API_ENDPOINT.GET_TIMELINE)
     .then((res: ApiResponse<WorkGroup[]>) => {
@@ -28,30 +29,20 @@ export default function TemplateTop() {
       }
     })
     .catch(console.error)
-    .finally(() => setLoading(false));
-
+    .finally(() => {store.dispatch(setLoading(false));});
   }, []);
 
   const initialTab = TOP_NAV_MENU[0].code;
   console.log(groups)
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-gray-500 text-xl">Loading...</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col bg-white">
-      <OrganismsTabMenu tabMenu={TOP_NAV_MENU} activeTab={initialTab} onChange={()=>{}}>
-        <div className="timeline overflow-y-scroll custom-scrollbar px-3 h-screen">
-          {groups.map((group) => (
-            <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
-          ))}
-        </div>
-      </OrganismsTabMenu>
+    <div className="flex flex-col bg-white h-screen">
+      <OrganismsTabMenu tabMenu={TOP_NAV_MENU} activeTab={initialTab} onChange={()=>{}}/>
+      <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
+        {groups.map((group) => (
+          <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
+        ))}
+      </div>
     </div>
   );
 }

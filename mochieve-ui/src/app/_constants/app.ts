@@ -58,13 +58,13 @@ export const APP_SERVICE = {
 }
 
 export const MY_WORK_NAV_MENU = [
-  { label: "作業中", code: 0 },
-  { label: "すべて", code: 1 },
+  { label: "すべて", code: 0 },
+  { label: "作業中", code: 1 },
   { label: "完了",   code: 2 },
 ]
 
 export const TOP_NAV_MENU = [
-  { label: "最新", code: 0 },
+  { label: "今日更新"    , code: 0 },
   { label: "作業中の投稿", code: 1 },
   { label: "完了した投稿", code: 2 },
 ]

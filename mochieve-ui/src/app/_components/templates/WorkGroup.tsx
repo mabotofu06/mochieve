@@ -3,7 +3,8 @@ import { WorkGroup, WorkPost } from "@/app/_type/data";
 import { OrganismsPostCard } from "../organisms/PostCard";
 import { OrganismsPostListHeaderCard } from "../organisms/PostListHeaderCard";
 import { store } from "@/app/_state/store";
-import { openGroupFormModal, openPostFormModal } from "@/app/_state/slice/modal";
+import { openPostFormModal, setLoading } from "@/app/_state/slice/modal";
+import { useState } from "react";
 
 type Props = {
   isAuthor: boolean;
@@ -12,8 +13,11 @@ type Props = {
 }
 
 export const TemplatesWorkGroup = (props: Props) => {
+  const [cardSize, setCardSize] = useState<number>(0); // 0:大, 1:小
+  store.dispatch(setLoading(false));
+
   return (
-    <div className="relative w-full h-screen">
+    <div className="flex flex-col relative w-full h-screen">
       <OrganismsPostListHeaderCard
         userInfo={props.workGroup.userInfo}
         isAuthor={props.isAuthor}
@@ -26,11 +30,28 @@ export const TemplatesWorkGroup = (props: Props) => {
         stamps={[]}
         postNum={props.workGroup.images.length}
         updated={new Date(props.workGroup.updatedAt).toLocaleDateString()}
-        onEditClick={()=>{store.dispatch(openGroupFormModal())}}
       />
-      <div className="work-posts h-screen overflow-y-scroll custom-scrollbar px-3 pt-3">
+      <div className="flex justify-center items-center bg-white gap-5 my-3">
+        <div className="flex gap-3">
+          <button
+            className={`w-10 h-10 rounded-full border ${cardSize === 0 ? 'bg-green-600 text-white' : 'bg-white text-gray-700'} transition`}
+            onClick={() => setCardSize(0)}
+            aria-label="大きく表示"
+          >
+            大
+          </button>
+          <button
+            className={`w-10 h-10 rounded-full border ${cardSize === 1 ? 'bg-green-600 text-white' : 'bg-white text-gray-700'} transition`}
+            onClick={() => setCardSize(1)}
+            aria-label="小さく表示"
+          >
+            小
+          </button>
+        </div>
+      </div>
+      <div className="work-posts flex-1 overflow-y-scroll custom-scrollbar px-3 pt-3">
         {props.workPosts.map(post => (
-          <OrganismsPostCard className="mt-5" key={post.id} post={post} />
+          <OrganismsPostCard className="my-8" key={post.id} post={post} />
         ))}
       </div>
 
@@ -40,7 +61,7 @@ export const TemplatesWorkGroup = (props: Props) => {
             className="bg-green-600 text-white py-4 px-6 rounded-4xl text-2xl opacity-50 hover:opacity-100"
             onClick={()=>store.dispatch(openPostFormModal({ groupId: props.workGroup.id }))}
           >
-            進捗を投稿
+            今日の進捗を投稿
           </button>
         </div>
       }

@@ -1,6 +1,6 @@
+import { openGroupFormModal } from "@/app/_state/slice/modal";
+import { store } from "@/app/_state/store";
 import { UserInfo } from "@/app/_type/data";
-import { OrganismsReactionButton } from "./ActionButton";
-import { OrganismsStampButton } from "./StampButton";
 
 type Props = {
   isAuthor: boolean;
@@ -16,12 +16,14 @@ type Props = {
   isBookmark: boolean;
   stamps: any[];
   postNum: number;
-
-  onEditClick?: () => void;
 };
 
 export const OrganismsPostListHeaderCard = (props: Props) => {
   const iconSize = "w-15 h-15";
+
+  const openGroupForm = () => {
+    store.dispatch(openGroupFormModal({title: props.title, note: props.note}));
+  }
 
   return (
     <div className="shadow rounded-4xl">
@@ -37,7 +39,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
             {props.isAuthor && (
               <button
                 className="edit-button bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded"
-                onClick={props.onEditClick || (() => {})}
+                onClick={openGroupForm}
               >
                 編集
               </button>

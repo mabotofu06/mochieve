@@ -5,7 +5,6 @@ import { createElement, useState } from "react";
 type Props = {
   tabMenu: { label: string; code: number; }[];
   activeTab: number;
-  children: React.ReactNode,
   onChange: (index: number) => void;
 }
 
@@ -17,7 +16,6 @@ export const OrganismsTabMenu = (props: Props) => {
   const [code, setCode] = useState<number>(props.activeTab);
 
   return (
-    <div>
       <div className="nav-tab flex justify-center mt-3 border-b-2 border-green-500 overflow-x-auto">
         {props.tabMenu.map((item, index) => {
           return createElement(
@@ -31,7 +29,5 @@ export const OrganismsTabMenu = (props: Props) => {
           )
         })}
       </div>
-      {props.children}
-    </div>
   )
 }

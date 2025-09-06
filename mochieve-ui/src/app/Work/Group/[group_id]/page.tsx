@@ -7,6 +7,8 @@ import { cookies } from "next/headers";
 import { getFetch } from "@/app/_constants/fetch";
 import { APP_HOST, BL_INFO } from "@/app/_constants/app";
 import { ApiResponse, SuccessResponse } from "@/app/_type/api";
+import { store } from "@/app/_state/store";
+import { setLoading } from "@/app/_state/slice/modal";
 
 type Props = {
   params: Promise<{
