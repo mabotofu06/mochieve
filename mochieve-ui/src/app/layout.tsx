@@ -9,6 +9,7 @@ import { OrganismsPostFormModal } from "./_components/organisms/modal/PostFormMo
 import OrganismsLoginForm from "./_components/organisms/modal/LoginForm";
 import { OrganismsWellcomeModal } from "./_components/organisms/modal/WellcomeModal";
 import { clearEditWorkGroupId } from "./_state/storage";
+import { OrganismsGroupFormModal } from "./_components/organisms/modal/GroupFormModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default function RootLayout({
           </main>
           <OrganismsLoginForm />
           <OrganismsPostFormModal />
+          <OrganismsGroupFormModal />
           {/* <OrganismsWellcomeModal /> */}
         </Provider>
       </body>

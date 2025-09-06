@@ -1,24 +1,28 @@
 "use client";
 import { useState } from "react";
 import { MoleculesModal } from "../../molecules/Modal";
-import { uploadPostImage } from "@/app/_constants/supabase/storageClient";
-import { insertWorkGroup, updateWorkGroup } from "@/app/_constants/supabase/workGroupClient";
-import { insertNewPost } from "@/app/_constants/supabase/postClient";
 import { useDispatch, useSelector } from "react-redux";
 import { closePostFormModal } from "@/app/_state/slice/modal";
-import { getEditWorkGroupId, getWorkGroupDetail } from "@/app/_state/storage";
 import { store } from "@/app/_state/store";
+import { postFetch } from "@/app/_constants/fetch";
+import { BL_INFO } from "@/app/_constants/app";
+import { ApiResponse, PostRequestBody } from "@/app/_type/api";
+import { encodeBlob2Base64, fileToWebp } from "@/app/_constants/utils/fileUtil";
 
 export const OrganismsPostFormModal = () => {
-  const dispatch = useDispatch();
   const modalOpen = useSelector((state: any) => state.modal.openPostFormModal);
 
-  const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   const [image, setImage] = useState<File | null>(null);
 
   const deleteImage = () => {
     setImage(null);
+  }
+
+  const closeModal = ()=>{
+    setImage(null);
+    setNote("");
+    store.dispatch(closePostFormModal());
   }
 
   const submitForm = async () => {
@@ -27,29 +31,19 @@ export const OrganismsPostFormModal = () => {
       console.error("No image selected");
       return
     }
-    if(!note && note.length <= 150){
+    if(!note || note.length > 150){
       console.error("Note is required and must be less than 150 characters");
       return;
     }
     console.log("submitForm", { note, image });
 
-    //画像をアップロードし、公開URLを取得する
-    const publicUrl = await uploadPostImage(image);
-    if (!publicUrl) return;
+    // ファイルをwebpに変換し、base64にエンコード
+    const webpImage = await fileToWebp(image);
+    const imageFile = await encodeBlob2Base64(webpImage);
 
-    let groupId: string | null = getEditWorkGroupId();
-    if (!groupId) {
-      console.warn("No group ID found");
-      groupId = await insertWorkGroup(publicUrl);
-    }else {
-      await updateWorkGroup(groupId, publicUrl);
-    }
+    const reqBody: PostRequestBody = { note, imageFile }
+    const response = await postFetch<PostRequestBody, ApiResponse<any>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody);
 
-    if (!groupId) return;
-    const postId = await insertNewPost(publicUrl, note, groupId);
-    if (!postId) return;
-
-    console.log("Image uploaded successfully:", publicUrl);
     setImage(null);
     setNote("");
     store.dispatch(closePostFormModal());
@@ -58,7 +52,7 @@ export const OrganismsPostFormModal = () => {
   if (!modalOpen) return null;
   return (
     <div>
-      <MoleculesModal onClickCloseBtn={() => dispatch(closePostFormModal())}>
+      <MoleculesModal onClickCloseBtn={closeModal}>
         <div className="project-form m-8 w-[800px]">
           <div className="mb-4">
             {image ? (
@@ -88,7 +82,7 @@ export const OrganismsPostFormModal = () => {
                   e.stopPropagation();
                 if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                   setImage(e.dataTransfer.files[0]);
-                  setNote(note => note); // ダミーのsetStateで再レンダリングを強制
+                  //setNote(note => note); // ダミーのsetStateで再レンダリングを強制
                 }
                 }}
               >

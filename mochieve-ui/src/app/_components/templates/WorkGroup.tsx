@@ -3,7 +3,7 @@ import { WorkGroup, WorkPost } from "@/app/_type/data";
 import { OrganismsPostCard } from "../organisms/PostCard";
 import { OrganismsPostListHeaderCard } from "../organisms/PostListHeaderCard";
 import { store } from "@/app/_state/store";
-import { openPostFormModal } from "@/app/_state/slice/modal";
+import { openGroupFormModal, openPostFormModal } from "@/app/_state/slice/modal";
 
 type Props = {
   isAuthor: boolean;
@@ -26,6 +26,7 @@ export const TemplatesWorkGroup = (props: Props) => {
         stamps={[]}
         postNum={props.workGroup.images.length}
         updated={new Date(props.workGroup.updatedAt).toLocaleDateString()}
+        onEditClick={()=>{store.dispatch(openGroupFormModal())}}
       />
       <div className="work-posts h-screen overflow-y-scroll custom-scrollbar px-3 pt-3">
         {props.workPosts.map(post => (
@@ -36,7 +37,7 @@ export const TemplatesWorkGroup = (props: Props) => {
       {props.isAuthor &&
         <div className="flex w-full justify-center absolute bottom-0 py-5">
           <button
-            className="bg-green-600 text-white px-4 py-2 rounded-3xl text-xl opacity-50 hover:opacity-100"
+            className="bg-green-600 text-white py-4 px-6 rounded-4xl text-2xl opacity-50 hover:opacity-100"
             onClick={()=>store.dispatch(openPostFormModal())}
           >
             進捗を投稿

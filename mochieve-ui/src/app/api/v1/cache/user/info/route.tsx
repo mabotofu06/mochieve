@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 //サーバー側にユーザー情報をキャッシュする（簡易実装版、後々Redisなどへ移行）
+//run dev だとサーバーに保存されるため疑似的に永続化されるが、vercelなどにデプロイした場合は各通信でインスタンスが異なり消えるのでredisへの移行を検討すること
 const userCache = new Map<string, UserInfo>();
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<{ success: boolean }>>> {

@@ -4,62 +4,32 @@ import { OrganismsTabMenu } from "../organisms/TabMenu";
 import { useEffect, useState } from "react";
 import { OrganismsGroupCard } from "../organisms/GroupCard";
 import { WorkGroup } from "@/app/_type/data";
-import { SupabaseResponse, GetWorkGroupsData } from "@/app/_type/supabase";
-import { fetchWorkGroups } from "@/app/_constants/supabase/workGroupClient";
 import { BL_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
+import { ApiResponse, SuccessResponse } from "@/app/_type/api";
 
 export default function TemplateTop() {
   const [groups, setGroups] = useState<WorkGroup[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    getFetch<{status: string, data: GetWorkGroupsData[]}>(BL_INFO.API_ENDPOINT.GET_TIMELINE)
-    .then((res) => {
-      console.log("Timeline Data:", res.data);
-      if (Array.isArray(res.data)) {
-        setGroups(res.data.map(item => ({
-          id: item.group_id,
-          userInfo: {
-            id: item.user_id,
-            name: "不明なユーザー",
-            iconImg: "",
-          },
-          title: item.title ?? "",
-          images: item.images,
-          note: item.content ?? "",
-          isClose: item.close_flag,
-          updatedAt: item.update_datetime ?? item.create_datetime,
-        })));
+    getFetch<WorkGroup[]>(BL_INFO.API_ENDPOINT.GET_TIMELINE)
+    .then((res: ApiResponse<WorkGroup[]>) => {
+      if(res.status !== 200) {
+        throw new Error("Failed to fetch timeline data");
+      }
+      if((res as SuccessResponse<WorkGroup[]>).data === null) {
+        throw new Error("No data found");
+      }
+      const data = (res as SuccessResponse<WorkGroup[]>).data;
+      if (Array.isArray(data)) {
+        setGroups(data);
       } else {
-        console.error("Invalid data format:", res.data);
+        console.error("Invalid data format:", res);
       }
     })
     .catch(console.error)
     .finally(() => setLoading(false));
 
-    // fetchWorkGroups()
-    //   .then((data: SupabaseResponse<GetWorkGroupsData[]>) => {
-    //     if (Array.isArray(data)) {
-
-    //       setGroups(data.map(item => ({
-    //         id: item.group_id,
-    //         userInfo: {
-    //           id: item.user_id,
-    //           name: "不明なユーザー",
-    //           iconImg: "",
-    //         },
-    //         title: item.title ?? "",
-    //         images: item.images,
-    //         note: item.content ?? "",
-    //         isClose: item.close_flag,
-    //         updatedAt: item.update_datetime ?? item.create_datetime,
-    //       })));
-    //     } else {
-    //       console.error("Invalid data format:", data);
-    //     }
-    //   })
-    //   .catch(console.error)
-    //   .finally(() => setLoading(false));
   }, []);
 
   const initialTab = TOP_NAV_MENU[0].code;
