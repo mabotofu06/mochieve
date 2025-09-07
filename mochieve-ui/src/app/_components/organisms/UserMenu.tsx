@@ -8,6 +8,7 @@ import { store } from "@/app/_state/store";
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { getFetch } from "@/app/_constants/fetch";
 import { BL_INFO } from "@/app/_constants/app";
+import { usePathname } from "next/navigation";
 
 
 const guestMenuList = [
@@ -15,30 +16,31 @@ const guestMenuList = [
     name: "ホーム",
     link: "/Top",
     icon: (
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M3 12l9-9 9 9M4 10v10h16V10" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
       </svg>
     )
   },{
     name: "ログイン",
-    link: "/Top",
+    link: "/Login",
     icon: (
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M21 10.5a8.38 8.38 0 01-7.5 7.5A8.38 8.38 0 013 10.5V7a4 4 0 014-4h6a4 4 0 014 4v3.5z" />
-        <path d="M8 15h8" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
       </svg>
     ),
     onClick: ()=>{ store.dispatch(openLoginModal()); }
   }
 ];
 
-const userMenuList = [
+const userMenuList = () => {
+  const userId = getUserInfo()?.id || undefined;
+  return [
   {
     name: "ホーム",
     link: "/Top",
     icon: (
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M3 12l9-9 9 9M4 10v10h16V10" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
       </svg>
     )
   },
@@ -53,12 +55,12 @@ const userMenuList = [
   // },
   {
     name: "自分の投稿",
-    link: "/Project/List",
+    link: `/${userId}/Work`,
     icon: (
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M21 10.5a8.38 8.38 0 01-7.5 7.5A8.38 8.38 0 013 10.5V7a4 4 0 014-4h6a4 4 0 014 4v3.5z" />
-        <path d="M8 15h8" />
-      </svg>),
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+      </svg>
+    ),
     onClick: () => {
       const userId = getUserInfo()?.id
       location.href = `/${userId}/Work`
@@ -81,11 +83,10 @@ const userMenuList = [
   // },
   {
     name: "ログアウト",
-    link: "/Top",
+    link: "/Logout",
     icon: (
-      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M21 10.5a8.38 8.38 0 01-7.5 7.5A8.38 8.38 0 013 10.5V7a4 4 0 014-4h6a4 4 0 014 4v3.5z" />
-        <path d="M8 15h8" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
       </svg>
     ),
     onClick: async ()=>{
@@ -96,29 +97,26 @@ const userMenuList = [
     }
   }
 ];
+}
 
-function getMenuItems(isGuest: boolean) {
+function getMenuItems(pathName: string,  isGuest: boolean) {
   const navigateTo = (link: string) => {
     window.location.href = link;
   };
 
-  return isGuest ? guestMenuList.map((item, index) => {
+  const menuList = isGuest ? guestMenuList : userMenuList();
+
+  return menuList.map((item, index) => {
+    const isActive = pathName === item.link;
     return (
       <button
-        className="flex items-center text-lg hover:bg-green-50 py-3 w-full"
+        className={`flex items-center text-lg hover:bg-green-50 ps-10 py-3 w-full gap-2${isActive ? " font-semibold" : ""}`}
         key={index}
-        onClick={item.onClick ? item.onClick : () => navigateTo(item.link)}
-      >
-        {item.icon}
-        {item.name}
-      </button>
-    );
-  }) : userMenuList.map((item, index) => {
-    return (
-      <button
-        className="flex items-center text-lg hover:bg-green-50 py-3 w-full"
-        key={index}
-        onClick={item.onClick ? item.onClick : () => navigateTo(item.link)}
+        onClick={
+          ()=>{
+            if(isActive) return;
+            item.onClick ? item.onClick() : navigateTo(item.link)
+          }}
       >
         {item.icon}
         {item.name}
@@ -135,46 +133,32 @@ export const OrganismsUserMenu = (props: Props) => {
   const [open, setOpen] = useState(true);
   const iconSize = "w-10 h-10";
 
-  return props.userInfo ? (
+  const pathName = usePathname();
+  const isGuest = !props.userInfo;
+
+  const userInfo = props.userInfo ?? { id: "guest", name: "ゲストユーザー", iconImg: "" };
+
+  console.log(pathName, isGuest);
+
+  return (
     <div>
       <div
         className="user-menu mt-5 p-3 flex items-center bg-white hover:opacity-80 hover:bg-green-100 justify-between"
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center">
-          <img className={"user-icon bg-green-800 rounded-full " + iconSize} src={props.userInfo?.iconImg} alt="User Icon" />
+          <img className={"user-icon bg-green-800 rounded-full " + iconSize} src={userInfo.iconImg} alt="User Icon" />
           <div className="user-info ml-6 flex flex-col justify-center text-md">
-            <h2 className="user-name font-semibold">{props.userInfo?.name}</h2>
-            <p className="user-id text-xs">{props.userInfo?.id }</p>
+            <h2 className="user-name font-semibold">{userInfo.name}</h2>
+            <p className="user-id text-xs">{userInfo.id }</p>
           </div>
         </div>
 
         <AtomsIconVerticalArrow up={!open} />
       </div>
-      <div className={`user-menu-content ms-10 ${open ? "block" : "hidden"}`}>
-        {getMenuItems(props.userInfo===undefined)}
+      <div className={`user-menu-content ${open ? "block" : "hidden"}`}>
+        {getMenuItems(pathName, isGuest)}
       </div>
-    </div>
-  ):(
-    <div>
-      <div
-        className="user-menu mt-5 p-3 flex items-center bg-white hover:opacity-80 hover:bg-green-100 justify-between"
-        onClick={() => setOpen(!open)}
-      >
-        <div className="flex items-center">
-          <img className={"user-icon bg-green-800 rounded-full " + iconSize} />
-          <div className="user-info ml-6 flex flex-col justify-center text-md">
-            <h2 className="user-name font-semibold">{"ゲストユーザー"}</h2>
-            <p className="user-id text-xs">{"@guest"}</p>
-          </div>
-        </div>
-
-        <AtomsIconVerticalArrow up={!open} />
-      </div>
-      <div className={`user-menu-content ms-10 ${open ? "block" : "hidden"}`}>
-        {getMenuItems(props.userInfo===undefined)}
-      </div>
-            {/* <AuthForm /> */}
     </div>
   );
 };

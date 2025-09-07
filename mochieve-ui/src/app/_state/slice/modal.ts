@@ -20,6 +20,7 @@ export const modalSlice = createSlice({
     errorModalInfo       : undefined as { title: string, message: string } | undefined,
 
     loading              : true as boolean,
+    loadingModal         : false as boolean,
   },
   reducers: {
     openLoginModal: (state) => { state.openLoginModal = true; },
@@ -65,6 +66,10 @@ export const modalSlice = createSlice({
     setLoading: (state, action: {payload: boolean}) => {
       state.loading = action.payload;
     },
+
+    setLoadingModal: (state, action: {payload: boolean}) => {
+      state.loadingModal = action.payload;
+    }
   },
 });
 
@@ -75,7 +80,7 @@ export const {
   openPostCompleteModal, closePostCompleteModal,
   openImageModal, closeImageModal,
   openErrorModal, closeErrorModal,
-  setLoading
+  setLoading, setLoadingModal
 } = modalSlice.actions;
 export const modalReducer = modalSlice.reducer;
 

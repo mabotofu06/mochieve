@@ -26,7 +26,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
   }
 
   return (
-    <div className="shadow rounded-4xl">
+    <div className="shadow rounded-4xl w-full">
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center">
             <div className={"user-icon bg-green-800 rounded-full " + iconSize}></div>

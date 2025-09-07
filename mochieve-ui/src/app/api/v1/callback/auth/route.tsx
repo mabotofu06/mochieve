@@ -20,6 +20,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
       return resUnauthorized();
     }
     const uid = userData?.user?.id;
+    console.log("Auth UID:", uid);
+    if (!uid) {
+      return resUnauthorized();
+    }
     const userInfo = await fetchUserInfoByUid(supabase, uid??'');
 
     console.log("User Data:", userData);
@@ -33,7 +37,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
 
     //サーバサイドにアクセストークンでユーザ情報をキャッシュ
     await postFetch<{accessToken:string, id: string, name: string, iconImg: string}, {data: UserInfo}>(
-      APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO,
+      APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_AUTH,
       {
       accessToken: newAccessToken,
       name: userInfo?.name || "",

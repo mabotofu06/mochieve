@@ -12,6 +12,7 @@ import { clearEditWorkGroupId } from "./_state/storage";
 import { OrganismsGroupFormModal } from "./_components/organisms/modal/GroupFormModal";
 import { OrganismsImageDetailModal } from "./_components/organisms/modal/ImageDetailModal";
 import { OrganismsErrorModal } from "./_components/organisms/modal/ErrorModal";
+import { OrganismsLoadingModal } from "./_components/organisms/modal/LoadingModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,6 +49,7 @@ export default function RootLayout({
           <OrganismsGroupFormModal />
           <OrganismsImageDetailModal />
           <OrganismsErrorModal />
+          <OrganismsLoadingModal />
           {/* <OrganismsWellcomeModal /> */}
         </Provider>
       </body>

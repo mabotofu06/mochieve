@@ -12,8 +12,10 @@ export const BL_INFO = {
     LOGOUT: "/api/v1/logout",
     GET_TIMELINE: "/api/v1/timeline/work",
     CACHE_USER_INFO: "/api/v1/cache/user/info",
+    CACHE_USER_AUTH: "/api/v1/cache/user/auth",
     WORK_POST: "/api/v1/work/post",
     WORK_GROUP: "/api/v1/work/group",
+    WORK_GROUP_CHECK: "/api/v1/work/group/check",
     // USER_REGISTER: "/api/user/register",
     // USER_PROFILE: "/api/user/profile",
     // USER_UPDATE: "/api/user/update",
@@ -64,7 +66,7 @@ export const MY_WORK_NAV_MENU = [
 ]
 
 export const TOP_NAV_MENU = [
-  { label: "今日更新"    , code: 0 },
+  { label: "本日更新"    , code: 0 },
   { label: "作業中の投稿", code: 1 },
   { label: "完了した投稿", code: 2 },
 ]

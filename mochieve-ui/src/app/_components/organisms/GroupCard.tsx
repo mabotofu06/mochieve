@@ -50,7 +50,7 @@ export function OrganismsGroupCard(props: Props) {
       {/* Header */}
       {createElement("div", { className: `header absolute top-0 flex items-center justify-between w-full p-2 z-50 ${props.group.isClose?" bg-green-100": "bg-white"}` }, [
         <div key="header-user" className="flex items-center">
-          <div className={"user-icon bg-green-800 rounded-full " + iconSize}></div>
+          <img className={"user-icon bg-green-800 rounded-full " + iconSize} src={props.group.userInfo.iconImg} />
           <div className="user-info ml-3 flex flex-col justify-center text-md">
             <h2 className="user-name font-semibold">{props.group.userInfo.name}</h2>
             <p className="user-id text-xs">{props.group.userInfo.id}</p>
@@ -64,6 +64,7 @@ export function OrganismsGroupCard(props: Props) {
     }
       <div className="image-container flex items-center h-[600px] overflow-hidden bg-gray-100">
       <img
+        className="hover:opacity-80"
         src={props.group.images[imgIdx]}
         alt={`Post Image ${imgIdx+1}`}
         onClick={()=>{openImage(props.group.images[imgIdx])}}
@@ -116,7 +117,7 @@ export function OrganismsGroupCard(props: Props) {
 
           </div>
           <button className="mt-2 hover:underline cursor-pointer" onClick={() => NavigateToWorkGroupPage(props.group.id)}>
-            →これまでの作業内容をみる
+            → これまでの作業進捗をみてみる
           </button>
         </div>
         // TODO:v0.1以降実装 <ActionMenu />

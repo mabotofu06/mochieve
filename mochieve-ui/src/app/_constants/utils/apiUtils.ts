@@ -1,5 +1,9 @@
-import { ErrorResponse, SuccessResponse } from "@/app/_type/api";
+import { ApiResponse, ErrorResponse, SuccessResponse } from "@/app/_type/api";
+import { UserInfo } from "@/app/_type/data";
 import { NextResponse } from "next/server";
+import { APP_HOST, BL_INFO } from "../app";
+import { getFetch } from "../fetch";
+import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 
 export const resSuccess = <T>(data: T, message = "Success", code = "SUCCESS"): NextResponse<SuccessResponse<T>> => {
@@ -65,4 +69,26 @@ export const resInternalServerError = (message = ERROR_INFO.INTERNAL_SERVER_ERRO
     message,
     details
   })
+}
+
+/**
+ * Cookie情報から認証済みユーザ情報を取得する
+ * @param cookie 
+ * @returns 
+ */
+export const getAuthedUserFromCookie = async (cookie: ReadonlyRequestCookies): Promise<UserInfo | null> => {
+  const accessToken = cookie.get("accessToken")?.value;
+  if (!accessToken) return null;
+
+  const res: ApiResponse<UserInfo>
+  = await getFetch<UserInfo>(
+        APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_AUTH, {
+        headers: { Cookie: `accessToken=${accessToken}` }
+      });
+  
+  if (res.status !== 200) return null;
+  const userInfo = (res as SuccessResponse<UserInfo>).data;
+  if(!userInfo) return null;
+
+  return userInfo;
 }

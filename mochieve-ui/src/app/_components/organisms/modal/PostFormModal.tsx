@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { MoleculesModal } from "../../molecules/Modal";
 import { useSelector } from "react-redux";
-import { closePostFormModal } from "@/app/_state/slice/modal";
+import { closePostFormModal, openErrorModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { postFetch, putFetch } from "@/app/_constants/fetch";
 import { BL_INFO } from "@/app/_constants/app";
@@ -35,10 +35,12 @@ export const OrganismsPostFormModal = () => {
   const validationCheck = (): boolean => {
     if(!image) {
       console.error("No image selected");
+      store.dispatch(openErrorModal({ title: "入力エラー", message: "画像が選択されていません" }));
       return false;
     }
     if(!note || note.length > 150){
       console.error("Note is required and must be less than 150 characters");
+      store.dispatch(openErrorModal({ title: "入力エラー", message: "説明文は必須であり、150文字以内である必要があります" }));
       return false;
     }
     return true;

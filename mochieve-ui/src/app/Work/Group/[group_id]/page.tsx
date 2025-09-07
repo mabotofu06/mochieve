@@ -66,7 +66,7 @@ export default async function WorkGroupDetail(props: Props) {
   const accessToken = cookie.get("accessToken")?.value;
   const refreshToken = cookie.get("refreshToken")?.value;
 
-  const res: ApiResponse<UserInfo> = await getFetch<UserInfo>(APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO,{
+  const res: ApiResponse<UserInfo> = await getFetch<UserInfo>(APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_AUTH,{
     headers:{
       Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
     }

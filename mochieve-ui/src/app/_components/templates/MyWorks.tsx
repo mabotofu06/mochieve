@@ -3,11 +3,12 @@
 import { WorkGroup } from "@/app/_type/data";
 import { OrganismsGroupCard } from "../organisms/GroupCard";
 import { useEffect, useState } from "react";
-import { fetchWorkGroupsByUserId } from "@/app/_constants/supabase/workGroupClient";
 import { OrganismsTabMenu } from "../organisms/TabMenu";
 import { MY_WORK_NAV_MENU } from "@/app/_constants/app";
 import { store } from "@/app/_state/store";
-import { setLoading } from "@/app/_state/slice/modal";
+import { openErrorModal, setLoading } from "@/app/_state/slice/modal";
+import { getFetch } from "@/app/_constants/fetch";
+import { ApiResponse, SuccessResponse } from "@/app/_type/api";
 
 type Props = {
   userId: string;
@@ -19,26 +20,29 @@ export const TemplatesMyWorks = (props: Props) => {
   const [activeTab, setActiveTab] = useState<number>(initialTab);
 
   useEffect(()=>{
-    fetchWorkGroupsByUserId(props.userId)
-      .then((myWorkGroups) => {
-        const groups: WorkGroup[] = myWorkGroups.map(item => ({
-          id: item.group_id,
-          title: item.title || "",
-          note: item.content || "",
-          images: item.images,
-          userInfo: {
-            id: item.user_id,
-            name: "不明なユーザー",
-            iconImg: ""
-          },
-          isClose: item.close_flag,
-          updatedAt: item.update_datetime,
-        }));
-
-      setGroups(groups);
-    })
-    .catch(console.error)
-    .finally(() => {store.dispatch(setLoading(false));});
+    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}`)
+      .then((res: ApiResponse<WorkGroup[]>)=>{
+        if(res.status !== 200){
+          console.error("Error fetching work groups:", res);
+          setGroups([]);
+          store.dispatch(setLoading(false));
+          store.dispatch(openErrorModal({title: "Error", message: res.message || "Unknown error"}));
+          return;
+        }
+        setGroups((res as SuccessResponse<WorkGroup[]>).data);
+      })
+      .catch((error)=>{
+        console.error("Error fetching work groups:", error);
+        store.dispatch(setLoading(false));
+        store.dispatch(
+          openErrorModal({
+            title: "Error",
+            message: error.message || "Unknown error"
+          })
+        );
+        setGroups([]);
+      })
+      .finally(()=>{store.dispatch(setLoading(false));});
   }, []);
 
   return (

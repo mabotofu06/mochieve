@@ -17,7 +17,7 @@ export const TemplatesWorkGroup = (props: Props) => {
   store.dispatch(setLoading(false));
 
   return (
-    <div className="flex flex-col relative w-full h-screen">
+    <div className="flex flex-col relative w-full h-screen items-center">
       <OrganismsPostListHeaderCard
         userInfo={props.workGroup.userInfo}
         isAuthor={props.isAuthor}
@@ -56,14 +56,12 @@ export const TemplatesWorkGroup = (props: Props) => {
       </div>
 
       {props.isAuthor &&
-        <div className="flex w-full justify-center absolute bottom-0 py-5">
           <button
-            className="bg-green-600 text-white py-4 px-6 rounded-4xl text-2xl opacity-50 hover:opacity-100"
+            className="bg-green-600 text-white py-4 px-6 rounded-4xl text-xl opacity-100 w-fit my-5"
             onClick={()=>store.dispatch(openPostFormModal({ groupId: props.workGroup.id }))}
           >
             今日の進捗を投稿
           </button>
-        </div>
       }
     </div>
   );

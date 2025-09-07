@@ -18,7 +18,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
 
     // console.log("Logging out user:", { accessToken, refreshToken });
 
-      await deleteFetch(APP_HOST+BL_INFO.API_ENDPOINT.CACHE_USER_INFO, {
+      await deleteFetch(APP_HOST+BL_INFO.API_ENDPOINT.CACHE_USER_AUTH, {
       headers: {
         Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
       }

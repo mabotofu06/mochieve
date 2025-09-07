@@ -2,9 +2,9 @@ import { APP_HOST, BL_INFO } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
-import { resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
+import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { decodeBase64ToBuffer, validBase64MimeType } from "@/app/_constants/utils/fileUtil";
-import { ApiResponse, PostRequestBody, SuccessResponse } from "@/app/_type/api";
+import { ApiResponse, ErrorResponse, PostRequestBody } from "@/app/_type/api";
 import { UserInfo } from "@/app/_type/data";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -47,14 +47,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   const accessToken = cookie.get("accessToken")?.value;
   if (!accessToken) return resUnauthorized();
 
-  const res: ApiResponse<UserInfo>
-  = await getFetch<UserInfo>(
-      APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO, {
-      headers: { Cookie: `accessToken=${accessToken}` }
-    });
-
-  if (res.status !== 200) return resUnauthorized();
-  const userInfo = (res as SuccessResponse<UserInfo>).data;
+  const userInfo: UserInfo | null = await getAuthedUserFromCookie(cookie); 
   if(!userInfo) return resUnauthorized();
 
   // リクエストボディを取得
@@ -69,21 +62,30 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
     return resValidationError("Invalid image format", "Only webp images are allowed");
   }
 
-  // クローズしていない投稿数が3個を超えていないかチェック
-  const { count: openGroupNum, error: openGroupError } = await supabase
-    .from("work_group")
-    .select('count', { count: 'exact' })
-    .eq("user_id", userInfo.id)
-    .eq("delete_flag", false)
-    .eq("close_flag", false);
+  // 投稿グループを追加できるかチェック
+  const checkRes
+    = await getFetch<any>(
+        APP_HOST + BL_INFO.API_ENDPOINT.WORK_GROUP_CHECK,
+        {headers: {cookie: `accessToken=${accessToken}`}}
+      )
+  if(checkRes.status !== 200) {
+    const checkResError = checkRes as ErrorResponse
+    return resValidationError(checkResError.message, checkResError.details);
+  }
+  // const { count: openGroupNum, error: openGroupError } = await supabase
+  //   .from("work_group")
+  //   .select('count', { count: 'exact' })
+  //   .eq("user_id", userInfo.id)
+  //   .eq("delete_flag", false)
+  //   .eq("close_flag", false);
 
-  if (openGroupError || !openGroupNum) {
-    console.error("Failed to retrieve open groups:", openGroupError);
-    return resInternalServerError("Failed to retrieve open groups");
-  }
-  if (openGroupNum >= 3) {
-    return resValidationError("Too many open groups", "You can only have 3 open groups at a time");
-  }
+  // if (openGroupError || !openGroupNum) {
+  //   console.error("Failed to retrieve open groups:", openGroupError);
+  //   return resInternalServerError("Failed to retrieve open groups");
+  // }
+  // if (openGroupNum >= 3) {
+  //   return resValidationError("Too many open groups", "You can only have 3 open groups at a time");
+  // }
 
   const authedClient = getAuthServerClient(accessToken);
 
@@ -132,14 +134,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
   const accessToken = cookie.get("accessToken")?.value;
   if (!accessToken) return resUnauthorized();
 
-  const res: ApiResponse<UserInfo>
-  = await getFetch<UserInfo>(
-      APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_INFO, {
-      headers: { Cookie: `accessToken=${accessToken}` }
-    });
-
-  if (res.status !== 200) return resUnauthorized();
-  const userInfo = (res as SuccessResponse<UserInfo>).data;
+  const userInfo: UserInfo | null = await getAuthedUserFromCookie(cookie);
   if(!userInfo) return resUnauthorized();
 
   // リクエストボディを取得
@@ -168,16 +163,13 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     return resInternalServerError("Failed to upload image");
   }
 
-  //TODO:work_groupの更新日が反映されていないため更新されるように
   const { data: rpcData, error: rpcError } = await authedClient.rpc(
-    "update_group_and_post",
-    {
-      p_group_id: workGroup.group_id,
-      p_user_id: userInfo.id,
-      p_note: note,
-      p_image_url: imageUrl,
-    }
-  );
+    "update_group_and_post", {
+    p_group_id: workGroup.group_id,
+    p_user_id: userInfo.id,
+    p_note: note,
+    p_image_url: imageUrl,
+  });
 
   if(rpcError){
     //TODO:この時アップした画像を削除する

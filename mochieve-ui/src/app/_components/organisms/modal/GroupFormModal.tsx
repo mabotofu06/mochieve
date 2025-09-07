@@ -17,8 +17,6 @@ export const OrganismsGroupFormModal = () => {
     setDescription(groupFormInit?.note || "");
   }, [groupFormInit]);
 
-  console.log("groupFormInit:", groupFormInit);
-
   const handleReject = () => {
     window.location.href = "/Project/User";
   };

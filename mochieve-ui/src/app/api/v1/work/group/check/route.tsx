@@ -1,0 +1,37 @@
+import { MAX_WORKING_POST_NUM } from "@/app/_constants/app";
+import { supabase } from "@/app/_constants/supabase/client";
+import { resValidationError, getAuthedUserFromCookie, resUnauthorized, resSuccess, resInternalServerError } from "@/app/_constants/utils/apiUtils";
+import { ApiResponse } from "@/app/_type/api";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
+  console.log("===== GET /api/v1/work/group/check =====");
+
+  const cookie = await cookies();
+  const userInfo = await getAuthedUserFromCookie(cookie);
+  if (!userInfo){
+    return resUnauthorized("認証エラー", "ユーザが認証されていませんでした。再ログインしてください。");
+  }
+
+  // クローズしていない投稿数が3個を超えていないかチェック
+  const { count: openGroupNum, error: openGroupError } = await supabase
+    .from("work_group")
+    .select('count', { count: 'exact' })
+    .eq("user_id", userInfo.id)
+    .eq("delete_flag", false)
+    .eq("close_flag", false);
+
+  if (openGroupError || !openGroupNum) {
+    console.error("Failed to retrieve open groups:", openGroupError);
+    return resInternalServerError("Failed to retrieve open groups");
+  }
+  if (openGroupNum >= MAX_WORKING_POST_NUM) {
+    return resValidationError(
+      "作業中の投稿が多すぎます",
+      `作業中の投稿は最大 ${MAX_WORKING_POST_NUM} 件までです。投稿を完了にしてください。`
+    );
+  }
+
+  return resSuccess("success");
+}
