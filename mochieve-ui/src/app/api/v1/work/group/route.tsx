@@ -1,4 +1,91 @@
+import { TOP_NAV_MENU } from "@/app/_constants/app";
+import { supabase } from "@/app/_constants/supabase/client";
+import { resInternalServerError, resSuccess } from "@/app/_constants/utils/apiUtils";
+import { ApiResponse } from "@/app/_type/api";
+import { WorkGroup } from "@/app/_type/data";
+import { GetWorkGroupsData } from "@/app/_type/supabase";
 import { NextRequest, NextResponse } from "next/server";
+
+/**
+ * 作業グループ取得API
+ * @param req 
+ * @returns 
+ */
+export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
+  // Handle GET request
+  const { searchParams } = new URL(req.url);
+  const type = searchParams.get("type");
+  const baseQuery
+    = supabase
+        .from("work_group")
+        .select("*")
+        .eq("delete_flag", false)
+        .order("update_datetime", { ascending: false });
+
+  let supabaseResult;
+
+  switch(type){
+    case TOP_NAV_MENU.WORKING.code.toString():
+      console.log("Fetching working posts");
+      supabaseResult = await baseQuery.eq("close_flag", false);
+      break;
+    case TOP_NAV_MENU.DONE.code.toString():
+      console.log("Fetching done posts");
+      supabaseResult = await baseQuery.eq("close_flag", true);
+      break;
+    default:
+      console.log("Fetching today's posts");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const isoToday = today.toISOString();
+      supabaseResult = await baseQuery.gte("update_datetime", isoToday);
+      break;
+  }
+
+  console.log("Supabase Result:", supabaseResult);
+
+  if(supabaseResult.error || !supabaseResult.data) {
+    return resInternalServerError();
+  }
+
+  const timelineData :GetWorkGroupsData[] = supabaseResult.data as GetWorkGroupsData[];
+
+  // 一括でユーザ情報を取得(TODO: キャッシュに保持している場合はそちらを優先)
+  const userIds: Set<string> = new Set(timelineData.map(data => data.user_id));
+  const { data: userInfoList, error }
+    = await supabase
+      .from("user_info")
+      .select("user_id, name, icon_image")
+      .in("user_id", Array.from(userIds));
+
+    if (error || !userInfoList) {
+      return resInternalServerError("Failed to fetch user information");
+    }
+    //user_idをキーにしたマップを作成
+    const userInfoMap = new Map<string, { id: string; name: string; iconImg: string }>();
+    userInfoList.forEach(({ user_id, name, icon_image }) => {
+      userInfoMap.set(user_id, { id: user_id, name, iconImg: icon_image ?? "" });
+    });
+
+
+  const workGroups: WorkGroup[]
+  = timelineData
+    .map((item) => ({
+      id: item.group_id,
+      userInfo: {
+        id: item.user_id,
+        name: userInfoMap.get(item.user_id)?.name ?? "不明なユーザ",
+        iconImg: userInfoMap.get(item.user_id)?.iconImg ?? "",
+      },
+      title: item.title ?? "無題の作業グループ",
+      note: item.content ?? "",
+      images: item.images ?? [],
+      isClose: item.close_flag,
+      updatedAt: item.update_datetime,
+    }));
+
+  return resSuccess(workGroups);
+}
 
 
 /**

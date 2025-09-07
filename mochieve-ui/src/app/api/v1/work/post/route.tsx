@@ -172,7 +172,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
   });
 
   if(rpcError){
-    //TODO:この時アップした画像を削除する
+    //TODO: ここでアップロードした画像を削除する
     console.error("RPC error:", rpcError);
     return resInternalServerError("Failed to update work group and post");
   }

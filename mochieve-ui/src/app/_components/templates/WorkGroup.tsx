@@ -32,6 +32,8 @@ export const TemplatesWorkGroup = (props: Props) => {
         updated={new Date(props.workGroup.updatedAt).toLocaleDateString()}
       />
       <div className="flex justify-center items-center bg-white gap-5 my-3">
+        {/* TODO:後々ポストカードサイズを変更できるようにする */}
+        {/*
         <div className="flex gap-3">
           <button
             className={`w-10 h-10 rounded-full border ${cardSize === 0 ? 'bg-green-600 text-white' : 'bg-white text-gray-700'} transition`}
@@ -47,7 +49,7 @@ export const TemplatesWorkGroup = (props: Props) => {
           >
             小
           </button>
-        </div>
+        </div> */}
       </div>
       <div className="work-posts flex-1 overflow-y-scroll custom-scrollbar px-3 pt-3">
         {props.workPosts.map(post => (

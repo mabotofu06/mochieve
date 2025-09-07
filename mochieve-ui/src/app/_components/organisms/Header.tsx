@@ -46,8 +46,6 @@ export default function OrganismsHeader() {
       store.dispatch(openErrorModal({ title: checkResError.message, message: checkResError.details || "不明なエラーが発生しました。時間をおいて再度お試しください。" }));
       return;
     }
-
-    //TODO:認証したユーザの投稿状況を確認し、新しい投稿を作成できるか確認する（MAX3件）
     console.log("新しいプロジェクトを作成");
     store.dispatch(openPostFormModal({ groupId: null }));
   };
@@ -57,8 +55,8 @@ export default function OrganismsHeader() {
       <div>
         <div className="flex flex-col p-3 text-green-800 items-center mb-10" onClick={()=>{location.href="/Top"}}>
           <h1 className={"text-5xl font-semibold "+pacifico.className}>{APP_NAME}</h1>
-          <span className={"mt-2 mb-1 "+hachiMaruPop.className}>もちべ</span>
-          <span className={"text-sm "+caveatBrush.className}>-日々の進捗を気軽に共有しよう！-</span>
+          <span className={"mt-2 mb-1 " + hachiMaruPop.className}>もちべ</span>
+          <span className={"text-sm " + hachiMaruPop.className}>-日々の進捗を気軽に共有しよう！-</span>
         </div>
 
         <OrganismsUserMenu userInfo={userInfo} />
@@ -77,6 +75,7 @@ export default function OrganismsHeader() {
 
       <div>
         <hr className="my-5 border-t border-gray-300" />
+        {/* TODO:外部の開発者向け情報を掲載 */}
         <div className="flex justify-center mb-2">
           <a
             href="https://github.com/mabotofu06/mochieve"

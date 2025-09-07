@@ -43,17 +43,7 @@ const userMenuList = () => {
         <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
       </svg>
     )
-  },
-  // {
-  //   name: "プロフィール",
-  //   link: "/User",
-  //   icon: (
-  //     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-  //       <path d="M12 8v4l3 3h-2l-3-3V8h2z" />
-  //     </svg>
-  //   )
-  // },
-  {
+  },{
     name: "自分の投稿",
     link: `/${userId}/Work`,
     icon: (
@@ -65,23 +55,7 @@ const userMenuList = () => {
       const userId = getUserInfo()?.id
       location.href = `/${userId}/Work`
     }
-  },
-  // {
-  //   name: "ブックマーク",
-  //   link: "/Top",
-  //   icon: (<AtomsIconBookmark />)
-  // },
-  // {
-  //   name: "フォローしているユーザー",
-  //   link: "/Top",
-  //   icon: (
-  //     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-  //       <path d="M21 10.5a8.38 8.38 0 01-7.5 7.5A8.38 8.38 0 013 10.5V7a4 4 0 014-4h6a4 4 0 014 4v3.5z" />
-  //       <path d="M8 15h8" />
-  //     </svg>
-  //   )
-  // },
-  {
+  },{
     name: "ログアウト",
     link: "/Logout",
     icon: (
@@ -135,8 +109,7 @@ export const OrganismsUserMenu = (props: Props) => {
 
   const pathName = usePathname();
   const isGuest = !props.userInfo;
-
-  const userInfo = props.userInfo ?? { id: "guest", name: "ゲストユーザー", iconImg: "" };
+  const userInfo = getUserInfo() ?? { id: "guest", name: "ゲストユーザー", iconImg: "" };
 
   console.log(pathName, isGuest);
 

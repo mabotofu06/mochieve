@@ -15,12 +15,17 @@ type Props = {
 }
 
 export const TemplatesMyWorks = (props: Props) => {
-  const initialTab = MY_WORK_NAV_MENU[0].code;
+  const NAV_LIST = Object.values(MY_WORK_NAV_MENU);
+  const initialTab = MY_WORK_NAV_MENU.ALL.code;
   const [groups, setGroups] = useState<WorkGroup[]>([]);
   const [activeTab, setActiveTab] = useState<number>(initialTab);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  store.dispatch(setLoading(false));
 
   useEffect(()=>{
-    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}`)
+    setIsLoading(true);
+    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}?type=${NAV_LIST.find(tab => tab.code === activeTab)?.code ?? ""}`)
       .then((res: ApiResponse<WorkGroup[]>)=>{
         if(res.status !== 200){
           console.error("Error fetching work groups:", res);
@@ -42,17 +47,24 @@ export const TemplatesMyWorks = (props: Props) => {
         );
         setGroups([]);
       })
-      .finally(()=>{store.dispatch(setLoading(false));});
-  }, []);
+      .finally(()=>{
+        // store.dispatch(setLoading(false));
+        setIsLoading(false);
+      });
+  }, [activeTab]);
 
   return (
     <div className="flex flex-col bg-white h-screen">
-      <OrganismsTabMenu tabMenu={MY_WORK_NAV_MENU} activeTab={initialTab} onChange={()=>{}} />
-      <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
+      <OrganismsTabMenu tabMenu={NAV_LIST} activeTab={initialTab} onChange={(code) => setActiveTab(code)} />
+      {isLoading
+      ? <div className="flex-1 w-full bg-white content-center text-center h-full">
+          loading...
+        </div>
+      : <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
         {groups.map((group, index) => (
           <OrganismsGroupCard className="mt-3" key={index} group={group} />
         ))}
-      </div>
+      </div>}
     </div>
 
   );

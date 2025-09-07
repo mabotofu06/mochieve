@@ -11,10 +11,18 @@ import { store } from "@/app/_state/store";
 import { setLoading } from "@/app/_state/slice/modal";
 
 export default function TemplateTop() {
+  const [activeTab, setActiveTab] = useState<number>(TOP_NAV_MENU.TODAY.code);
   const [groups, setGroups] = useState<WorkGroup[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const NAV_ARRAY = Object.values(TOP_NAV_MENU);
+
   useEffect(() => {
-    getFetch<WorkGroup[]>(BL_INFO.API_ENDPOINT.GET_TIMELINE)
-    .then((res: ApiResponse<WorkGroup[]>) => {
+    setIsLoading(true);
+    getFetch<WorkGroup[]>(
+      BL_INFO.API_ENDPOINT.WORK_GROUP +
+      `?type=${NAV_ARRAY.find(tab => tab.code === activeTab)?.code ?? ""}`
+    ).then((res: ApiResponse<WorkGroup[]>) => {
       if(res.status !== 200) {
         throw new Error("Failed to fetch timeline data");
       }
@@ -29,20 +37,27 @@ export default function TemplateTop() {
       }
     })
     .catch(console.error)
-    .finally(() => {store.dispatch(setLoading(false));});
-  }, []);
+    .finally(() => {
+      setIsLoading(false);
+      store.dispatch(setLoading(false));
+    });
+  }, [activeTab]);
 
-  const initialTab = TOP_NAV_MENU[0].code;
   console.log(groups)
 
   return (
     <div className="flex flex-col bg-white h-screen">
-      <OrganismsTabMenu tabMenu={TOP_NAV_MENU} activeTab={initialTab} onChange={()=>{}}/>
-      <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
-        {groups.map((group) => (
-          <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
-        ))}
-      </div>
+      <OrganismsTabMenu tabMenu={NAV_ARRAY} activeTab={activeTab} onChange={(number)=>{setActiveTab(number)}}/>
+      {isLoading
+        ? <div className="flex-1 w-full bg-white content-center text-center h-full">
+            loading...
+          </div>
+        : <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
+            {groups.map((group) => (
+              <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
+            ))}
+          </div>
+      }
     </div>
   );
 }

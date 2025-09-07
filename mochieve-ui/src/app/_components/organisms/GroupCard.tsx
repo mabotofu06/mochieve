@@ -120,7 +120,6 @@ export function OrganismsGroupCard(props: Props) {
             → これまでの作業進捗をみてみる
           </button>
         </div>
-        // TODO:v0.1以降実装 <ActionMenu />
       ])}
     </div>
   ));
