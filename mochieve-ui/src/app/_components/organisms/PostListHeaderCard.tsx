@@ -3,6 +3,7 @@ import { store } from "@/app/_state/store";
 import { UserInfo } from "@/app/_type/data";
 
 type Props = {
+  id: string;
   isAuthor: boolean;
   userInfo: UserInfo;
   updated: string;
@@ -22,7 +23,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
   const iconSize = "w-15 h-15";
 
   const openGroupForm = () => {
-    store.dispatch(openGroupFormModal({title: props.title, note: props.note}));
+    store.dispatch(openGroupFormModal({id: props.id, title: props.title, note: props.note}));
   }
 
   return (

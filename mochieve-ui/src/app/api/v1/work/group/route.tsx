@@ -1,9 +1,11 @@
 import { TOP_NAV_MENU } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
-import { resInternalServerError, resSuccess } from "@/app/_constants/utils/apiUtils";
+import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
+import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { ApiResponse } from "@/app/_type/api";
 import { WorkGroup } from "@/app/_type/data";
 import { GetWorkGroupsData } from "@/app/_type/supabase";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -87,19 +89,6 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
   return resSuccess(workGroups);
 }
 
-
-/**
- * 作業グループ新規投稿API
- * @param req 
- * @returns 
- */
-export async function POST(req: NextRequest): Promise<NextResponse<any>> {
-  // Handle POST request
-
-  return NextResponse.json({ message: "Success" });
-}
-
-
 /**
  * 作業グループ更新API
  * @param req 
@@ -108,7 +97,40 @@ export async function POST(req: NextRequest): Promise<NextResponse<any>> {
 export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
   // Handle PUT request
 
-  return NextResponse.json({ message: "Success" });
+  const reqBody = await req.json();
+  const { groupId, title, description, isClose } = reqBody;
+  const cookie = await cookies();
+
+  const userInfo = getAuthedUserFromCookie(cookie);
+  if (!userInfo) {
+    return resUnauthorized();
+  }
+
+  if (!groupId || isClose === undefined) {
+    return resValidationError("Invalid request");
+  }
+
+  const updateData: { [key: string]: any } = {
+    title: title,
+    content: description,
+    close_flag: isClose,
+    update_datetime: isClose ? new Date().toISOString() : undefined,// 作業完了の場合は更新日時も今日のものに
+  };
+
+  console.log("Updating work group:", groupId, updateData);
+
+  const authedClient = getAuthServerClient(cookie.get("accessToken")?.value || "");
+
+  const { error } = await authedClient
+    .from("work_group")
+    .update(updateData)
+    .eq("group_id", groupId);
+
+  if (error) {
+    return resInternalServerError("Failed to update work group");
+  }
+
+  return resSuccess("success");
 }
 
 

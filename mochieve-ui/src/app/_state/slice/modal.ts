@@ -10,7 +10,7 @@ export const modalSlice = createSlice({
     postTargetGroupId    : null  as string | null,
 
     openGroupFormModal   : false as boolean,
-    groupFormInit        : undefined  as {title: string, note:string} | undefined,
+    groupFormInit        : undefined  as {id: string, title: string, note:string} | undefined,
 
     openPostCompleteModal: false as boolean,
 
@@ -35,7 +35,7 @@ export const modalSlice = createSlice({
       state.postTargetGroupId = null;
     },
 
-    openGroupFormModal: (state, action: {payload: {title: string, note: string}}) => { 
+    openGroupFormModal: (state, action: {payload: {id: string, title: string, note: string}}) => { 
       state.openGroupFormModal = true; 
       state.groupFormInit = action.payload;
     },

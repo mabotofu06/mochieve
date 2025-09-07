@@ -157,13 +157,13 @@ export const OrganismsPostFormModal = () => {
           >
             投稿する
           </button>
-          <button
+          {targetGroupId && <button
             type="submit"
             className="w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-lg mt-4"
             onClick={submitWorkPost}
           >
             この投稿で完了にする
-          </button>
+          </button> }
       </div>
       </MoleculesModal>
     </div>

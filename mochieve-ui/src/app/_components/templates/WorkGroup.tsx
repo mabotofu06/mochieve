@@ -19,6 +19,7 @@ export const TemplatesWorkGroup = (props: Props) => {
   return (
     <div className="flex flex-col relative w-full h-screen items-center">
       <OrganismsPostListHeaderCard
+        id={props.workGroup.id}
         userInfo={props.workGroup.userInfo}
         isAuthor={props.isAuthor}
         title={props.workGroup.title}
