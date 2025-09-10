@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { createElement, useState } from "react";
 import { AtomsIconVerticalArrow } from "../atoms/icon/VerticalArrow";
 import { UserInfo } from "@/app/_type/data";
 import { openLoginModal } from "@/app/_state/slice/modal";
@@ -82,20 +82,18 @@ function getMenuItems(pathName: string,  isGuest: boolean) {
 
   return menuList.map((item, index) => {
     const isActive = pathName === item.link;
-    return (
-      <button
-        className={`flex items-center text-lg hover:bg-green-50 ps-10 py-3 w-full gap-2${isActive ? " font-semibold" : ""}`}
-        key={index}
-        onClick={
-          ()=>{
-            if(isActive) return;
-            item.onClick ? item.onClick() : navigateTo(item.link)
-          }}
-      >
-        {item.icon}
-        {item.name}
-      </button>
-    );
+
+    return createElement(
+      "button", {
+        className: `flex items-center text-lg ps-10 py-3 w-full gap-2${isActive ? " font-extrabold text-green-500" : " hover:bg-green-50"}`,
+        key: index,
+        onClick: ()=>{
+          if(isActive) return;
+          item.onClick ? item.onClick() : navigateTo(item.link)
+        }
+      },
+      [item.icon, item.name]
+    )
   });
 }
 
@@ -109,7 +107,7 @@ export const OrganismsUserMenu = (props: Props) => {
 
   const pathName = usePathname();
   const isGuest = !props.userInfo;
-  const userInfo = getUserInfo() ?? { id: "guest", name: "ゲストユーザー", iconImg: "" };
+  const userInfo = getUserInfo() ?? { id: "guest", name: "ゲストユーザー", iconImg: "https://wzzpmyztchwnljdqzvkh.supabase.co/storage/v1/object/public/user-info-content/image.webp" };
 
   console.log(pathName, isGuest);
 

@@ -27,7 +27,7 @@ export async function GET(req: NextRequest,   { params }: { params: { user_id: s
       .select("*")
       .eq("user_id", userId)
       .eq("delete_flag", false)
-      .order("update_datetime", { ascending: false });
+      .order("update_datetime", { ascending: true });
 
   let supabaseResult;
 

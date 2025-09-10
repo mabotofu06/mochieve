@@ -53,7 +53,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
 
         <div>
           <div className="post-details flex w-full">
-            <div className="w-full">
+            <div className="w-full ms-5">
               <h2 className="post-title text-xl font-semibold mb-3">{props.title}</h2>
               <p className="post-content ms-3 max-h-42 overflow-y-scroll mb-8 custom-scrollbar" dangerouslySetInnerHTML={{ __html: props.note }} />
             </div>

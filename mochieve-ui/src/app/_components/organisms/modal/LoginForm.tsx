@@ -90,45 +90,46 @@ export default function OrganismsLoginForm() {
   if (!modalOpen) return null;
   return (
     <MoleculesModal onClickCloseBtn={closeModal}>
-      <div className="flex justify-center bg-green-100 p-4 rounded-md flex items-center gap-2 my-3">
+      <div className="flex justify-center bg-green-100 p-4 rounded-md items-center gap-2 my-3">
         {INFO_MESSAGE}
       </div>
-      <div className="flex justify-center w-full">
-      <div className="flex flex-col gap-4 mt-5 items-center">
-        <input
-          type="email"
-          placeholder="User ID"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 rounded-2xl w-80"
-          disabled={loading}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 rounded-2xl w-80"
-          disabled={loading}
-        />
-        {error && <div className="text-red-500">{error}</div>}
-        <div className="flex gap-2">
-          <button
-            onClick={handleLogin}
+      <div className="flex justify-center w-full my-3">
+        <div className="flex flex-col gap-4 items-center">
+          {/* TODO:招待制でユーザ登録を可能とするとともにログインフォームを追加
+          <input
+            type="email"
+            placeholder="User ID"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border p-2 rounded-2xl w-80"
             disabled={loading}
-            className="bg-green-500 text-white px-4 py-2 rounded-3xl w-40"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="border p-2 rounded-2xl w-80"
+            disabled={loading}
+          />
+          {error && <div className="text-red-500">{error}</div>}
+          <div className="flex gap-2">
+            <button
+              onClick={handleLogin}
+              disabled={loading}
+              className="bg-green-500 text-white px-4 py-2 rounded-3xl w-40"
+            >
+              ログイン
+            </button>
+          </div> */}
+          <button
+            onClick={handleGoogleAuth}
+            disabled={loading}
+            className="bg-white px-4 py-2 rounded-3xl flex items-center gap-2 border w-fit my-10"
           >
-            ログイン
+            {googleIcon()}Googleでサインイン
           </button>
         </div>
-        <button
-          onClick={handleGoogleAuth}
-          disabled={loading}
-          className="bg-white px-4 py-2 rounded-3xl flex items-center gap-2 border w-fit my-10"
-        >
-          {googleIcon()}Googleでサインイン
-        </button>
-      </div>
       </div>
     </MoleculesModal>
   );

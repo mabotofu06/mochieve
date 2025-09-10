@@ -61,9 +61,15 @@ export const TemplatesMyWorks = (props: Props) => {
           loading...
         </div>
       : <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
-        {groups.map((group, index) => (
-          <OrganismsGroupCard className="mt-3" key={index} group={group} />
-        ))}
+        {
+          groups.length === 0
+          ? (<div className="w-full bg-white content-center text-center mt-10">
+              投稿がまだありません。
+            </div>)
+          : groups.map((group, index) => (
+              <OrganismsGroupCard className="mt-3" key={index} group={group} />
+            ))
+        }
       </div>}
     </div>
 

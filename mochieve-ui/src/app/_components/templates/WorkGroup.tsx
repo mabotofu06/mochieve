@@ -3,7 +3,7 @@ import { WorkGroup, WorkPost } from "@/app/_type/data";
 import { OrganismsPostCard } from "../organisms/PostCard";
 import { OrganismsPostListHeaderCard } from "../organisms/PostListHeaderCard";
 import { store } from "@/app/_state/store";
-import { openPostFormModal, setLoading } from "@/app/_state/slice/modal";
+import { openErrorModal, openPostFormModal, setLoading } from "@/app/_state/slice/modal";
 import { useState } from "react";
 
 type Props = {
@@ -15,6 +15,18 @@ type Props = {
 export const TemplatesWorkGroup = (props: Props) => {
   const [cardSize, setCardSize] = useState<number>(0); // 0:大, 1:小
   store.dispatch(setLoading(false));
+  const addPostForm = () => {
+    const latestPost = props.workPosts.length > 0 ? props.workPosts[props.workPosts.length - 1] : null;
+    console.log("today:", new Date().toISOString().split('T')[0]);
+    console.log("latest:", latestPost?.createdAt.split('T')[0]);
+    if (latestPost?.createdAt.split('T')[0] === new Date().toISOString().split('T')[0]) {
+      store.dispatch(
+        openErrorModal({title: "今日の投稿は既に完了しています", message: "明日の日付になるまでお待ちください"})
+      );
+      return;
+    }
+    store.dispatch(openPostFormModal({ groupId: props.workGroup.id }));
+  }
 
   return (
     <div className="flex flex-col relative w-full h-screen items-center">
@@ -33,24 +45,6 @@ export const TemplatesWorkGroup = (props: Props) => {
         updated={new Date(props.workGroup.updatedAt).toLocaleDateString()}
       />
       <div className="flex justify-center items-center bg-white gap-5 my-3">
-        {/* TODO:後々ポストカードサイズを変更できるようにする */}
-        {/*
-        <div className="flex gap-3">
-          <button
-            className={`w-10 h-10 rounded-full border ${cardSize === 0 ? 'bg-green-600 text-white' : 'bg-white text-gray-700'} transition`}
-            onClick={() => setCardSize(0)}
-            aria-label="大きく表示"
-          >
-            大
-          </button>
-          <button
-            className={`w-10 h-10 rounded-full border ${cardSize === 1 ? 'bg-green-600 text-white' : 'bg-white text-gray-700'} transition`}
-            onClick={() => setCardSize(1)}
-            aria-label="小さく表示"
-          >
-            小
-          </button>
-        </div> */}
       </div>
       <div className="work-posts flex-1 overflow-y-scroll custom-scrollbar px-3 pt-3">
         {props.workPosts.map(post => (
@@ -61,7 +55,7 @@ export const TemplatesWorkGroup = (props: Props) => {
       {props.isAuthor &&
           <button
             className="bg-green-600 text-white py-4 px-6 rounded-4xl text-xl opacity-100 w-fit my-5"
-            onClick={()=>store.dispatch(openPostFormModal({ groupId: props.workGroup.id }))}
+            onClick={addPostForm}
           >
             今日の進捗を投稿
           </button>

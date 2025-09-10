@@ -66,7 +66,13 @@ export const MY_WORK_NAV_MENU = {
 }
 
 export const TOP_NAV_MENU = {
-  TODAY  : { label: "本日更新"    , code: 0 },
   WORKING: { label: "作業中の投稿", code: 1 },
+  TODAY  : { label: "本日更新"    , code: 0 },
   DONE   : { label: "完了した投稿", code: 2 },
+}
+
+export const CACHE_INFO = {
+  USER_INFO    : { key: "user_info"    , MAX_SIZE: 20 , expires: 60 * 60 * 24 * 30 },// 1 month
+  TIMELINE_DATA: { key: "timeline_data", MAX_SIZE: 100, expires: 60 * 30      },     // 30 minutes
+  MY_WORKS_DATA: { key: "my_works_data", MAX_SIZE: 50 , expires: 60 * 60 * 24 }      // 1 day
 }
