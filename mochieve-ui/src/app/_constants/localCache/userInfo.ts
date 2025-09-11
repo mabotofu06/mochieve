@@ -1,5 +1,6 @@
 import { CACHE_INFO } from "../app";
 import { UserInfo } from "@/app/_type/data";
+import { StorageCache } from "./session";
 
 export interface CacheUserInfo {
   name   : string;
