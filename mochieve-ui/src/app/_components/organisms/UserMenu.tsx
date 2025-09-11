@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { AtomsIconVerticalArrow } from "../atoms/icon/VerticalArrow";
 import { UserInfo } from "@/app/_type/data";
 import { openLoginModal } from "@/app/_state/slice/modal";
@@ -103,11 +103,24 @@ type Props = {
 
 export const OrganismsUserMenu = (props: Props) => {
   const [open, setOpen] = useState(true);
+  const [clientUserInfo, setClientUserInfo] = useState<UserInfo | null>(null);
   const iconSize = "w-10 h-10";
 
   const pathName = usePathname();
   const isGuest = !props.userInfo;
-  const userInfo = getUserInfo() ?? { id: "guest", name: "ゲストユーザー", iconImg: "https://wzzpmyztchwnljdqzvkh.supabase.co/storage/v1/object/public/user-info-content/image.webp" };
+
+  useEffect(() => {
+    // クライアントサイドでのみユーザー情報を取得
+    const info = getUserInfo();
+    if (info) setClientUserInfo(info);
+  }, []);
+
+  // SSR時はprops.userInfo、CSR時はclientUserInfoを優先
+  const userInfo = clientUserInfo ?? props.userInfo ?? {
+    id: "guest",
+    name: "ゲストユーザー",
+    iconImg: "https://wzzpmyztchwnljdqzvkh.supabase.co/storage/v1/object/public/user-info-content/image.webp"
+  };
 
   console.log(pathName, isGuest);
 

@@ -1,6 +1,6 @@
 export const APP_NAME = 'Mochieve';
 export const APP_VERSION = '0.0.1';
-export const APP_HOST = "http://localhost:3000";
+export const APP_HOST = process.env.NEXT_PUBLIC_APP_HOST!;
 
 export const BL_INFO = {
   HOST: "https://localhost",
