@@ -58,7 +58,7 @@ class PersistentSessionCache {
   }
 }
 
-class StorageCache <T>{
+export class StorageCache <T>{
   private key: string;
   private maxSize: number;
   private expire: number; // in seconds
@@ -66,7 +66,7 @@ class StorageCache <T>{
   constructor(key: string, maxSize: number, expire: number = 0) {
     this.key = key;
     this.maxSize = maxSize;
-    this.expire = expire;
+    this.expire = expire * 1000; // convert to milliseconds
   }
 
   private isClient(): boolean {

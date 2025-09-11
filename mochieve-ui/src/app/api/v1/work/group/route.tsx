@@ -1,4 +1,4 @@
-import { TOP_NAV_MENU } from "@/app/_constants/app";
+import { CACHE_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
 import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
@@ -22,27 +22,29 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
         .from("work_group")
         .select("*")
         .eq("delete_flag", false)
-        .order("update_datetime", { ascending: false });
+        .order("update_datetime", { ascending: false })
+        .limit(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
 
-  let supabaseResult;
+  let supabaseResult = await baseQuery;
 
-  switch(type){
-    case TOP_NAV_MENU.WORKING.code.toString():
-      console.log("Fetching working posts");
-      supabaseResult = await baseQuery.eq("close_flag", false);
-      break;
-    case TOP_NAV_MENU.DONE.code.toString():
-      console.log("Fetching done posts");
-      supabaseResult = await baseQuery.eq("close_flag", true);
-      break;
-    default:
-      console.log("Fetching today's posts");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const isoToday = today.toISOString();
-      supabaseResult = await baseQuery.gte("update_datetime", isoToday);
-      break;
-  }
+  //TODO:キャッシュでの保持に合わせてフィルタリングの処理は再考
+  // switch(type){
+  //   case TOP_NAV_MENU.WORKING.code.toString():
+  //     console.log("Fetching working posts");
+  //     supabaseResult = await baseQuery.eq("close_flag", false);
+  //     break;
+  //   case TOP_NAV_MENU.DONE.code.toString():
+  //     console.log("Fetching done posts");
+  //     supabaseResult = await baseQuery.eq("close_flag", true);
+  //     break;
+  //   default:
+  //     console.log("Fetching today's posts");
+  //     const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
+  //     const isoToday = today.toISOString();
+  //     supabaseResult = await baseQuery.gte("update_datetime", isoToday);
+  //     break;
+  // }
 
   console.log("Supabase Result:", supabaseResult);
 

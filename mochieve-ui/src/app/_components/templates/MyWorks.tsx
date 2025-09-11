@@ -9,6 +9,7 @@ import { store } from "@/app/_state/store";
 import { openErrorModal, setLoading } from "@/app/_state/slice/modal";
 import { getFetch } from "@/app/_constants/fetch";
 import { ApiResponse, SuccessResponse } from "@/app/_type/api";
+import { getMyWorksCache, pushMyWorksCache } from "@/app/_constants/localCache/myWork";
 
 type Props = {
   userId: string;
@@ -20,12 +21,40 @@ export const TemplatesMyWorks = (props: Props) => {
   const [groups, setGroups] = useState<WorkGroup[]>([]);
   const [activeTab, setActiveTab] = useState<number>(initialTab);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  let isFetching = false;
   
   store.dispatch(setLoading(false));
 
+  const setFilteredData = (data: WorkGroup[]) => {
+    switch (activeTab) {
+      case MY_WORK_NAV_MENU.DONE.code:
+        setGroups(data.filter(group => group.isClose === true));
+        break;
+      case MY_WORK_NAV_MENU.WORKING.code:
+        setGroups(data.filter(group => group.isClose === false));
+        break;
+      default:
+        setGroups(data);
+        break;
+    }
+    setIsLoading(false);
+  }
+
   useEffect(()=>{
+    //複数回Fetchされるのを防止
+    if (isFetching) return;
+    isFetching = true;
     setIsLoading(true);
-    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}?type=${NAV_LIST.find(tab => tab.code === activeTab)?.code ?? ""}`)
+
+    const cachedData: WorkGroup[] = getMyWorksCache();
+    //TODO:0件以上だと少ないので20件以上など条件を後々変更
+    if (cachedData.length > 0) {
+      console.log("キャッシュから取得");
+      setFilteredData(cachedData);
+      return;
+    }
+
+    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}`)//?type=${NAV_LIST.find(tab => tab.code === activeTab)?.code ?? ""}`)
       .then((res: ApiResponse<WorkGroup[]>)=>{
         if(res.status !== 200){
           console.error("Error fetching work groups:", res);
@@ -34,7 +63,11 @@ export const TemplatesMyWorks = (props: Props) => {
           store.dispatch(openErrorModal({title: "Error", message: res.message || "Unknown error"}));
           return;
         }
-        setGroups((res as SuccessResponse<WorkGroup[]>).data);
+
+        const data = ((res as SuccessResponse<WorkGroup[]>).data);
+        console.log("APIから取得", data);
+        pushMyWorksCache(data);
+        setFilteredData(data);
       })
       .catch((error)=>{
         console.error("Error fetching work groups:", error);

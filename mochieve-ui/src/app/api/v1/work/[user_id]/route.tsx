@@ -1,4 +1,4 @@
-import { MY_WORK_NAV_MENU } from "@/app/_constants/app";
+import { CACHE_INFO, MY_WORK_NAV_MENU } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { ApiResponse } from "@/app/_type/api";
@@ -27,24 +27,26 @@ export async function GET(req: NextRequest,   { params }: { params: { user_id: s
       .select("*")
       .eq("user_id", userId)
       .eq("delete_flag", false)
-      .order("update_datetime", { ascending: true });
+      .order("update_datetime", { ascending: true })
+      .limit(CACHE_INFO.MY_WORKS_DATA.MAX_SIZE);
 
-  let supabaseResult;
+  let supabaseResult = await baseQuery;
 
-  switch(type){
-    case MY_WORK_NAV_MENU.DONE.code.toString(): // 完了
-      console.log("Fetching done posts for user:", userId);
-      supabaseResult = await baseQuery.eq("close_flag", true);
-      break;
-    case MY_WORK_NAV_MENU.WORKING.code.toString(): // 作業中
-      console.log("Fetching working posts for user:", userId);
-      supabaseResult = await baseQuery.eq("close_flag", false);
-      break;
-    default: // すべて
-      console.log("Fetching all posts for user:", userId);
-      supabaseResult = await baseQuery;
-      break;
-  }
+  //TODO:キャッシュでの保持に合わせてフィルタリングの処理は再考
+  // switch(type){
+  //   case MY_WORK_NAV_MENU.DONE.code.toString(): // 完了
+  //     console.log("Fetching done posts for user:", userId);
+  //     supabaseResult = await baseQuery.eq("close_flag", true);
+  //     break;
+  //   case MY_WORK_NAV_MENU.WORKING.code.toString(): // 作業中
+  //     console.log("Fetching working posts for user:", userId);
+  //     supabaseResult = await baseQuery.eq("close_flag", false);
+  //     break;
+  //   default: // すべて
+  //     console.log("Fetching all posts for user:", userId);
+  //     supabaseResult = await baseQuery;
+  //     break;
+  // }
 
   if(supabaseResult.error || !supabaseResult.data) {
     return resInternalServerError();

@@ -1,6 +1,6 @@
 "use client"
 
-import { APP_NAME, BL_INFO } from "@/app/_constants/app";
+import { APP_NAME, BL_INFO, MAX_POST_NUM, MAX_WORKING_POST_NUM } from "@/app/_constants/app";
 import { openErrorModal, openPostFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { OrganismsUserMenu } from "./UserMenu";
@@ -12,6 +12,7 @@ import {Pacifico} from 'next/font/google'
 import { Hachi_Maru_Pop } from "next/font/google";
 import { getFetch } from "@/app/_constants/fetch";
 import { ErrorResponse } from "@/app/_type/api";
+import { getMyWorksCache } from "@/app/_constants/localCache/myWork";
 
 const caveatBrush = Caveat_Brush({
   variable: "--font-caveat-brush",
@@ -40,6 +41,12 @@ export default function OrganismsHeader() {
   }, []);
 
   const createNewWorks = async () => {
+    const myWorkCache = getMyWorksCache();
+    if(myWorkCache.length >= MAX_WORKING_POST_NUM) {
+      store.dispatch(openErrorModal({ title: "新しいプロジェクトの作成上限に達しています", message: `1ユーザーあたりのプロジェクト作成上限は${MAX_WORKING_POST_NUM}件です。既存のプロジェクトを削除してから再度お試しください。` }));
+      return;
+    }
+
     const checkRes = await getFetch(BL_INFO.API_ENDPOINT.WORK_GROUP_CHECK);
     if(checkRes.status !== 200) {
       const checkResError = checkRes as ErrorResponse;
