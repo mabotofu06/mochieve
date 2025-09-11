@@ -7,7 +7,11 @@ import { GetWorkGroupsData } from "@/app/_type/supabase";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest,   { params }: { params: { user_id: string } }): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
+type Params = {
+  params: Promise<{ user_id: string }>;
+}
+
+export async function GET(req: NextRequest,   { params }: Params ): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
   console.log("===== GET /api/v1/work/[user_id] =====");
   const userId = (await params).user_id;
   if(!userId) {
