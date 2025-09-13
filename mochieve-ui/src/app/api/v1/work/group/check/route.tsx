@@ -11,7 +11,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
   const cookie = await cookies();
   const userInfo = await getAuthedUserFromCookie(cookie);
   if (!userInfo){
-    return resUnauthorized("認証エラー", "ユーザが認証されていませんでした。再ログインしてください。");
+    return resUnauthorized(cookie, "認証エラー", "ユーザが認証されていませんでした。再ログインしてください。");
   }
 
   // クローズしていない投稿数が3個を超えていないかチェック
@@ -24,14 +24,15 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
 
   if (openGroupError || !openGroupNum) {
     console.error("Failed to retrieve open groups:", openGroupError);
-    return resInternalServerError("Failed to retrieve open groups");
+    return resInternalServerError(cookie, "Failed to retrieve open groups");
   }
   if (openGroupNum >= MAX_WORKING_POST_NUM) {
     return resValidationError(
+      cookie,
       "作業中の投稿が多すぎます",
       `作業中の投稿は最大 ${MAX_WORKING_POST_NUM} 件までです。投稿を完了にしてください。`
     );
   }
 
-  return resSuccess("success");
+  return resSuccess(cookie, "success");
 }

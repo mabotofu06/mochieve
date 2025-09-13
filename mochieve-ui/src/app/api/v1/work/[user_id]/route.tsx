@@ -15,14 +15,14 @@ type Params = {
 export async function GET(req: NextRequest,   { params }: Params ): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
   console.log("===== GET /api/v1/work/[user_id] =====");
   const userId = (await params).user_id;
-  if(!userId) {
-    return resValidationError("userIdが指定されていません");
-  }
   const cookie = await cookies();
+  if(!userId) {
+    return resValidationError(cookie, "userIdが指定されていません");
+  }
 
   const token = await getValidTokenFromCookie(cookie);
   if(!token || token.userInfo.id !== userId) {
-    return resUnauthorized("ユーザが認証されていませんでした。再ログインしてください。");
+    return resUnauthorized(cookie, "ユーザが認証されていませんでした。再ログインしてください。");
   }
 
   const result
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
       .limit(CACHE_INFO.MY_WORKS_DATA.MAX_SIZE);
 
   if(result.error || !result.data) {
-    return resInternalServerError();
+    return resInternalServerError(cookie);
   }
 
   const myGroupData: GetWorkGroupsData[] = result.data as GetWorkGroupsData[];
@@ -50,5 +50,5 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
         updatedAt : item.update_datetime,
       }));
 
-  return resSuccess<WorkGroup[]>(groups);
+  return resSuccess<WorkGroup[]>(cookie, groups);
 }

@@ -32,6 +32,8 @@ export const BL_INFO = {
 export const MAX_POST_NUM = 10;
 export const MAX_WORKING_POST_NUM = 3;
 
+export const DEFAULT_USER_ICON = "https://wzzpmyztchwnljdqzvkh.supabase.co/storage/v1/object/public/user-info-content/image.webp";
+
 export const APP_SERVICE = {
   TOP: {
     title: `トップ | ${APP_NAME}`,

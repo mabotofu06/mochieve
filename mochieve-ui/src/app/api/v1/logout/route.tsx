@@ -6,12 +6,12 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
+  const cookie = await cookies()
   try {
-    const cookie = await cookies()
     const accessToken = cookie.get("accessToken")?.value;
 
     if(!accessToken) {
-      return resUnauthorized();
+      return resUnauthorized(cookie);
     }
 
     await deleteUserInfoByToken(accessToken)
@@ -22,9 +22,9 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
     cookie.delete("accessToken");
     cookie.delete("refreshToken");
 
-    return resSuccess({status: "success"});
+    return resSuccess(cookie, { status: "success" });
   } catch (err: any) {
     console.log(err);
-    return resInternalServerError(err.message || "Internal Server Error");
+    return resInternalServerError(cookie, err.message || "Internal Server Error");
   }
 }

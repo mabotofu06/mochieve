@@ -45,21 +45,21 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   console.log("===== POST /api/v1/work/post =====");
   const cookie = await cookies();
   const accessToken = cookie.get("accessToken")?.value;
-  if (!accessToken) return resUnauthorized();
+  if (!accessToken) return resUnauthorized(cookie);
 
   const userInfo: UserInfo | null = await getAuthedUserFromCookie(cookie); 
-  if(!userInfo) return resUnauthorized();
+  if(!userInfo) return resUnauthorized(cookie);
 
   // リクエストボディを取得
   const {note, imageFile}: PostRequestBody = await req.json();
   console.table({note, imageFile: imageFile.slice(0,30) + "..."}); // 先頭30文字だけ表示
 
-  if(!note || !imageFile) return resValidationError();
-  if(note.length > 150) return resValidationError("Note is too long", "Note must be 150 characters or less");
+  if(!note || !imageFile) return resValidationError(cookie);
+  if(note.length > 150) return resValidationError(cookie, "Note is too long", "Note must be 150 characters or less");
 
   // imageFile拡張子チェック（webpのみ許可、クライアント側でwebpに変換してエンコードしてもらう）
   if (!validBase64MimeType(imageFile, "image/webp")) {
-    return resValidationError("Invalid image format", "Only webp images are allowed");
+    return resValidationError(cookie, "Invalid image format", "Only webp images are allowed");
   }
 
   // 投稿グループを追加できるかチェック
@@ -70,22 +70,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
       )
   if(checkRes.status !== 200) {
     const checkResError = checkRes as ErrorResponse
-    return resValidationError(checkResError.message, checkResError.details);
+    return resValidationError(cookie, checkResError.message, checkResError.details);
   }
-  // const { count: openGroupNum, error: openGroupError } = await supabase
-  //   .from("work_group")
-  //   .select('count', { count: 'exact' })
-  //   .eq("user_id", userInfo.id)
-  //   .eq("delete_flag", false)
-  //   .eq("close_flag", false);
-
-  // if (openGroupError || !openGroupNum) {
-  //   console.error("Failed to retrieve open groups:", openGroupError);
-  //   return resInternalServerError("Failed to retrieve open groups");
-  // }
-  // if (openGroupNum >= 3) {
-  //   return resValidationError("Too many open groups", "You can only have 3 open groups at a time");
-  // }
 
   const authedClient = getAuthServerClient(accessToken);
 
@@ -93,7 +79,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   const imageUrl = await uploadImage(authedClient, imageFile);
   if (!imageUrl) {
     console.error("Failed to upload image");
-    return resInternalServerError("Failed to upload image");
+    return resInternalServerError(cookie, "Failed to upload image");
   }
 
   const { data: rpcData, error: rpcError } = await authedClient
@@ -106,7 +92,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   if (rpcError) {
     //TODO: ここでアップロードした画像を削除する
     console.error("RPC error:", rpcError);
-    return resInternalServerError("Failed to create work group and post");
+    return resInternalServerError(cookie, "Failed to create work group and post");
   }
   console.log("RPC success:", rpcData);
 
@@ -118,7 +104,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
     // 作業ポストの詳細情報を返す
   };
 
-  return resSuccess(postBody);
+  return resSuccess(cookie, postBody);
 }
 
 
@@ -132,14 +118,14 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
 
   const cookie = await cookies();
   const accessToken = cookie.get("accessToken")?.value;
-  if (!accessToken) return resUnauthorized();
+  if (!accessToken) return resUnauthorized(cookie);
 
   const userInfo: UserInfo | null = await getAuthedUserFromCookie(cookie);
-  if(!userInfo) return resUnauthorized();
+  if(!userInfo) return resUnauthorized(cookie);
 
   // リクエストボディを取得
   const {groupId, note, imageFile}: PostRequestBody = await req.json();
-  if(!groupId || !imageFile || !note) return resValidationError();
+  if(!groupId || !imageFile || !note) return resValidationError(cookie);
 
   //作業グループを取得
   const {data: workGroup, error} = await supabase
@@ -152,7 +138,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     .single();
   if(error || !workGroup) {
     console.error("Failed to retrieve work group:", error);
-    return resInternalServerError("Failed to retrieve work group");
+    return resInternalServerError(cookie, "Failed to retrieve work group");
   }
 
   const authedClient = getAuthServerClient(accessToken);
@@ -160,7 +146,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
   const imageUrl = await uploadImage(authedClient, imageFile);
   if (!imageUrl) {
     console.error("Failed to upload image");
-    return resInternalServerError("Failed to upload image");
+    return resInternalServerError(cookie, "Failed to upload image");
   }
 
   const { data: rpcData, error: rpcError } = await authedClient.rpc(
@@ -174,7 +160,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
   if(rpcError){
     //TODO: ここでアップロードした画像を削除する
     console.error("RPC error:", rpcError);
-    return resInternalServerError("Failed to update work group and post");
+    return resInternalServerError(cookie, "Failed to update work group and post");
   }
 
   return NextResponse.json({ message: "Success" });

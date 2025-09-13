@@ -13,7 +13,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<{
   const accessToken = cookieStore.get("accessToken")?.value;
 
   if (!accessToken) {
-    return resUnauthorized();
+    return resUnauthorized(cookieStore);
   }
   
   const { token, id, name, iconImg } = await req.json();
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<{
 
   console.log("User cached:", { accessToken, id, name, iconImg });
 
-  return resSuccess({ success: true });
+  return resSuccess(cookieStore, { success: true });
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse<SuccessResponse<UserInfo|null>>> {
@@ -31,13 +31,13 @@ export async function GET(req: NextRequest): Promise<NextResponse<SuccessRespons
   console.log("Access Token:", accessToken?(accessToken.slice(0,10) + "..."):accessToken);
 
   if (!accessToken) {
-    return resSuccess(null);
+    return resSuccess(cookieStore, null);
   }
 
   const userInfo = userCache.get(accessToken);
-  if (!userInfo) return resSuccess(null);
+  if (!userInfo) return resSuccess(cookieStore, null);
 
-  return resSuccess(userInfo);
+  return resSuccess(cookieStore, userInfo);
 }
 
 export async function DELETE(req: NextRequest): Promise<NextResponse<ApiResponse<{ success: boolean }>>> {
@@ -46,8 +46,8 @@ export async function DELETE(req: NextRequest): Promise<NextResponse<ApiResponse
 
   console.log("Access Token:", accessToken?(accessToken.slice(0,10) + "..."):accessToken);
 
-  if (!accessToken) return resValidationError("Bad Request", "No access token provided");
+  if (!accessToken) return resValidationError(cookieStore, "Bad Request", "No access token provided");
 
   userCache.delete(accessToken);
-  return resSuccess({ success: true });
+  return resSuccess(cookieStore, { success: true });
 }

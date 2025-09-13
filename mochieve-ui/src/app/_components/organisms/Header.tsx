@@ -1,6 +1,6 @@
 "use client"
 
-import { APP_NAME, BL_INFO, MAX_POST_NUM, MAX_WORKING_POST_NUM } from "@/app/_constants/app";
+import { APP_HOST, APP_NAME, BL_INFO, MAX_POST_NUM, MAX_WORKING_POST_NUM } from "@/app/_constants/app";
 import { openErrorModal, openPostFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { OrganismsUserMenu } from "./UserMenu";
@@ -96,6 +96,9 @@ export default function OrganismsHeader() {
             GitHub
           </a>
         </div>
+        <a href={APP_HOST+"/Wellcome"}>Wellcomeページ</a>
+        <br />
+        <a href={APP_HOST+"/Invite/testInviteCode"}>招待ページ（テスト用）</a>
         <p className="text-center text-gray-500 text-xs p-3">© 2024 {APP_NAME}. All rights reserved.</p>
       </div>
     </header>

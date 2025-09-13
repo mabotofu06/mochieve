@@ -7,7 +7,7 @@ import { openLoginModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { getFetch } from "@/app/_constants/fetch";
-import { BL_INFO } from "@/app/_constants/app";
+import { BL_INFO, DEFAULT_USER_ICON } from "@/app/_constants/app";
 import { usePathname } from "next/navigation";
 
 
@@ -119,7 +119,7 @@ export const OrganismsUserMenu = (props: Props) => {
   const userInfo = clientUserInfo ?? props.userInfo ?? {
     id: "guest",
     name: "ゲストユーザー",
-    iconImg: "https://wzzpmyztchwnljdqzvkh.supabase.co/storage/v1/object/public/user-info-content/image.webp"
+    iconImg: DEFAULT_USER_ICON
   };
 
   console.log(pathName, isGuest);

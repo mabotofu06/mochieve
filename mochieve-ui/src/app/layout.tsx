@@ -79,12 +79,20 @@ function GlobalLoading({
   children: React.ReactNode;
 }>) {
   const loading: boolean = useSelector((state: {modal: {loading: boolean}}) => state.modal.loading);
+  const iconSize: number = 52;
 
   return (
     <div className="relative w-full h-full">
       {children}
       {loading && (
-        <div className="absolute top-0 flex justify-center items-center h-full w-full z-50 bg-white">
+        <div className="absolute top-0 flex flex-col justify-center items-center h-full w-full z-50 bg-white">
+          <img
+            width={iconSize}
+            height={iconSize}
+            src="/loading-icon.png"
+            alt="spinner-frame-2"
+            className="animate-[spin_3.5s_linear_infinite]"
+          />
           Loading...
         </div>
       )}

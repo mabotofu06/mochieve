@@ -4,15 +4,18 @@ import { NextResponse } from "next/server";
 import { APP_HOST, BL_INFO } from "../app";
 import { getFetch } from "../fetch";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { setSessionCookie } from "./sessionUtils";
 
 
-export const resSuccess = <T>(data: T, message = "Success", code = "SUCCESS"): NextResponse<SuccessResponse<T>> => {
-  return NextResponse.json({
+export const resSuccess = <T>(cookies: ReadonlyRequestCookies, data: T, message = "Success", code = "SUCCESS"): NextResponse<SuccessResponse<T>> => {
+  const res = NextResponse.json({
     status: 200,
     code,
     message,
     data
   }, { status: 200 });
+  setSessionCookie(res, cookies.get("accessToken")?.value || "", cookies.get("refreshToken")?.value || "");
+  return res;
 }
 
 export const ERROR_INFO = {
@@ -23,52 +26,54 @@ export const ERROR_INFO = {
   INTERNAL_SERVER_ERROR: {CODE: "INTERNAL_SERVER_ERROR", STATUS: 500, MESSAGE: "Internal Server Error", DETAIL: "An unexpected error occurred on the server"},
 }
 
-export const resError = (error: ErrorResponse): NextResponse<ErrorResponse> => {
-  return NextResponse.json<ErrorResponse>(error, { status: error.status });
+export const resError = (error: ErrorResponse, cookies: ReadonlyRequestCookies): NextResponse<ErrorResponse> => {
+  const res = NextResponse.json<ErrorResponse>(error, { status: error.status });
+  setSessionCookie(res, cookies.get("accessToken")?.value || "", cookies.get("refreshToken")?.value || "");
+  return res;
 }
 
-export const resNotFound = (message = ERROR_INFO.NOT_FOUND.MESSAGE, details = ERROR_INFO.NOT_FOUND.DETAIL): NextResponse<ErrorResponse> => {
+export const resNotFound = (cookies: ReadonlyRequestCookies, message = ERROR_INFO.NOT_FOUND.MESSAGE, details = ERROR_INFO.NOT_FOUND.DETAIL): NextResponse<ErrorResponse> => {
   return resError({
     status: 404,
     code: ERROR_INFO.NOT_FOUND.CODE,
     message,
     details
-  })
+  }, cookies);
 }
 
-export const resForbidden = (message = ERROR_INFO.FORBIDDEN.MESSAGE, details = ERROR_INFO.FORBIDDEN.DETAIL): NextResponse<ErrorResponse> => {
+export const resForbidden = (cookies: ReadonlyRequestCookies, message = ERROR_INFO.FORBIDDEN.MESSAGE, details = ERROR_INFO.FORBIDDEN.DETAIL): NextResponse<ErrorResponse> => {
   return resError({
     status: 403,
     code: ERROR_INFO.FORBIDDEN.CODE,
     message,
     details
-  })
+  }, cookies);
 }
 
-export const resUnauthorized = (message = ERROR_INFO.UNAUTHORIZED.MESSAGE, details = ERROR_INFO.UNAUTHORIZED.DETAIL): NextResponse<ErrorResponse> => {
+export const resUnauthorized = (cookies: ReadonlyRequestCookies, message = ERROR_INFO.UNAUTHORIZED.MESSAGE, details = ERROR_INFO.UNAUTHORIZED.DETAIL): NextResponse<ErrorResponse> => {
   return resError({
     status: 401,
     code: ERROR_INFO.UNAUTHORIZED.CODE,
     message,
     details
-  })
+  }, cookies);
 }
-export const resValidationError = (message = ERROR_INFO.VALIDATION_ERROR.MESSAGE, details = ERROR_INFO.VALIDATION_ERROR.DETAIL): NextResponse<ErrorResponse> => {
+export const resValidationError = (cookies: ReadonlyRequestCookies, message = ERROR_INFO.VALIDATION_ERROR.MESSAGE, details = ERROR_INFO.VALIDATION_ERROR.DETAIL): NextResponse<ErrorResponse> => {
   return resError({
     status: 400,
     code: ERROR_INFO.VALIDATION_ERROR.CODE,
     message,
     details
-  })
+  }, cookies);
 }
 
-export const resInternalServerError = (message = ERROR_INFO.INTERNAL_SERVER_ERROR.MESSAGE, details = ERROR_INFO.INTERNAL_SERVER_ERROR.DETAIL): NextResponse<ErrorResponse> => {
+export const resInternalServerError = (cookies: ReadonlyRequestCookies, message = ERROR_INFO.INTERNAL_SERVER_ERROR.MESSAGE, details = ERROR_INFO.INTERNAL_SERVER_ERROR.DETAIL): NextResponse<ErrorResponse> => {
   return resError({
     status: 500,
     code: ERROR_INFO.INTERNAL_SERVER_ERROR.CODE,
     message,
     details
-  })
+  }, cookies);
 }
 
 /**

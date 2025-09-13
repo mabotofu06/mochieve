@@ -6,22 +6,24 @@ import { ApiResponse } from '@/app/_type/api';
 import { decodeSupabaseJWT, setSessionCookie } from '@/app/_constants/utils/sessionUtils';
 import { setUserInfoByToken } from '@/app/_constants/redis/client';
 import { supabase } from '@/app/_constants/supabase/client';
+import { cookies } from 'next/headers';
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<UserInfo|null>>> {
+  const cookie = await cookies();
   try {
     const { refreshToken, accessToken } = await req.json();
     if (!refreshToken || !accessToken) {
-      return resUnauthorized();
+      return resUnauthorized(cookie);
     }
 
     const jwt = decodeSupabaseJWT(accessToken);
     const uid = jwt.sub;
     console.log("Auth UID:", uid);
-    if (!uid) return resUnauthorized();
+    if (!uid) return resUnauthorized(cookie);
 
     const userInfoData = await fetchUserInfoByUid(supabase, uid??'');
     if (!userInfoData) {
-      return resUnauthorized();
+      return resUnauthorized(cookie);
     }
     const userInfo: UserInfo = {
       id       : userInfoData.user_id,
@@ -32,10 +34,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
     // Redisキャッシュを更新
     await setUserInfoByToken(accessToken, userInfo);
 
-    const response = resSuccess(userInfo);
+    const response = resSuccess(cookie, userInfo);
     return setSessionCookie(response, accessToken, refreshToken);
   } catch (err: any) {
     console.error("Error in auth callback:", err);
-    return resInternalServerError();
+    return resInternalServerError(cookie);
   }
 }

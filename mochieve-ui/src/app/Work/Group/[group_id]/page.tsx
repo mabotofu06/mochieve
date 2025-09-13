@@ -4,9 +4,7 @@ import { UserInfo, WorkGroup, WorkPost } from "@/app/_type/data";
 import { fetchPostsByGroupId } from "@/app/_constants/supabase/postClient";
 import { TemplatesWorkGroup } from "@/app/_components/templates/WorkGroup";
 import { cookies } from "next/headers";
-import { getFetch } from "@/app/_constants/fetch";
-import { APP_HOST, BL_INFO } from "@/app/_constants/app";
-import { ApiResponse, SuccessResponse } from "@/app/_type/api";
+import { getUserInfoByToken } from "@/app/_constants/redis/client";
 
 type Props = {
   params: Promise<{
@@ -64,15 +62,9 @@ export default async function WorkGroupDetail(props: Props) {
   const accessToken = cookie.get("accessToken")?.value;
   const refreshToken = cookie.get("refreshToken")?.value;
 
-  const res: ApiResponse<UserInfo> = await getFetch<UserInfo>(APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_AUTH,{
-    headers:{
-      Cookie: `accessToken=${accessToken}; refreshToken=${refreshToken}`
-    }
-  });
-
-  let userInfo: UserInfo|undefined;
-  if(res.status === 200){
-    userInfo = (res as SuccessResponse<UserInfo>).data;
+  const userInfo: UserInfo | null = await getUserInfoByToken(accessToken || ""); //RedisのTTL更新のためにアクセス
+  console.log("userInfo取得結果:", userInfo);
+  if(userInfo){
     console.log("認証されたユーザの情報:", userInfo);
   }
   else{

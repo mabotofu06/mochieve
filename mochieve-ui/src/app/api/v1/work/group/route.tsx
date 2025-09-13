@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
   // Handle GET request
+  const cookie = await cookies();
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
   const baseQuery
@@ -27,29 +28,10 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
   let supabaseResult = await baseQuery;
 
-  //TODO:キャッシュでの保持に合わせてフィルタリングの処理は再考
-  // switch(type){
-  //   case TOP_NAV_MENU.WORKING.code.toString():
-  //     console.log("Fetching working posts");
-  //     supabaseResult = await baseQuery.eq("close_flag", false);
-  //     break;
-  //   case TOP_NAV_MENU.DONE.code.toString():
-  //     console.log("Fetching done posts");
-  //     supabaseResult = await baseQuery.eq("close_flag", true);
-  //     break;
-  //   default:
-  //     console.log("Fetching today's posts");
-  //     const today = new Date();
-  //     today.setHours(0, 0, 0, 0);
-  //     const isoToday = today.toISOString();
-  //     supabaseResult = await baseQuery.gte("update_datetime", isoToday);
-  //     break;
-  // }
-
   console.log("Supabase Result:", supabaseResult);
 
   if(supabaseResult.error || !supabaseResult.data) {
-    return resInternalServerError();
+    return resInternalServerError(cookie);
   }
 
   const timelineData :GetWorkGroupsData[] = supabaseResult.data as GetWorkGroupsData[];
@@ -63,7 +45,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       .in("user_id", Array.from(userIds));
 
     if (error || !userInfoList) {
-      return resInternalServerError("Failed to fetch user information");
+      return resInternalServerError(cookie, "Failed to fetch user information");
     }
     //user_idをキーにしたマップを作成
     const userInfoMap = new Map<string, { id: string; name: string; iconImg: string }>();
@@ -88,7 +70,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       updatedAt: item.update_datetime,
     }));
 
-  return resSuccess(workGroups);
+  return resSuccess(cookie, workGroups);
 }
 
 /**
@@ -105,11 +87,11 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
 
   const userInfo = getAuthedUserFromCookie(cookie);
   if (!userInfo) {
-    return resUnauthorized();
+    return resUnauthorized(cookie);
   }
 
   if (!groupId || isClose === undefined) {
-    return resValidationError("Invalid request");
+    return resValidationError(cookie, "Invalid request");
   }
 
   const updateData: { [key: string]: any } = {
@@ -129,10 +111,10 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     .eq("group_id", groupId);
 
   if (error) {
-    return resInternalServerError("Failed to update work group");
+    return resInternalServerError(cookie,"Failed to update work group");
   }
 
-  return resSuccess("success");
+  return resSuccess(cookie, "success");
 }
 
 

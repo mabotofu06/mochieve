@@ -4,10 +4,12 @@ import { resInternalServerError, resSuccess } from "@/app/_constants/utils/apiUt
 import { ApiResponse } from "@/app/_type/api";
 import { WorkGroup } from "@/app/_type/data";
 import { GetWorkGroupsData } from "@/app/_type/supabase";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 //TODO: 問題なければ削除
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
+  const cookie = await cookies();
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
@@ -16,7 +18,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
     const timelineData :GetWorkGroupsData[] = await fetchWorkGroups() as GetWorkGroupsData[];
     if (!timelineData) {
-      return resInternalServerError("Failed to fetch timeline data");
+      return resInternalServerError(cookie, "Failed to fetch timeline data");
     }
     // 一括でユーザ情報を取得(TODO: キャッシュに保持している場合はそちらを優先)
     const userIds: Set<string> = new Set(timelineData.map(data => data.user_id));
@@ -27,7 +29,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
         .in("user_id", Array.from(userIds));
 
     if (error || !userInfoList) {
-      return resInternalServerError("Failed to fetch user information");
+      return resInternalServerError(cookie, "Failed to fetch user information");
     }
     //user_idをキーにしたマップを作成
     const userInfoMap = new Map<string, { id: string; name: string; iconImg: string }>();
@@ -35,7 +37,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       userInfoMap.set(user_id, { id: user_id, name, iconImg: icon_image ?? "" });
     });
 
-    return resSuccess((timelineData as GetWorkGroupsData[]).map(group => ({
+    return resSuccess(cookie, (timelineData as GetWorkGroupsData[]).map(group => ({
       id: group.group_id,
       userInfo: userInfoMap.get(group.user_id) ?? {
         id: group.user_id,
