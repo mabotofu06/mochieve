@@ -1,11 +1,12 @@
-import { CACHE_INFO, MY_WORK_NAV_MENU } from "@/app/_constants/app";
+import { CACHE_INFO } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
-import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
+import { resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { ApiResponse } from "@/app/_type/api";
 import { WorkGroup } from "@/app/_type/data";
 import { GetWorkGroupsData } from "@/app/_type/supabase";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { getValidTokenFromCookie } from "@/app/_constants/utils/sessionUtils";
 
 type Params = {
   params: Promise<{ user_id: string }>;
@@ -18,15 +19,14 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
     return resValidationError("userIdが指定されていません");
   }
   const cookie = await cookies();
-  const userInfo = await getAuthedUserFromCookie(cookie);
-  if (!userInfo || userInfo.id !== userId){
+
+  const token = await getValidTokenFromCookie(cookie);
+  if(!token || token.userInfo.id !== userId) {
     return resUnauthorized("ユーザが認証されていませんでした。再ログインしてください。");
   }
 
-  const { searchParams } = new URL(req.url);
-  const type = searchParams.get("type");
-  const baseQuery
-    = supabase
+  const result
+    = await supabase
       .from("work_group")
       .select("*")
       .eq("user_id", userId)
@@ -34,36 +34,18 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
       .order("update_datetime", { ascending: true })
       .limit(CACHE_INFO.MY_WORKS_DATA.MAX_SIZE);
 
-  let supabaseResult = await baseQuery;
-
-  //TODO:キャッシュでの保持に合わせてフィルタリングの処理は再考
-  // switch(type){
-  //   case MY_WORK_NAV_MENU.DONE.code.toString(): // 完了
-  //     console.log("Fetching done posts for user:", userId);
-  //     supabaseResult = await baseQuery.eq("close_flag", true);
-  //     break;
-  //   case MY_WORK_NAV_MENU.WORKING.code.toString(): // 作業中
-  //     console.log("Fetching working posts for user:", userId);
-  //     supabaseResult = await baseQuery.eq("close_flag", false);
-  //     break;
-  //   default: // すべて
-  //     console.log("Fetching all posts for user:", userId);
-  //     supabaseResult = await baseQuery;
-  //     break;
-  // }
-
-  if(supabaseResult.error || !supabaseResult.data) {
+  if(result.error || !result.data) {
     return resInternalServerError();
   }
 
-  const myGroupData: GetWorkGroupsData[] = supabaseResult.data as GetWorkGroupsData[];
+  const myGroupData: GetWorkGroupsData[] = result.data as GetWorkGroupsData[];
   const groups: WorkGroup[]
     = myGroupData.map(item => ({
         id        : item.group_id,
         title     : item.title || "",
         note      : item.content || "",
         images    : item.images,
-        userInfo  : userInfo,
+        userInfo  : token.userInfo,
         isClose   : item.close_flag,
         updatedAt : item.update_datetime,
       }));
