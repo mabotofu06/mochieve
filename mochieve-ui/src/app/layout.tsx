@@ -13,6 +13,7 @@ import { OrganismsGroupFormModal } from "./_components/organisms/modal/GroupForm
 import { OrganismsImageDetailModal } from "./_components/organisms/modal/ImageDetailModal";
 import { OrganismsErrorModal } from "./_components/organisms/modal/ErrorModal";
 import { OrganismsLoadingModal } from "./_components/organisms/modal/LoadingModal";
+import { useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,22 +25,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const headerHidePathList = [
+  '/Invite',
+  '/Wellcome'
+]
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [hideHeader, setHideHeader] =  useState(false)
+  useEffect(()=>{
+    const location = window.location
+    let hide = false;
+    headerHidePathList.forEach((path)=>{
+      hide = location.pathname.startsWith(path) || hide
+    })
+    setHideHeader(hide);
+  },[])
+  
   clearEditWorkGroupId();
 
   // Providerは最上位でラップ
   return (
     <html lang="jp">
       <body
-        className={`flex justify-center ${geistSans.variable} ${geistMono.variable} antialiased h-screen text-green-800 bg-white`}
+        className={`flex justify-center ${geistSans.variable} ${geistMono.variable} antialiased h-screen text-green-800${hideHeader ? " bg-lime-50" : ""}`}
       >
         <Provider store={store}>
-          <OrganismsHeader />
-          <main className="w-[800px] px-5">
+          {!hideHeader && <OrganismsHeader />}
+          <main className="w-[800px]">
             <GlobalLoading>
               {children}
             </GlobalLoading>

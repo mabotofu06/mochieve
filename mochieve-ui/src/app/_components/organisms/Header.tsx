@@ -58,7 +58,7 @@ export default function OrganismsHeader() {
   };
 
   return (
-    <header className="bg-white-300 shadow flex flex-col justify-between w-80">
+    <header className="bg-white shadow flex flex-col justify-between w-80">
       <div>
         <div className="flex flex-col p-3 text-green-800 items-center mb-10" onClick={()=>{location.href="/Top"}}>
           <h1 className={"text-5xl font-semibold "+pacifico.className}>{APP_NAME}</h1>
