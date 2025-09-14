@@ -1,6 +1,6 @@
 'use client'
 
-import { DEFAULT_USER_ICON } from "@/app/_constants/app"
+import { APP_HOST, DEFAULT_USER_ICON } from "@/app/_constants/app"
 import { setLoading } from "@/app/_state/slice/modal"
 import { store } from "@/app/_state/store"
 import { useEffect, useState } from "react"
@@ -8,16 +8,10 @@ import { MoleculesModal } from "../molecules/Modal"
 import { AtomsGoogleIcon } from "../atoms/icon/Google"
 import { AtomsDiscordIcon } from "../atoms/icon/Discord"
 import { AtomsTwitterIcon } from "../atoms/icon/Twitter"
+import { supabase } from "@/app/_constants/supabase/client"
 
 type Props = {
   inviteCode: string
-}
-
-const Btn = (props: {className?: string; label: string; onClick?: () => void})=>{
-  return(
-  <button className={`text-white bg-green-500 p-3 rounded-3xl ${props.className}`} onClick={props.onClick ?? (()=>{})}>
-    {props.label}
-  </button>)
 }
 
 const Input = (props: {className?: string; type?:"text" | "email" | "password"; placeholder: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void})=>{
@@ -90,67 +84,35 @@ const UserRegisterFormModal = (props: {onClickCloseBtn: () => void})=>{
   )
 }
 
-const EmailFormModal = (props: {onClickCloseBtn: () => void})=>{
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [pageNum, setPageNum] = useState(0); // 1: ユーザー情報入力、2: 登録完了
-
-  return (
-    <MoleculesModal onClickCloseBtn={props.onClickCloseBtn}>
-      <div className="flex flex-col items-center text-lg">
-        <h2 className="text-xl mb-2">ユーザー情報を登録します</h2>
-        <h2 className="text-xl mb-10">以下の情報を入力してください</h2>
-        <div className="h-20 mb-10 flex items-center w-98">
-          {pageNum === 0
-            ? <Input className="mb-5 w-full" type="email" placeholder="登録するメールアドレス" onChange={(e) => {}} />
-            : pageNum === 1
-            ? <Input className="mb-5 w-full" type="password" placeholder="パスワード(半角英数記号8文字以上)" onChange={(e) => {}} />
-            : pageNum === 2
-            ? <Input className="mb-5 w-full" type="password" placeholder="パスワード(確認用)" onChange={(e) => {}} />
-            : null
-          }
-        </div>
-        <div>
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded-4xl disabled:opacity-50"
-            onClick={() => {setPageNum((prev) => (prev - 1))}}
-            disabled={pageNum === 0}
-          >
-            戻る
-          </button>
-          <button
-            className="bg-green-500 text-white px-4 py-2 rounded-4xl  disabled:opacity-50"
-            onClick={() => {setPageNum((prev) => (prev + 1))}}
-            disabled={pageNum === 3}
-          >
-            次へ
-          </button>
-          {pageNum === 3 && <Btn className="w-40 mt-5" label="登録" onClick={()=>{}} />}
-        </div>
-      </div>
-    </MoleculesModal>
-  )
-}
-
 export const TemplatesInvite = (props: Props)=>{
   console.log("有効な招待コード：" + props.inviteCode)
   const [open, setOpen] = useState(false);
   const [openFormModal, setOpenFormModal] = useState(false);
-  const [type, setType] = useState<"email" | "other">("email");
   
   useEffect(()=>{
     store.dispatch(setLoading(false));
   },[])
 
-  const openModal = (type: "email" | "other")=>{
-    setType(type);
+  const openModal = ()=>{
     setOpen(true);
   }
 
   const openUserRegisterFormModal = ()=>{
     setOpenFormModal(true);
     setOpen(false);
+  }
+
+  const reqOAuth = async (service: "google" | "twitter" | "discord")=>{
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: service,
+      options: { redirectTo: APP_HOST + "/Redirect/Invite" }
+      
+    })
+
+    if(error){
+      console.error("OAuthサインインエラー:", error);
+      return;
+    }
   }
 
   return (
@@ -166,40 +128,43 @@ export const TemplatesInvite = (props: Props)=>{
       </div>
 
       <div className="flex flex-col items-center text-lg mt-10">
-        <Btn className="w-70 font-bold" label="メールアドレスで登録する" onClick={() => openModal("email")} />
-        <p className="my-3 text-lg">または</p>
-        <button className="w-70 border rounded-3xl p-3" onClick={() => openModal("other")}>
+        <button className="w-70 border rounded-3xl p-3" onClick={openModal}>
           外部サービスで登録する
         </button>
       </div>
 
       {open && (
         <MoleculesModal onClickCloseBtn={()=>setOpen(false)}>
-          {type === "email" ? (
-            <EmailFormModal onClickCloseBtn={() => setOpen(false)} />
-            ) : (
             <div className="flex flex-col items-center">
               <h2 className="text-xl mb-2">外部サービスのアカウントで登録します</h2>
               <h2 className="text-xl mb-10">以下のサービスを利用してユーザー登録が使用できます</h2>
               
               <div className="flex flex-col items-center text-lg w-70">
-                <button className="flex items-center border rounded-3xl p-3 mb-5 w-full justify-center" onClick={openUserRegisterFormModal}>
+                <button
+                  className="flex items-center border rounded-3xl p-3 mb-5 w-full justify-center"
+                  onClick={() => reqOAuth("google")}
+                >
                   <AtomsGoogleIcon className="inline-block mr-2" size={30}/>
                   <p className="flex-1">Googleで登録</p>
                 </button>
 
-                <button className="flex items-center text-gray-700  border bg-white rounded-3xl p-3 mb-5 w-full justify-center" onClick={openUserRegisterFormModal}>
+                <button
+                  className="flex items-center text-gray-700  border bg-white rounded-3xl p-3 mb-5 w-full justify-center"
+                  onClick={() => reqOAuth("twitter")}
+                >
                   <AtomsTwitterIcon className="inline-block mr-2" size={30}/>
                   <p className="flex-1">X（旧Twitter）で登録</p>
                 </button>
 
-                <button className="flex items-center text-indigo-500 border bg-white rounded-3xl p-3 mb-5 w-full justify-center" onClick={openUserRegisterFormModal}>
+                <button
+                  className="flex items-center text-indigo-500 border bg-white rounded-3xl p-3 mb-5 w-full justify-center"
+                  onClick={() => reqOAuth("discord")}
+                >
                   <AtomsDiscordIcon className="inline-block mr-2" size={30}/>
                   <p className="flex-1">Discordで登録</p>
                 </button>
               </div>
             </div>
-          )}
         </MoleculesModal>
       )}
 
