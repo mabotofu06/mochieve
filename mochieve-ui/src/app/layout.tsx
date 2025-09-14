@@ -27,6 +27,7 @@ const geistMono = Geist_Mono({
 
 const headerHidePathList = [
   '/Invite',
+  '/Redirect/Invite',
   '/Wellcome'
 ]
 

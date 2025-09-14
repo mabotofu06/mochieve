@@ -7,6 +7,7 @@ import { decodeSupabaseJWT, setSessionCookie } from '@/app/_constants/utils/sess
 import { setUserInfoByToken } from '@/app/_constants/redis/client';
 import { supabase } from '@/app/_constants/supabase/client';
 import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<UserInfo|null>>> {
   const cookie = await cookies();
@@ -23,6 +24,16 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
 
     const userInfoData = await fetchUserInfoByUid(supabase, uid??'');
     if (!userInfoData) {
+      const roleSupabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+        process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+      );
+      // ユーザ情報が取得できなかった場合、認証情報が不整合を起こしている可能性があるため
+      // Supabaseから認証ユーザを削除
+      const { error } = await roleSupabase.auth.admin.deleteUser(uid);
+      if (error) {
+        console.error("Error deleting user from Supabase:", error);
+      }
       return resUnauthorized(cookie);
     }
     const userInfo: UserInfo = {
