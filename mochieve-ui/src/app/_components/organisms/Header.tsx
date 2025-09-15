@@ -98,7 +98,7 @@ export default function OrganismsHeader() {
         </div>
         <a href={APP_HOST+"/Wellcome"}>Wellcomeページ</a>
         <br />
-        <a href={APP_HOST+"/Invite/testInviteCode"}>招待ページ（テスト用）</a>
+        <a href={APP_HOST+"/Invite?invite_code=testInviteCode"}>招待ページ（テスト用）</a>
         <p className="text-center text-gray-500 text-xs p-3">© 2024 {APP_NAME}. All rights reserved.</p>
       </div>
     </header>

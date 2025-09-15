@@ -149,7 +149,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     return resInternalServerError(cookie, "Failed to upload image");
   }
 
-  const { data: rpcData, error: rpcError } = await authedClient.rpc(
+  const { error: rpcError } = await authedClient.rpc(
     "update_group_and_post", {
     p_group_id: workGroup.group_id,
     p_user_id: userInfo.id,

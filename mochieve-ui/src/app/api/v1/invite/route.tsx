@@ -14,8 +14,16 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
     return resValidationError(cookie);
   }
 
-  const { data, error } = await supabase.from('invite').select().eq('code', inviteCode).single();
+  const { data, error }
+    = await supabase
+      .from('invite_info')
+      .select()
+      .eq('code', inviteCode)
+      .eq('used_flag', false)
+      .eq('delete_flag', false)
+      .single();
   if (error) {
+    console.error("招待コードの取得エラー:", error);
     return resValidationError(cookie);
   }
   if (!data) {

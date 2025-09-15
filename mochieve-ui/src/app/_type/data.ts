@@ -21,6 +21,12 @@ export interface UserInfo {
   iconImg: string;
 }
 
+export interface AuthUserInfo {
+  token: string;
+  uid: string;
+  avatarUrl: string;
+  userName: string;
+}
 
 export interface WorkGroup {
   id: string;
@@ -38,4 +44,13 @@ export interface WorkPost {
   note: string;
   image: string;
   createdAt: string;
+}
+
+export interface UserCreateData {
+  token: string;
+  inviteCode: string;
+  uid: string;
+  userId: string;
+  userName: string;
+  iconImgUrl: string;
 }

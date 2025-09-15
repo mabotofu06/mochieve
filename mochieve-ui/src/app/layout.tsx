@@ -37,6 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [hideHeader, setHideHeader] =  useState(false)
+  const [fetching, setFetching] = useState(true);
+
   useEffect(()=>{
     const location = window.location
     let hide = false;
@@ -44,6 +46,7 @@ export default function RootLayout({
       hide = location.pathname.startsWith(path) || hide
     })
     setHideHeader(hide);
+    setFetching(false);
   },[])
   
   clearEditWorkGroupId();

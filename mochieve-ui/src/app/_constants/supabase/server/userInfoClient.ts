@@ -12,7 +12,8 @@ export const fetchUserInfoByUid = async(supabase: SupabaseClient, uid: string): 
       .eq('delete_flag', false)
       .single();
   if (error) {
-    throw error;
+    console.error("UIDを元にユーザー情報が取得できませんでした:", error.message);
+    return undefined;
   }
 
   return data as GetUserData;

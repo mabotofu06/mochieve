@@ -1,9 +1,7 @@
 "use client"
 
-import { supabase } from "@/app/_constants/supabase/client";
-import { setLoading } from "@/app/_state/slice/modal";
-import { store } from "@/app/_state/store";
-import { Session } from "@supabase/auth-js";
+import { getFetch, postFetch } from "@/app/_constants/fetch";
+import { AuthUserInfo, UserCreateData } from "@/app/_type/data";
 import { useEffect, useState } from "react";
 
 const Input = (props: {
@@ -23,123 +21,166 @@ const Input = (props: {
   )
 }
 
-interface AuthUserInfo {
-  uid: string;
-  avatarUrl: string;
-  userName: string;
+const UserIcon = (props: { url: string }) => {
+  return (
+    <div key="icon" className="flex flex-col items-center mb-5 text-lg w-full">
+      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-green-500 flex items-center justify-center bg-gray-100 mb-5">
+        <img
+          className="object-cover w-full h-full"
+          src={props.url}
+          alt="User Icon"
+        />
+      </div>
+    </div>
+  )
 }
 
-const fetchSession = async (): Promise<AuthUserInfo> => {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    console.error("Error fetching session:", error);
-    throw new Error("User not found");
-  }
-  
-  const session: Session | null = data.session;
-  if(!session) throw new Error("User not found");
-  const user = session.user;
-  const uid  = user.id;
-  const avatarUrl = user.user_metadata?.avatar_url || "";
-  const userName  = user.user_metadata?.full_name || user.user_metadata?.name || "";
+const UserIdForm = (props: { userId: string, setUserId: (id: string)=>void }) => {
+  return (
+    <div key="userId" className="flex flex-col items-center mb-5 text-lg w-98">
+      <p className="mb-2">MochieveアカウントのユーザIDを設定してください</p>
+      <p className="text-sm mb-8">※5~20文字の半角英数とアンダースコア(_)のみ使用可能です</p>
+      <Input
+        className="mb-5 w-full"
+        placeholder="ユーザIDを入力"
+        initialValue={props.userId}
+        onChange={(e) => { props.setUserId(e.target.value) }}
+      />
+    </div>
+  )
+}
 
-  return { uid, avatarUrl, userName };
-};
+type Props = {
+  code: string,
+  authInfo: AuthUserInfo
+}
+
+/**
+ * ユーザー登録の制約
+ * * userId: 半角英数_重複不可 5~25文字
+ * * userName: 3~50文字
+ * * userIcon: 連携したサービスのアイコン（変更不可）
+ * 
+ * ユーザ更新は初期版では不可、後々実装予定
+ * 
+ * @param props 
+ * @returns 
+ */
 
 
-export const OrganismsUserRegisterForm = () => {
-  const [inviteCode , setInviteCode] = useState<string | null>(null);
-  const [uid        , setUid] = useState<string>("");
-  const [userId     , setUserId] = useState<string>("");
-  const [userName   , setUserName] = useState<string>("");
-  const [userIconUrl, setUserIconUrl] = useState<string>("");
-  const [IconImg, setIconImg] = useState<File|null>(null);
-  const [pageNum, setPageNum] = useState(0); // 1: ユーザー情報入力、2: 登録完了
+export const OrganismsUserRegisterForm = (props: Props) => {
+  const inviteCode = props.code;
+  const token      = props.authInfo.token;
+  const uid        = props.authInfo.uid;
+  const iconUrl    = props.authInfo.avatarUrl;
+  const [userId  , setUserId]   = useState<string>("");
+  const [userName, setUserName] = useState<string>(props.authInfo.userName);
+  const [pageNum , setPageNum]  = useState(0); // 1: ユーザー情報入力、2: 登録完了
 
-  useEffect(()=>{
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("invite_code");
-    if(!code){
-      throw new Error("Invite code not found");
+  const submitUser = async () => {
+    if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
+      window.alert("ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です");
+      return;
     }
-    setInviteCode(code);
-    console.log("招待コード：" + code);
+    if(!userName || userName.length < 3 || userName.length > 50){
+      window.alert("ユーザ名は3~50文字で入力してください");
+      return;
+    }
+    if(!inviteCode){
+      window.alert("招待コードが不正です。もう一度やり直してください");
+      return;
+    }
+    if(!uid || !token){
+      console.error("ユーザ情報が不正です", uid, token);
+      window.alert("ユーザ情報が不正です。もう一度やり直してください");
+      return;
+    }
+    //ユーザ登録APIを叩く
+    const res = await postFetch<UserCreateData, any>("/api/v1/user", {
+      token,
+      inviteCode,
+      uid,
+      userId: "@" + userId,
+      userName,
+      iconImgUrl: iconUrl
+    });
 
-    fetchSession()
-      .then((authInfo) => {
-        console.log("Session sent successfully", authInfo);
-        setUid(authInfo.uid);
-        setUserName(authInfo.userName);
-        setUserIconUrl(authInfo.avatarUrl);
-      })
-      .catch(err => {
-        console.error("Error fetching session:", err);
-      })
-      .finally(()=>{store.dispatch(setLoading(false))})
-  },[])
+    if(res.status !== 200){
+      window.alert(res.message);
+      return;
+    }
+
+    //TODO:できれば登録完了できましたモーダル的な表示にしたい
+    window.location.href = "/";
+    return;
+  }
+
+  const toUserNameForm = async ()=>{
+    console.log("ユーザID確認:", userId);
+    if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
+      window.alert("ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です");
+      return;
+    }
+    const res = await getFetch("/api/v1/user/check?user_id=@" + userId);
+    if(res.status !== 200){
+      const data = res;
+      window.alert(data.message);
+      return;
+    }
+    setPageNum(1);
+  }
 
   return (
-      <div className="flex flex-col items-center text-lg pt-10">
-        <h2 className="text-xl mb-2">登録完了まであと少しです！</h2>
-        <h2 className="text-xl mb-10">以下の情報を入力してください</h2>
-        <h2 className="text-xl mb-2">※リロードや前のページには戻らないでください</h2>
-        <div className="h-50 mb-10 flex items-center w-98">
-          {pageNum === 0
-            ? <Input
-                key="userId"
-                className="mb-5 w-full"
-                placeholder="ユーザIDを入力（半角英数_重複不可）"
-                initialValue={userId}
-                onChange={(e) => { setUserId(e.target.value) }}
-              />
-            : pageNum === 1
-            ? <Input
-                key="userName"
-                className="mb-5 w-full"
-                placeholder="ユーザ名を入力"
-                initialValue={userName}
-                onChange={(e) => { setUserName(e.target.value) }}
-              />
-            : pageNum === 2
-            ? <div key="icon" className="flex flex-col items-center mb-5 text-lg w-full">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300 flex items-center justify-center bg-gray-100 mb-5">
-                  <img
-                    className="object-cover w-full h-full"
-                    src={IconImg ? URL.createObjectURL(IconImg) : userIconUrl}
-                    alt="User Icon"
-                  />
-                </div>
-                <label className="inline-block bg-green-500 text-white px-4 py-2 cursor-pointer rounded-4xl">
-                  アイコンを変更
-                  <input
-                    className="hidden"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      setIconImg(file);
-                    }}
-                  />
-                </label>
-              </div>
-            : null
-          }
+      <div className="flex flex-col items-center text-lg pt-15">
+        <h2 className="text-2xl font-bold mb-2">登録完了まであと少しです！</h2>
+        <div className="h-50 my-10 flex items-center">
+          <div className="w-full">
+                {pageNum === 0
+                  ? <UserIdForm userId={userId} setUserId={setUserId} />
+                  : pageNum === 1
+                  ? (<div className="flex flex-col items-center mt-15 mb-5 text-lg w-98">
+                    <p className="mb-3">ユーザー名とアイコンを確認してください</p>
+                    <p>連携したサービスのものが設定されています</p>
+                    <p>※ユーザー名のみ変更可能です</p>
+                    <Input
+                      key="userName"
+                      className="mb-5 w-full"
+                      placeholder="ユーザ名を入力"
+                      initialValue={userName}
+                      onChange={(e) => { setUserName(e.target.value) }}
+                    />
+              <UserIcon url={iconUrl} />
+              </div>)
+              : null
+            }
+          </div>
         </div>
-        <div>
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-4xl disabled:opacity-50"
-          onClick={() => {setPageNum((prev) => (prev - 1))}}
-          disabled={pageNum === 0}
-        >
-          戻る
-        </button>
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-4xl  disabled:opacity-50"
-          onClick={() => {setPageNum((prev) => (prev + 1))}}
-          disabled={pageNum === 3}
-        >
-          次へ
-        </button>
+        <div className="flex justify-between w-70">
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded-4xl disabled:opacity-50"
+            onClick={() => {setPageNum((prev) => (prev - 1))}}
+            disabled={pageNum === 0}
+          >
+            戻る
+          </button>
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded-4xl  disabled:opacity-50"
+            onClick={async () => {
+              switch(pageNum){
+                case 0:
+                  await toUserNameForm();
+                  return;
+                case 1:
+                  await submitUser();
+                  return;
+                default:
+                  return;
+              }
+            }}
+            disabled={pageNum === 3}
+          >
+            次へ
+          </button>
         </div>
       </div>
   )
