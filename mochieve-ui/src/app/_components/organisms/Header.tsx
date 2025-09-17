@@ -12,6 +12,7 @@ import { Hachi_Maru_Pop } from "next/font/google";
 import { getFetch } from "@/app/_constants/fetch";
 import { ErrorResponse } from "@/app/_type/api";
 import { getMyWorksCache } from "@/app/_constants/localCache/myWork";
+import { UserInfo } from "@/app/_type/data";
 
 const pacifico = Pacifico({
   variable: "--font-pacifico",
@@ -26,7 +27,7 @@ const hachiMaruPop = Hachi_Maru_Pop({
 });
 
 export default function OrganismsHeader() {
-  const [userInfo, setUserInfo] = useState(getUserInfo());
+  const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
 
   useEffect(() => {
     setUserInfo(getUserInfo());
@@ -50,8 +51,9 @@ export default function OrganismsHeader() {
     store.dispatch(openPostFormModal({ groupId: null }));
   };
 
+  if(!userInfo) null;
   return (
-    <header className="bg-white shadow flex flex-col justify-between w-80">
+    <header className="bg-white flex flex-col justify-between w-80 border-r border-gray-300">
       <div>
         <div className="flex flex-col p-3 text-green-800 items-center mb-10" onClick={()=>{location.href=APP_SERVICE.TOP.link}}>
           <h1 className={"text-5xl font-semibold "+pacifico.className}>{APP_NAME}</h1>
@@ -77,6 +79,8 @@ export default function OrganismsHeader() {
         <hr className="my-5 border-t border-gray-300" />
         {/* TODO:外部の開発者向け情報を掲載 */}
         <div className="flex justify-center mb-2">
+          <p className="mr-2">問い合わせ</p>
+          <p className="mr-2">プライバシーポリシー</p>
           <a
             href="https://github.com/mabotofu06/mochieve"
             target="_blank"

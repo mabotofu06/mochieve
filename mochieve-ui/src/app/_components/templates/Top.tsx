@@ -1,10 +1,8 @@
 import { OrganismsTabMenu } from "../organisms/TabMenu";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OrganismsGroupCard } from "../organisms/GroupCard";
 import { WorkGroup } from "@/app/_type/data";
 import { BL_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
-import { store } from "@/app/_state/store";
-import { setLoading } from "@/app/_state/slice/modal";
 import { MoleculesTimeline } from "../molecules/Timeline";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
@@ -33,6 +31,7 @@ export default function TemplateTop(props: Props) {
 
   const displayData = getFilteredWorkGroup();
 
+  //TODO: 読み込み中ローディングなどで操作できないようにする
   const fetchData = async()=>{
     if(isMax){
       window.alert("データはこれ以上ありません")
@@ -47,6 +46,7 @@ export default function TemplateTop(props: Props) {
 
     if(newDataList.length === 0){
       setIsMax(true);
+      window.alert("データはこれ以上ありません")
       return;
     }
     setGroupList([...groupList, ...newDataList])

@@ -7,7 +7,6 @@ import { Provider, useSelector } from "react-redux";
 import { store } from "./_state/store";
 import { OrganismsPostFormModal } from "./_components/organisms/modal/PostFormModal";
 import OrganismsLoginForm from "./_components/organisms/modal/LoginForm";
-import { OrganismsWellcomeModal } from "./_components/organisms/modal/WellcomeModal";
 import { clearEditWorkGroupId } from "./_state/storage";
 import { OrganismsGroupFormModal } from "./_components/organisms/modal/GroupFormModal";
 import { OrganismsImageDetailModal } from "./_components/organisms/modal/ImageDetailModal";
@@ -37,7 +36,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [hideHeader, setHideHeader] =  useState(false)
-  const [fetching, setFetching] = useState(true);
 
   useEffect(()=>{
     const location = window.location
@@ -46,7 +44,6 @@ export default function RootLayout({
       hide = location.pathname.startsWith(path) || hide
     })
     setHideHeader(hide);
-    setFetching(false);
   },[])
   
   clearEditWorkGroupId();

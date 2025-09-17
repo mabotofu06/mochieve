@@ -25,13 +25,21 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
     return resUnauthorized(cookie, "ユーザが認証されていませんでした。再ログインしてください。");
   }
 
+  const { searchParams } = new URL(req.url);
+  // タイムライン取得期間(単位: ミリ秒)
+  const period: number = Number(searchParams.get("period") ?? 0);
+  const datetime = period !== 0
+      ? new Date(period)
+      : new Date();
+
   const result
     = await supabase
       .from("work_group")
       .select("*")
       .eq("user_id", userId)
       .eq("delete_flag", false)
-      .order("update_datetime", { ascending: true })
+      .lt("update_datetime", datetime.toISOString())
+      .order("update_datetime", { ascending: false })
       .limit(CACHE_INFO.MY_WORKS_DATA.MAX_SIZE);
 
   if(result.error || !result.data) {

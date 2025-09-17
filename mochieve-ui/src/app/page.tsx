@@ -4,7 +4,7 @@ import { APP_NAME, BL_INFO } from "./_constants/app";
 import TemplateTop from "./_components/templates/Top";
 import { useEffect, useState } from "react";
 import { store } from "./_state/store";
-import { setLoading } from "./_state/slice/modal";
+import { openErrorModal, setLoading } from "./_state/slice/modal";
 import { getFetch } from "./_constants/fetch";
 import { getTimelineCache, addTimelineCacheToEnd } from "./_constants/localCache/timeline";
 import { ApiResponse, SuccessResponse } from "./_type/api";
@@ -15,6 +15,13 @@ export default function Page() {
   let isFetching = false;
 
   useEffect(()=>{
+    const searchParams = new URLSearchParams(window.location.search);
+    const error = searchParams.get("error");
+
+    if(error) {
+      store.dispatch(openErrorModal({title: 'エラー', message: decodeURIComponent(error)}));
+    }
+
     if (isFetching) return;
     document.title = `トップ | ${APP_NAME}`
     //複数回Fetchされるのを防止

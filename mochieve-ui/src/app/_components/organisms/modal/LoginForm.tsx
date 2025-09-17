@@ -14,13 +14,12 @@ import { AtomsTwitterIcon } from "../../atoms/icon/Twitter";
 const INFO_MESSAGE = (
   <span className="text-center">
     現在 {APP_NAME} は招待されたユーザのみログインが可能です<br />
-    ログインなしでも投稿は自由に閲覧可能なので、ぜひ素敵な進捗を共有しましょう！
+    ログインなしでも閲覧は自由なので、ぜひ素敵な進捗を見つけて共有しましょう！
   </span>
 );
 
 export default function OrganismsLoginForm() {
   const modalOpen = useSelector((state: any) => state.modal.openLoginModal);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const closeModal = () => {
@@ -29,14 +28,12 @@ export default function OrganismsLoginForm() {
 
   const handleOAuth = async (provider: "google"|"twitter"|"discord") => {
     setLoading(true);
-    setError("");
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: APP_HOST + "/Redirect/Login" }
     });
 
     if (error) {
-      setError(error.message);
       setLoading(false);
       return;
     }

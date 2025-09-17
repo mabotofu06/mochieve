@@ -30,7 +30,7 @@ const fetchUserInfo = async (): Promise<UserInfo> => {
   );
 
   if(res.status !== 200) {
-    throw new Error("Failed to fetch user info");
+    throw new Error(res.message || "Failed to fetch user info");
   }
 
   return (res as SuccessResponse<UserInfo>).data;
@@ -39,21 +39,21 @@ const fetchUserInfo = async (): Promise<UserInfo> => {
 export default function RedirectLoginPage() {
   useEffect(() => {
     fetchUserInfo()
-    .then((userInfo) => {
-      console.log("Session sent successfully");
-      setUserInfo(userInfo);
-    })
-    .catch(err => {
-      console.error("Error fetching user info:", err);
-    })
-    .finally(() => {
-      window.location.href = APP_SERVICE.TOP.link;
-    });
+      .then((userInfo) => {
+        console.log("Session sent successfully");
+        setUserInfo(userInfo);
+        window.location.href = APP_SERVICE.TOP.link;
+      })
+      .catch(err => {
+        console.error("Error fetching user info:", err);
+        window.location.href = APP_SERVICE.TOP.link+`?error=${err.message}`;
+        return;
+      })
   }, []);
 
   return (
     <div>
-      <h1>Redirecting to Login...</h1>
+      <h1>リダイレクト中…</h1>
     </div>
   );
 }
