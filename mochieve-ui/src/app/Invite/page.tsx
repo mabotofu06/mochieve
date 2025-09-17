@@ -43,9 +43,8 @@ export default function InvitePage() {
       });
   },[])
 
-  if (!inviteCode) {
-    return <div></div>;
-  }
+  // 招待コードが無効な場合は何も表示しない
+  if (!inviteCode) return null;
 
   return (showError
     ? (

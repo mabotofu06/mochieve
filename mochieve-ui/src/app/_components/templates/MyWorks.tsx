@@ -10,6 +10,7 @@ import { openErrorModal, setLoading } from "@/app/_state/slice/modal";
 import { getFetch } from "@/app/_constants/fetch";
 import { ApiResponse, SuccessResponse } from "@/app/_type/api";
 import { getMyWorksCache, pushMyWorksCache } from "@/app/_constants/localCache/myWork";
+import { MoleculesTimeline } from "../molecules/Timeline";
 
 type Props = {
   userId: string;
@@ -17,7 +18,7 @@ type Props = {
 
 export const TemplatesMyWorks = (props: Props) => {
   const NAV_LIST = Object.values(MY_WORK_NAV_MENU);
-  const initialTab = MY_WORK_NAV_MENU.ALL.code;
+  const initialTab = NAV_LIST[0].code;
   const [groups, setGroups] = useState<WorkGroup[]>([]);
   const [activeTab, setActiveTab] = useState<number>(initialTab);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -54,7 +55,8 @@ export const TemplatesMyWorks = (props: Props) => {
       return;
     }
 
-    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}`)//?type=${NAV_LIST.find(tab => tab.code === activeTab)?.code ?? ""}`)
+    //TODO: 指定日時以前の更新分のみ取得するよう修正
+    getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}`)
       .then((res: ApiResponse<WorkGroup[]>)=>{
         if(res.status !== 200){
           console.error("Error fetching work groups:", res);
@@ -99,9 +101,11 @@ export const TemplatesMyWorks = (props: Props) => {
           ? (<div className="w-full bg-white content-center text-center mt-10">
               投稿がまだありません。
             </div>)
-          : groups.map((group, index) => (
-              <OrganismsGroupCard className="mt-3" key={index} group={group} />
-            ))
+          : <MoleculesTimeline>
+              {groups.map((group, index) => (
+                <OrganismsGroupCard className="mt-3" key={index} group={group} />
+              ))}
+            </MoleculesTimeline>
         }
       </div>}
     </div>

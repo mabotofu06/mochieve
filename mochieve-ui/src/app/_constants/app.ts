@@ -62,15 +62,15 @@ export const APP_SERVICE = {
 }
 
 export const MY_WORK_NAV_MENU = {
-  ALL      : { label: "すべて", code: 0 },
   WORKING  : { label: "作業中", code: 1 },
+  ALL      : { label: "すべて", code: 0 },
   DONE     : { label: "完了", code: 2 },
 }
 
 export const TOP_NAV_MENU = {
   WORKING: { label: "作業中の投稿", code: 1 },
   TODAY  : { label: "本日更新"    , code: 0 },
-  DONE   : { label: "完了した投稿", code: 2 },
+  DONE   : { label: "完了している投稿", code: 2 },
 }
 
 export const CACHE_INFO = {

@@ -57,7 +57,7 @@ export function OrganismsGroupCard(props: Props) {
           </div>
         </div>,
         <div key="header-update" className="post-update text-gray-500">
-          更新：{new Date(props.group.updatedAt).toLocaleDateString()}
+          更新：{new Date(props.group.updatedAt).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}
         </div>
       ]
       )

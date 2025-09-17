@@ -34,8 +34,8 @@ export const TemplatesInvite = (props: Props)=>{
   return (
     <div className="flex flex-col items-center bg-white h-screen text-2xl overflow-y-auto">
       <div className="flex flex-col items-center my-10 gap-1">
-        <h1>おめでとうございます！</h1>
-        <p>あなたは Mochieve(もちべ) α版ユーザーとして招待されました🎉</p>
+        <h1>おめでとうございます🎉</h1>
+        <p>あなたは Mochieve(もちべ) α版ユーザーとして招待されました！</p>
 
         <p className="mt-5 text-lg">Mochieveに登録して進捗状況を投稿・共有してみませんか？</p>
         <div className="flex items-center gap-2 text-lg mt-3">

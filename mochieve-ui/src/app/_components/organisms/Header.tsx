@@ -7,18 +7,11 @@ import { OrganismsUserMenu } from "./UserMenu";
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { useEffect, useState } from "react";
 
-import {Caveat_Brush} from 'next/font/google'
 import {Pacifico} from 'next/font/google'
 import { Hachi_Maru_Pop } from "next/font/google";
 import { getFetch } from "@/app/_constants/fetch";
 import { ErrorResponse } from "@/app/_type/api";
 import { getMyWorksCache } from "@/app/_constants/localCache/myWork";
-
-const caveatBrush = Caveat_Brush({
-  variable: "--font-caveat-brush",
-  subsets: ["latin"],
-  weight: "400",
-});
 
 const pacifico = Pacifico({
   variable: "--font-pacifico",

@@ -32,6 +32,17 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
     deleteDatetime: null
   }
 
+  //TODO:uidの重複チェック
+  const existingUser = await supabase
+    .from("user_info")
+    .select("auth_id")
+    .eq("uid", userInfo.uid)
+    .single();
+
+  if (existingUser.data) {
+    return resValidationError(cookie, "このユーザはすでに登録されています");
+  }
+
   const authedClient = getAuthServerClient(reqBody.token);
 
   // トランザクション処理でユーザ登録と招待コードの更新を行う

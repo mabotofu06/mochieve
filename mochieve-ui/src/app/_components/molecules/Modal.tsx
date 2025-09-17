@@ -10,7 +10,7 @@ export const MoleculesModal = (props: Props) => {
   return (
     <div className={`overlay`}>
       {/* モーダル */}
-      <div className="flex flex-col max-h-4/5 overflow-y-auto">
+      <div className="flex flex-col max-h-4/5 overflow-y-auto custom-scrollbar">
         <div className="modal bg-white rounded-2xl p-5 min-w-[600px]">
           <div className="flex justify-end">
             <button

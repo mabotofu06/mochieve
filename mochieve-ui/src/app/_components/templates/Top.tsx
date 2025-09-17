@@ -10,6 +10,7 @@ import { ApiResponse, SuccessResponse } from "@/app/_type/api";
 import { store } from "@/app/_state/store";
 import { setLoading } from "@/app/_state/slice/modal";
 import { addTimelineCacheToEnd, getTimelineCache } from "@/app/_constants/localCache/timeline";
+import { MoleculesTimeline } from "../molecules/Timeline";
 
 export default function TemplateTop() {
   const [activeTab, setActiveTab] = useState<number>(TOP_NAV_MENU.WORKING.code);
@@ -85,14 +86,16 @@ export default function TemplateTop() {
         ? <div className="flex-1 w-full bg-white content-center text-center h-full">
             loading...
           </div>
-        : groups.length === 0
+        : <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
+          {groups.length === 0
             ?(<div className="w-full text-center mt-10">投稿はまだありません</div>)
-            :<div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
-            {groups.map((group) => (
-              <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
-            ))}
-          </div>
+            :<MoleculesTimeline>
+              {groups.map((group) => (
+                <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
+              ))}
+            </MoleculesTimeline>
       }
+    </div>}
     </div>
   );
 }
