@@ -10,7 +10,6 @@ export const BL_INFO = {
     AUTH_CALLBACK: "/api/v1/callback/auth",
     LOGIN: "/api/v1/login",
     LOGOUT: "/api/v1/logout",
-    GET_TIMELINE: "/api/v1/timeline/work",
     CACHE_USER_INFO: "/api/v1/cache/user/info",
     CACHE_USER_AUTH: "/api/v1/cache/user/auth",
     WORK_POST: "/api/v1/work/post",
@@ -39,7 +38,7 @@ export const APP_SERVICE = {
     title: `トップ | ${APP_NAME}`,
     description: "アプリのトップページ",
     icon: "home",
-    link: "/Top"
+    link: "/"
   },
   USER_INFO: {
     title: `ユーザー | ${APP_NAME}`,

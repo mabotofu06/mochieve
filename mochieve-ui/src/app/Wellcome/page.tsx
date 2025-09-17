@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { store } from "../_state/store";
 import { setLoading } from "../_state/slice/modal";
+import { APP_SERVICE } from "../_constants/app";
 
 export default function Wellcome() {
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function Wellcome() {
         <li>応援・コメント機能</li>
         <li>画像アップロードによる成果の可視化</li>
       </ul>
-      <a href="/Top" className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">はじめる</a>
+      <a href={APP_SERVICE.TOP.link} className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition">はじめる</a>
     </main>
   );
 }

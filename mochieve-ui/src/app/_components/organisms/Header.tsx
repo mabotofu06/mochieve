@@ -1,6 +1,6 @@
 "use client"
 
-import { APP_HOST, APP_NAME, BL_INFO, MAX_POST_NUM, MAX_WORKING_POST_NUM } from "@/app/_constants/app";
+import { APP_HOST, APP_NAME, APP_SERVICE, BL_INFO, MAX_POST_NUM, MAX_WORKING_POST_NUM } from "@/app/_constants/app";
 import { openErrorModal, openPostFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { OrganismsUserMenu } from "./UserMenu";
@@ -53,7 +53,7 @@ export default function OrganismsHeader() {
   return (
     <header className="bg-white shadow flex flex-col justify-between w-80">
       <div>
-        <div className="flex flex-col p-3 text-green-800 items-center mb-10" onClick={()=>{location.href="/Top"}}>
+        <div className="flex flex-col p-3 text-green-800 items-center mb-10" onClick={()=>{location.href=APP_SERVICE.TOP.link}}>
           <h1 className={"text-5xl font-semibold "+pacifico.className}>{APP_NAME}</h1>
           <span className={"mt-2 mb-1 " + hachiMaruPop.className}>もちべ</span>
           <span className={"text-sm " + hachiMaruPop.className}>-日々の進捗を気軽に共有しよう！-</span>

@@ -1,7 +1,7 @@
 "use client"
 
 import { setUserInfo } from "@/app/_composables/userInfo";
-import { BL_INFO } from "@/app/_constants/app";
+import { APP_SERVICE, BL_INFO } from "@/app/_constants/app";
 import { postFetch } from "@/app/_constants/fetch";
 import { supabase } from "@/app/_constants/supabase/client";
 import { ApiResponse, SuccessResponse } from "@/app/_type/api";
@@ -47,7 +47,7 @@ export default function RedirectLoginPage() {
       console.error("Error fetching user info:", err);
     })
     .finally(() => {
-      window.location.href = "/Top";
+      window.location.href = APP_SERVICE.TOP.link;
     });
   }, []);
 

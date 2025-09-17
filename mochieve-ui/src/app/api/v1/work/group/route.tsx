@@ -17,16 +17,22 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
   // Handle GET request
   const cookie = await cookies();
   const { searchParams } = new URL(req.url);
-  const type = searchParams.get("type");
-  const baseQuery
-    = supabase
-        .from("work_group")
-        .select("*")
-        .eq("delete_flag", false)
-        .order("update_datetime", { ascending: false })
-        .limit(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
+  // タイムライン取得期間(単位: ミリ秒)
+  const period: number = Number(searchParams.get("period") ?? 0);
+  const datetime = period !== 0
+      ? new Date(period)
+      : new Date();
 
-  let supabaseResult = await baseQuery;
+  console.log("Timeline Request Period:", period, datetime.toISOString());
+
+  const supabaseResult
+    = await supabase
+      .from("work_group")
+      .select("*")
+      .eq("delete_flag", false)
+      .lt("update_datetime", datetime.toISOString())
+      .order("update_datetime", { ascending: false })
+      .limit(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
 
   console.log("Supabase Result:", supabaseResult);
 

@@ -1,5 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
+import { APP_NAME } from "../_constants/app";
+import { store } from "../_state/store";
+import { setLoading } from "../_state/slice/modal";
+
 type Props = {
   title: string;
   date: string;
@@ -14,6 +19,12 @@ const NewsCard = (props: Props) => {
 };
 
 export default function Page() {
+  useEffect(() => {
+    document.title = `お知らせ | ${APP_NAME}`;
+    store.dispatch(setLoading(false))
+  }, []);
+
+
   return (
     <div className="flex flex-col items-center h-screen overflow-y-auto bg-white custom-scrollbar px-5 py-10">
       <NewsCard date="2025/10/15" title="アルファ版（v0.0.1）をリリースしました！" />
