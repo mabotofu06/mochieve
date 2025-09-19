@@ -10,9 +10,10 @@ import { useEffect, useState } from "react";
 import {Pacifico} from 'next/font/google'
 import { Hachi_Maru_Pop } from "next/font/google";
 import { getFetch } from "@/app/_constants/fetch";
-import { ErrorResponse } from "@/app/_type/api";
+import { ErrorResponse, SuccessResponse } from "@/app/_type/api";
 import { getMyWorksCache } from "@/app/_constants/localCache/myWork";
 import { UserInfo } from "@/app/_type/data";
+import { getCanNewPost, setCanNewPost } from "@/app/_constants/localCache/canNewPost";
 
 const pacifico = Pacifico({
   variable: "--font-pacifico",
@@ -35,16 +36,33 @@ export default function OrganismsHeader() {
   }, []);
 
   const createNewWorks = async () => {
-    const myWorkCache = getMyWorksCache();
-    if(myWorkCache.length >= MAX_WORKING_POST_NUM) {
-      store.dispatch(openErrorModal({ title: "新しいプロジェクトの作成上限に達しています", message: `1ユーザーあたりのプロジェクト作成上限は${MAX_WORKING_POST_NUM}件です。既存のプロジェクトを削除してから再度お試しください。` }));
+    const canNewPost = getCanNewPost();
+    if(canNewPost === false) {
+      store.dispatch(
+        openErrorModal({
+          title: "新しいプロジェクトの作成上限に達しています",
+          message: `1ユーザーあたりのプロジェクト作成上限は${MAX_WORKING_POST_NUM}件です。既存のプロジェクトを削除してから再度お試しください。`
+        }));
       return;
     }
 
-    const checkRes = await getFetch(BL_INFO.API_ENDPOINT.WORK_GROUP_CHECK);
+    const checkRes = await getFetch<boolean>(BL_INFO.API_ENDPOINT.WORK_GROUP_CHECK);
     if(checkRes.status !== 200) {
       const checkResError = checkRes as ErrorResponse;
-      store.dispatch(openErrorModal({ title: checkResError.message, message: checkResError.details || "不明なエラーが発生しました。時間をおいて再度お試しください。" }));
+      store.dispatch(openErrorModal({
+        title: checkResError.message,
+        message: checkResError.details || "不明なエラーが発生しました。時間をおいて再度お試しください。"
+      }));
+      return;
+    }
+    const data = (checkRes as SuccessResponse<boolean>).data;
+    setCanNewPost(data);
+    if(!data){
+      store.dispatch(
+        openErrorModal({
+          title: "新しいプロジェクトの作成上限に達しています",
+          message: `1ユーザーあたりのプロジェクト作成上限は${MAX_WORKING_POST_NUM}件です。既存のプロジェクトを削除してから再度お試しください。`
+        }));
       return;
     }
     console.log("新しいプロジェクトを作成");

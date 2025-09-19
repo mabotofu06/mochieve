@@ -1,11 +1,11 @@
 import { MAX_WORKING_POST_NUM } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
-import { resValidationError, getAuthedUserFromCookie, resUnauthorized, resSuccess, resInternalServerError } from "@/app/_constants/utils/apiUtils";
+import { getAuthedUserFromCookie, resUnauthorized, resSuccess, resInternalServerError } from "@/app/_constants/utils/apiUtils";
 import { ApiResponse } from "@/app/_type/api";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
+export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<boolean>>> {
   console.log("===== GET /api/v1/work/group/check =====");
 
   const cookie = await cookies();
@@ -27,12 +27,8 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
     return resInternalServerError(cookie, "Failed to retrieve open groups");
   }
   if (openGroupNum >= MAX_WORKING_POST_NUM) {
-    return resValidationError(
-      cookie,
-      "作業中の投稿が多すぎます",
-      `作業中の投稿は最大 ${MAX_WORKING_POST_NUM} 件までです。投稿を完了にしてください。`
-    );
+    return resSuccess(cookie, false);
   }
 
-  return resSuccess(cookie, "success");
+  return resSuccess(cookie, true);
 }

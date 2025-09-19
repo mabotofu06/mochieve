@@ -8,6 +8,8 @@ import { postFetch, putFetch } from "@/app/_constants/fetch";
 import { BL_INFO } from "@/app/_constants/app";
 import { ApiResponse, PostRequestBody } from "@/app/_type/api";
 import { encodeBlob2Base64, fileToWebp } from "@/app/_constants/utils/fileUtil";
+import { clearCanNewPost } from "@/app/_constants/localCache/canNewPost";
+import { clearMyWorks } from "@/app/_constants/localCache/myWork";
 
 export const OrganismsPostFormModal = () => {
   const modalOpen = useSelector((state: {modal: {openPostFormModal: boolean}}) => state.modal.openPostFormModal);
@@ -50,7 +52,7 @@ export const OrganismsPostFormModal = () => {
    * フォームの内容をサーバに送信する
    * @returns 
    */
-  const submitWorkPost = async () => {
+  const submitWorkPost = async (isClose: boolean = false) => {
     //バリデーションチェック
     if(!validationCheck()) return;
 
@@ -70,7 +72,15 @@ export const OrganismsPostFormModal = () => {
         ? await putFetch<PostRequestBody, ApiResponse<boolean>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody)
         : await postFetch<PostRequestBody, ApiResponse<boolean>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody);
 
+    if(response.status !== 200) {
+      store.dispatch(openErrorModal({ title: "投稿エラー", message: "投稿に失敗しました" }));
+      return;
+    }
     closeModal();
+    clearCanNewPost();
+    clearMyWorks();
+
+    window.location.reload();
   }
 
   if (!modalOpen) return null;
@@ -106,7 +116,6 @@ export const OrganismsPostFormModal = () => {
                   e.stopPropagation();
                 if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                   setImage(e.dataTransfer.files[0]);
-                  //setNote(note => note); // ダミーのsetStateで再レンダリングを強制
                 }
                 }}
               >
@@ -128,11 +137,6 @@ export const OrganismsPostFormModal = () => {
                       
                     }
                   }}
-                  // ref={input => {
-                  //   if (input && !image) {
-                  //   input.value = "";
-                  //   }
-                  // }}
                 />
                 <span className="ml-4 text-gray-500">または画像をドラッグ＆ドロップ</span>
               </div>)
@@ -153,14 +157,14 @@ export const OrganismsPostFormModal = () => {
           <button
             type="submit"
             className="w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-lg mt-4"
-            onClick={submitWorkPost}
+            onClick={() => submitWorkPost()}
           >
             投稿する
           </button>
           {targetGroupId && <button
             type="submit"
             className="w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-lg mt-4"
-            onClick={submitWorkPost}
+            onClick={() => submitWorkPost(true)}
           >
             この投稿で完了にする
           </button> }

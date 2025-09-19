@@ -18,4 +18,5 @@ export interface PostRequestBody {
   groupId?  : string; // 新規作成の場合は不要
   note      : string;
   imageFile : string; // Base64エンコードされた画像データ
+  isClose?  : boolean; // 投稿後に完了にするかどうか
 }

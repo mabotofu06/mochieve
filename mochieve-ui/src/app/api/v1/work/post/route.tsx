@@ -113,7 +113,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
  * @param req 
  * @returns 
  */
-export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
+export async function PUT(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
   console.log("===== PUT /api/v1/work/post =====");
 
   const cookie = await cookies();
@@ -163,7 +163,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     return resInternalServerError(cookie, "Failed to update work group and post");
   }
 
-  return NextResponse.json({ message: "Success" });
+  return resSuccess(cookie, { groupId, note, imageUrl });
 }
 
 

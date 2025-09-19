@@ -80,9 +80,9 @@ export const checkCookieValidation = (cookie: ReadonlyRequestCookies): boolean =
   //有効期限チェック
   const now = Math.floor(Date.now() / 1000);
   return jwtObj.exp > now;
-};
-
-const getNewTokenAndSetRedis = async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string; userInfo: UserInfo } | null> => {
+  };
+  
+export const getNewTokenAndSetRedis = async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string; userInfo: UserInfo } | null> => {
   const newToken = await getNewToken(refreshToken);
   const uid = decodeSupabaseJWT(newToken.accessToken)?.sub;
   if (!uid) return null;

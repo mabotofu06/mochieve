@@ -26,3 +26,7 @@ export const pushMyWorksCache = (myWorksList: WorkGroup[]) => {
 export const getMyWorksCache = (): WorkGroup[] => {
   return myWorksCache.get() || [];
 };
+
+export const clearMyWorks = () => {
+  myWorksCache.clear();
+}

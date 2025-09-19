@@ -5,6 +5,7 @@ import { APP_HOST, BL_INFO } from "../app";
 import { getFetch } from "../fetch";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { setSessionCookie } from "./sessionUtils";
+import { getUserInfoByToken } from "../redis/client";
 
 
 export const resSuccess = <T>(cookies: ReadonlyRequestCookies, data: T, message = "Success", code = "SUCCESS"): NextResponse<SuccessResponse<T>> => {
@@ -14,7 +15,6 @@ export const resSuccess = <T>(cookies: ReadonlyRequestCookies, data: T, message 
     message,
     data
   }, { status: 200 });
-  setSessionCookie(res, cookies.get("accessToken")?.value || "", cookies.get("refreshToken")?.value || "");
   return res;
 }
 
@@ -28,7 +28,6 @@ export const ERROR_INFO = {
 
 export const resError = (error: ErrorResponse, cookies: ReadonlyRequestCookies): NextResponse<ErrorResponse> => {
   const res = NextResponse.json<ErrorResponse>(error, { status: error.status });
-  setSessionCookie(res, cookies.get("accessToken")?.value || "", cookies.get("refreshToken")?.value || "");
   return res;
 }
 
@@ -85,15 +84,7 @@ export const getAuthedUserFromCookie = async (cookie: ReadonlyRequestCookies): P
   const accessToken = cookie.get("accessToken")?.value;
   if (!accessToken) return null;
 
-  const res: ApiResponse<UserInfo>
-  = await getFetch<UserInfo>(
-        APP_HOST + BL_INFO.API_ENDPOINT.CACHE_USER_AUTH, {
-        headers: { Cookie: `accessToken=${accessToken}` }
-      });
+  const userInfo: UserInfo | null = await getUserInfoByToken(accessToken)
   
-  if (res.status !== 200) return null;
-  const userInfo = (res as SuccessResponse<UserInfo>).data;
-  if(!userInfo) return null;
-
   return userInfo;
 }
