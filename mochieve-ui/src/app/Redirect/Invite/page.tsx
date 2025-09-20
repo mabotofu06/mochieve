@@ -1,6 +1,7 @@
 "use client"
 
 import { OrganismsUserRegisterForm } from "@/app/_components/organisms/UserRegisterForm";
+import { APP_SERVICE } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
 import { setLoading } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
@@ -60,17 +61,19 @@ export default function RedirectInvitePage() {
   }, []);
 
   if (fetching) {
-    return <div></div>;
+    return null;
   }
 
   if (error || !inviteCode || !userAuthInfo) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-        <h1 className="text-4xl font-bold mb-4">ユーザー情報の取得に失敗しました</h1>
+      <div className="flex flex-col items-center justify-center text-center min-h-screen bg-white">
+        <h1 className="text-3xl font-bold mb-4">ユーザー登録中にエラーが発生しました</h1>
         <p className="text-lg mb-6 text-gray-700">
-          ユーザー情報の取得に失敗しました。<br/>
-          <a href={`/Invite?invite_code=${inviteCode}`} className="text-green-500 underline">こちら</a>から
-          もう一度やり直すか、下記サポートまでお問い合わせください。
+          <p>招待リンクからもう一度やり直してください。</p>
+          <p>何度も発生する場合は、招待リンクに記載のサポートまでお問い合わせください。</p>
+          <a href={APP_SERVICE.TOP.link} className="pt-10 text-green-500 hover:underline">
+            Mochieveトップへ戻る
+          </a>
         </p>
       </div>
     );

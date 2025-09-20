@@ -1,6 +1,8 @@
 "use client"
 
 import { getFetch, postFetch } from "@/app/_constants/fetch";
+import { openErrorModal } from "@/app/_state/slice/modal";
+import { store } from "@/app/_state/store";
 import { AuthUserInfo, UserCreateData } from "@/app/_type/data";
 import { useEffect, useState } from "react";
 
@@ -79,20 +81,20 @@ export const OrganismsUserRegisterForm = (props: Props) => {
 
   const submitUser = async () => {
     if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
-      window.alert("ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です");
+      store.dispatch(openErrorModal({title: "ユーザIDが不正です", message: "ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です"}));
       return;
     }
     if(!userName || userName.length < 3 || userName.length > 50){
-      window.alert("ユーザ名は3~50文字で入力してください");
+      store.dispatch(openErrorModal({title: "ユーザ名が不正です", message: "ユーザ名は3~50文字で入力してください"}));
       return;
     }
     if(!inviteCode){
-      window.alert("招待コードが不正です。もう一度やり直してください");
+      store.dispatch(openErrorModal({title: "招待コードが不正です", message: "招待コードが不正です。もう一度やり直してください"}));
       return;
     }
     if(!uid || !token){
       console.error("ユーザ情報が不正です", uid, token);
-      window.alert("ユーザ情報が不正です。もう一度やり直してください");
+      store.dispatch(openErrorModal({title: "ユーザ情報が不正です", message: "ユーザ情報が不正です。もう一度やり直してください"}));
       return;
     }
     //ユーザ登録APIを叩く
@@ -106,7 +108,7 @@ export const OrganismsUserRegisterForm = (props: Props) => {
     });
 
     if(res.status !== 200){
-      window.alert(res.message);
+      store.dispatch(openErrorModal({title: "ユーザ登録に失敗しました", message: res.message}));
       return;
     }
 
@@ -118,13 +120,13 @@ export const OrganismsUserRegisterForm = (props: Props) => {
   const toUserNameForm = async ()=>{
     console.log("ユーザID確認:", userId);
     if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
-      window.alert("ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です");
+      store.dispatch(openErrorModal({title: "ユーザIDが不正です", message: "ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です"}));
       return;
     }
     const res = await getFetch("/api/v1/user/check?user_id=@" + userId);
     if(res.status !== 200){
       const data = res;
-      window.alert(data.message);
+      store.dispatch(openErrorModal({title: "ユーザID確認エラー", message: data.message}));
       return;
     }
     setPageNum(1);
@@ -133,7 +135,8 @@ export const OrganismsUserRegisterForm = (props: Props) => {
   return (
       <div className="flex flex-col items-center text-lg pt-15">
         <h2 className="text-2xl font-bold mb-2">登録完了まであと少しです！</h2>
-        <div className="h-50 my-10 flex items-center">
+        <p>※画面のリロードなどは行わないでください</p>
+        <div className="h-50 my-20 flex items-center">
           <div className="w-full">
                 {pageNum === 0
                   ? <UserIdForm userId={userId} setUserId={setUserId} />

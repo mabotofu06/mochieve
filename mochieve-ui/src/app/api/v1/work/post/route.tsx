@@ -11,12 +11,14 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 
-const uploadImage = async (authedClient: SupabaseClient, file: string): Promise<string | null> => {
+const uploadImage = async (authedClient: SupabaseClient, userInfo: UserInfo, file: string): Promise<string | null> => {
+  const fileName = `images/${userInfo.id.replace(/^@/g, "")}/${Date.now()}.webp`;
+
   //ファイルをアップロードして公開リンクを取得
   const { data, error }
     = await authedClient.storage
       .from("post-content")
-      .upload(`images/${Date.now()}.webp`,
+      .upload(fileName,
       decodeBase64ToBuffer(file),{
         contentType: "image/webp"
       });  
@@ -76,7 +78,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   const authedClient = getAuthServerClient(accessToken);
 
   //ファイルをアップロードして公開リンクを取得
-  const imageUrl = await uploadImage(authedClient, imageFile);
+  const imageUrl = await uploadImage(authedClient, userInfo, imageFile);
   if (!imageUrl) {
     console.error("Failed to upload image");
     return resInternalServerError(cookie, "Failed to upload image");
@@ -90,7 +92,16 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   });
 
   if (rpcError) {
-    //TODO: ここでアップロードした画像を削除する
+    // 失敗したらアップロードした画像を削除
+    const deleteFilePath = imageUrl.replace(/^.*\/post-content\//, "");
+    console.log(deleteFilePath);
+
+    const { data, error } = await authedClient
+      .storage
+      .from("post-content")
+      .remove([deleteFilePath]);
+
+    console.log(data, error);
     console.error("RPC error:", rpcError);
     return resInternalServerError(cookie, "Failed to create work group and post");
   }
@@ -143,7 +154,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<ApiResponse<an
 
   const authedClient = getAuthServerClient(accessToken);
   //ファイルをアップロードして公開リンクを取得
-  const imageUrl = await uploadImage(authedClient, imageFile);
+  const imageUrl = await uploadImage(authedClient, userInfo, imageFile);
   if (!imageUrl) {
     console.error("Failed to upload image");
     return resInternalServerError(cookie, "Failed to upload image");
@@ -158,12 +169,19 @@ export async function PUT(req: NextRequest): Promise<NextResponse<ApiResponse<an
   });
 
   if(rpcError){
-    //TODO: ここでアップロードした画像を削除する
+    // 失敗したらアップロードした画像を削除
+    const deleteFilePath = imageUrl.replace(/^.*\/post-content\//, "");
+    console.log(deleteFilePath);
+
+    const { data, error } = await authedClient
+      .storage
+      .from("post-content")
+      .remove([deleteFilePath]);
+
+    console.log(data, error);
     console.error("RPC error:", rpcError);
     return resInternalServerError(cookie, "Failed to update work group and post");
   }
 
   return resSuccess(cookie, { groupId, note, imageUrl });
 }
-
-

@@ -2,9 +2,6 @@ import { TemplatesMyWorks } from "@/app/_components/templates/MyWorks";
 
 type Props = {
   params: Promise<{ user_id: string }>;
-  searchParams: Promise<{
-    type: "all" | "doing" | "completed" | undefined;
-  }>
 }
 
 export default async function MyWorkGroup(props: Props) {

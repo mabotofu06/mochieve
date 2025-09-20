@@ -5,6 +5,7 @@ import { OrganismsPostListHeaderCard } from "../organisms/PostListHeaderCard";
 import { store } from "@/app/_state/store";
 import { openErrorModal, openPostFormModal, setLoading } from "@/app/_state/slice/modal";
 import { useState } from "react";
+import { DateTime } from "luxon";
 
 type Props = {
   isAuthor: boolean;
@@ -15,17 +16,24 @@ type Props = {
 export const TemplatesWorkGroup = (props: Props) => {
   const [cardSize, setCardSize] = useState<number>(0); // 0:大, 1:小
   store.dispatch(setLoading(false));
+
   const addPostForm = () => {
-    const latestPost = props.workPosts.length > 0 ? props.workPosts[props.workPosts.length - 1] : null;
-    console.log("today:", new Date().toISOString().split('T')[0]);
-    console.log("latest:", latestPost?.createdAt.split('T')[0]);
-    if (latestPost?.createdAt.split('T')[0] === new Date().toISOString().split('T')[0]) {
-      store.dispatch(
-        openErrorModal({title: "今日の投稿は既に完了しています", message: "明日の日付になるまでお待ちください"})
-      );
-      return;
+    if(props.workPosts.length < 1){
+      throw new Error("Work posts data is required");
     }
-    store.dispatch(openPostFormModal({ groupId: props.workGroup.id }));
+    const latestPost = props.workPosts[props.workPosts.length - 1];
+    const today = DateTime.now().setZone('Asia/Tokyo');
+    const latestPostDate = DateTime.fromISO(latestPost.createdAt).setZone('Asia/Tokyo').plus({ hours: 9 });
+
+    console.log("today:", today.toString());
+    console.log("latest:", latestPostDate.toString());
+    // if (latestPostDate.toISO().split('T')[0] === today.toISO().split('T')[0]) {
+    //   store.dispatch(
+    //     openErrorModal({title: "今日の投稿は既に完了しています", message: "明日の日付になるまでお待ちください"})
+    //   );
+    //   return;
+    // }
+    // store.dispatch(openPostFormModal({ groupId: props.workGroup.id }));
   }
 
   return (
