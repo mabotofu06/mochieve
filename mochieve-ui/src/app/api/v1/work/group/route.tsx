@@ -69,7 +69,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
         name: userInfoMap.get(item.user_id)?.name ?? "不明なユーザ",
         iconImg: userInfoMap.get(item.user_id)?.iconImg ?? "",
       },
-      title: item.title ?? "無題の作業グループ",
+      title: item.title ?? "",
       note: item.content ?? "",
       images: item.images ?? [],
       isClose: item.close_flag,

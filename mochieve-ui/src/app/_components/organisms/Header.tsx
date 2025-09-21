@@ -71,7 +71,7 @@ export default function OrganismsHeader() {
 
   if(!userInfo) null;
   return (
-    <header className="bg-white flex flex-col justify-between w-80 border-r border-gray-300">
+    <header className="bg-white flex flex-col justify-between w-80 border-r border-gray-300 h-fit">
       <div>
         <div className="flex flex-col p-3 text-green-800 items-center mb-10" onClick={()=>{location.href=APP_SERVICE.TOP.link}}>
           <h1 className={"text-5xl font-semibold "+pacifico.className}>{APP_NAME}</h1>
@@ -95,10 +95,9 @@ export default function OrganismsHeader() {
 
       <div>
         <hr className="my-5 border-t border-gray-300" />
-        {/* TODO:外部の開発者向け情報を掲載 */}
-        <div className="flex justify-center mb-2">
-          <p className="mr-2">問い合わせ</p>
-          <p className="mr-2">プライバシーポリシー</p>
+
+        <div className="flex flex-col justify-center mb-2 ms-5 gap-2 text-sm text-gray-600">
+          <a href="" className="mr-2">プライバシーポリシー</a>
           <a
             href="https://github.com/mabotofu06/mochieve"
             target="_blank"

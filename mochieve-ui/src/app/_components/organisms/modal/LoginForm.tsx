@@ -53,7 +53,7 @@ export default function OrganismsLoginForm() {
           <button
             onClick={()=>handleOAuth("google")}
             disabled={loading}
-            className="flex items-center bg-white w-full p-2 rounded-3xl flex items-center border w-fit my-2"
+            className="flex items-center bg-white w-full p-2 rounded-3xl flex items-center border w-fit my-2 hover:opacity-60"
           >
             <AtomsGoogleIcon className="" size={25}/>
             <p className="flex-1">Googleでログイン</p>
@@ -62,7 +62,7 @@ export default function OrganismsLoginForm() {
           <button
             onClick={()=>handleOAuth("twitter")}
             disabled={loading}
-            className="flex items-center bg-white w-full p-2 rounded-3xl flex items-center border w-fit my-2 text-black"
+            className="flex items-center bg-white w-full p-2 rounded-3xl flex items-center border w-fit my-2 text-black hover:opacity-60"
           >
             <AtomsTwitterIcon size={25}/>
             <p className="flex-1">X(Twitter)でログイン</p>
@@ -71,7 +71,7 @@ export default function OrganismsLoginForm() {
           <button
             onClick={()=>handleOAuth("discord")}
             disabled={loading}
-            className="flex items-center bg-white w-full p-2 rounded-3xl flex items-center border w-fit my-2 text-indigo-600"
+            className="flex items-center bg-white w-full p-2 rounded-3xl flex items-center border w-fit my-2 text-indigo-600 hover:opacity-60"
           >
             <AtomsDiscordIcon size={25}/>
             <p className="flex-1">Discordでログイン</p>
