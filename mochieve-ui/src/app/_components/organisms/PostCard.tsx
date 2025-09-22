@@ -5,6 +5,7 @@ import { OrganismsStampButton } from "./StampButton";
 import { WorkPost } from "@/app/_type/data";
 import { store } from "@/app/_state/store";
 import { openImageModal } from "@/app/_state/slice/modal";
+import { encodeDatetime } from "@/app/_constants/utils/utils";
 
 export const ActionMenu = ()=>{
   return(
@@ -26,6 +27,7 @@ export function OrganismsPostCard(props: Props) {
   const [footerOpen, setFooterOpen] = useState(false);
   const [footerAnim, setFooterAnim] = useState<'expand'|'collapse'|''>('');
   const [showFooter, setShowFooter] = useState(false);
+  const updatedAt = encodeDatetime(props.post.createdAt);
 
   const handleFooterToggle = () => {
     if (footerOpen) {
@@ -46,7 +48,7 @@ export function OrganismsPostCard(props: Props) {
     { className: `post-card relative border border-lime-500 rounded-2xl overflow-hidden bg-white${props.className ? ' '+props.className : ''}` }, (
     <div>
       <div className="header absolute top-0 p-2 w-full bg-white border-b border-green-500 z-50">
-        <span>投稿日: {new Date(props.post.createdAt).toLocaleDateString()}</span>
+        <span>投稿日: {updatedAt}</span>
       </div>
 
       {/* 画像 */}

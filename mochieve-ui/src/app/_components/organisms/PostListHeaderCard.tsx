@@ -1,3 +1,4 @@
+import { encodeDatetime } from "@/app/_constants/utils/utils";
 import { openGroupFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { UserInfo } from "@/app/_type/data";
@@ -21,6 +22,7 @@ type Props = {
 
 export const OrganismsPostListHeaderCard = (props: Props) => {
   const iconSize = "w-15 h-15";
+  const updatedAt = encodeDatetime(props.updated);
 
   const openGroupForm = () => {
     store.dispatch(openGroupFormModal({id: props.id, title: props.title, note: props.note}));
@@ -46,7 +48,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
               </button>
             )}
             <div className="post-update text-gray-500 ml-4">
-              更新：{new Date(props.updated).toLocaleDateString()}
+              更新：{updatedAt}
             </div>
           </div>
         </div>

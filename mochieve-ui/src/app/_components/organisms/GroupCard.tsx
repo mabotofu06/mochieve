@@ -8,6 +8,8 @@ import { WorkGroup } from "@/app/_type/data";
 import { addWorkGroupDetail } from "@/app/_state/storage";
 import { openImageModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
+import { DateTime } from "luxon";
+import { encodeDatetime } from "@/app/_constants/utils/utils";
 
 export const ActionMenu = ()=>{
   return(
@@ -34,6 +36,7 @@ export function OrganismsGroupCard(props: Props) {
   const total = props.group.images.length;
   const handlePrev = () => setImgIdx(idx => (idx - 1 + total) % total);
   const handleNext = () => setImgIdx(idx => (idx + 1) % total);
+  const updatedAt = encodeDatetime(props.group.updatedAt);
 
   const NavigateToWorkGroupPage = (groupId: string) => {
     //セッションに本ワークグループを登録
@@ -57,7 +60,7 @@ export function OrganismsGroupCard(props: Props) {
           </div>
         </div>,
         <div key="header-update" className="post-update text-gray-500">
-          更新：{new Date(props.group.updatedAt).toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}
+          更新：{updatedAt}
         </div>
       ]
       )

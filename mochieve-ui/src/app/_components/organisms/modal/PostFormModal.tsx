@@ -50,6 +50,7 @@ export const OrganismsPostFormModal = () => {
 
   /**
    * フォームの内容をサーバに送信する
+   * TODO:今後、投稿とともにクローズできるようにする
    * @returns 
    */
   const submitWorkPost = async (isClose: boolean = false) => {
@@ -161,13 +162,13 @@ export const OrganismsPostFormModal = () => {
           >
             投稿する
           </button>
-          {targetGroupId && <button
+          {/* {targetGroupId && <button
             type="submit"
             className="w-full py-3 bg-green-600 text-white rounded-2xl font-bold text-lg mt-4"
             onClick={() => submitWorkPost(true)}
           >
             この投稿で完了にする
-          </button> }
+          </button> } */}
       </div>
       </MoleculesModal>
     </div>

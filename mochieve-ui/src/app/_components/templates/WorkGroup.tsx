@@ -22,18 +22,16 @@ export const TemplatesWorkGroup = (props: Props) => {
       throw new Error("Work posts data is required");
     }
     const latestPost = props.workPosts[props.workPosts.length - 1];
-    const today = DateTime.now().setZone('Asia/Tokyo');
-    const latestPostDate = DateTime.fromISO(latestPost.createdAt).setZone('Asia/Tokyo').plus({ hours: 9 });
+    const today = DateTime.now().setZone('Asia/Tokyo').toString().split('T')[0];
+    const latestPostDate = DateTime.fromISO(latestPost.createdAt).setZone('Asia/Tokyo').toString().split('T')[0];
 
-    console.log("today:", today.toString());
-    console.log("latest:", latestPostDate.toString());
-    // if (latestPostDate.toISO().split('T')[0] === today.toISO().split('T')[0]) {
-    //   store.dispatch(
-    //     openErrorModal({title: "今日の投稿は既に完了しています", message: "明日の日付になるまでお待ちください"})
-    //   );
-    //   return;
-    // }
-    // store.dispatch(openPostFormModal({ groupId: props.workGroup.id }));
+    if (latestPostDate === today) {
+      store.dispatch(
+        openErrorModal({title: "今日の進捗は投稿済です", message: "明日の日付になるまでお待ちください"})
+      );
+      return;
+    }
+    store.dispatch(openPostFormModal({ groupId: props.workGroup.id }));
   }
 
   return (
@@ -50,7 +48,7 @@ export const TemplatesWorkGroup = (props: Props) => {
         isBookmark={false}
         stamps={[]}
         postNum={props.workGroup.images.length}
-        updated={new Date(props.workGroup.updatedAt).toLocaleDateString()}
+        updated={props.workGroup.updatedAt}
       />
       <div className="flex justify-center items-center bg-white gap-5 my-3">
       </div>
