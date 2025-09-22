@@ -17,10 +17,7 @@ export const addTimelineCacheToTop = (timelineList: WorkGroup[]) => {
   const currentTimeline = timelineCache.get() || [];
   const updatedTimeline = [...timelineList, ...currentTimeline];
   // 格納数をオーバーした場合、末尾からオーバーした分のデータを削除する
-  if (updatedTimeline.length > CACHE_INFO.TIMELINE_DATA.MAX_SIZE) {
-    updatedTimeline.splice(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
-  }
-  timelineCache.set(updatedTimeline);
+  timelineCache.set(updatedTimeline.slice(0, CACHE_INFO.TIMELINE_DATA.MAX_SIZE));
 };
 
 /**
@@ -30,11 +27,8 @@ export const addTimelineCacheToTop = (timelineList: WorkGroup[]) => {
 export const addTimelineCacheToEnd = (timelineList: WorkGroup[]) => {
   const currentTimeline = timelineCache.get() || [];
   const updatedTimeline = [...currentTimeline, ...timelineList];
-  // 格納数をオーバーした場合、先頭からオーバーした分のデータを削除する
-  if (updatedTimeline.length > CACHE_INFO.TIMELINE_DATA.MAX_SIZE) {
-    updatedTimeline.splice(0, updatedTimeline.length - CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
-  }
-  timelineCache.set(updatedTimeline);
+  // 格納数をオーバーした場合、末尾からオーバーした分のデータを削除する
+  timelineCache.set(updatedTimeline.slice(0, CACHE_INFO.TIMELINE_DATA.MAX_SIZE));
 };
 
 export const getTimelineCache = (): WorkGroup[] => {

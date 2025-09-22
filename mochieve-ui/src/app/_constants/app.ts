@@ -75,6 +75,6 @@ export const TOP_NAV_MENU = {
 export const CACHE_INFO = {
   USER_INFO    : { key: "user_info"    , MAX_SIZE: 20 , expires: 60 * 60 * 24 * 30 },// 1 month
   TIMELINE_DATA: { key: "timeline_data", MAX_SIZE: 100, expires: 60 * 30      },     // 30 minutes
-  MY_WORKS_DATA: { key: "my_works_data", MAX_SIZE: 50 , expires: 0 },
+  MY_WORKS_DATA: { key: "my_works_data", MAX_SIZE: 100 , expires: 0 },
   CAN_NEW_POST : { key: "can_new_post" , MAX_SIZE: 1  , expires: 0 }
 }

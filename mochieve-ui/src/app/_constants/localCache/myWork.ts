@@ -16,11 +16,8 @@ const myWorksCache
 export const pushMyWorksCache = (myWorksList: WorkGroup[]) => {
   const currentMyWorks = myWorksCache.get() || [];
   const updatedMyWorks = [...currentMyWorks, ...myWorksList];
-  // 格納数をオーバーした場合、先頭からオーバーした分のデータを削除する
-  if (updatedMyWorks.length > CACHE_INFO.MY_WORKS_DATA.MAX_SIZE) {
-    updatedMyWorks.splice(0, updatedMyWorks.length - CACHE_INFO.MY_WORKS_DATA.MAX_SIZE);
-  }
-  myWorksCache.set(updatedMyWorks);
+  // 格納数をオーバーした場合、末尾のオーバーした分のデータを削除する
+  myWorksCache.set(updatedMyWorks.slice(0, CACHE_INFO.MY_WORKS_DATA.MAX_SIZE));
 };
 
 export const getMyWorksCache = (): WorkGroup[] => {
