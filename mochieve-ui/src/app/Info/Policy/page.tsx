@@ -1,8 +1,8 @@
 "use client"
 
+import { setLoading } from "@/app/_state/slice/modal";
+import { store } from "@/app/_state/store";
 import { useEffect } from "react"
-import { store } from "../_state/store"
-import { setLoading } from "../_state/slice/modal"
 
 export default function InfoPage() {
   useEffect(()=>{
@@ -11,23 +11,24 @@ export default function InfoPage() {
 
   return(
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "2rem" }}>
-      <h1>プライバシーポリシー</h1>
+      <h1 className="text-2xl font-bold mb-5">プライバシーポリシー</h1>
       <p>
         本ウェブサイト（以下、「当サイト」といいます。）は、ユーザーの個人情報を適切に保護し、取り扱うことを重要視しています。本プライバシーポリシーは、当サイトにおける個人情報の収集、利用、管理について定めるものです。
       </p>
 
       <h2>1. 個人情報の収集について</h2>
       <p>
-        当サイトでは、ユーザーからのお問い合わせやサービス利用時に、氏名、メールアドレス等の個人情報を取得する場合があります。
+        当サイトでは、ユーザー登録時に、連携サービスのアカウント情報（アカウント名、メールアドレス等）を取得します。
+      </p>
+      <p>
+        取得した個人情報は、外部サービス(Supabase)に保持され、当サイトの認証時に利用します。
       </p>
 
       <h2>2. 個人情報の利用目的</h2>
       <p>
         取得した個人情報は、以下の目的のために利用します。
         <ul>
-          <li>お問い合わせへの対応</li>
           <li>サービスの提供・運営</li>
-          <li>サービス向上のための分析</li>
         </ul>
       </p>
 

@@ -97,7 +97,7 @@ export default function OrganismsHeader() {
         <hr className="my-5 border-t border-gray-300" />
 
         <div className="flex flex-col justify-center mb-2 ms-5 gap-2 text-sm text-gray-600">
-          <a href="" className="mr-2">プライバシーポリシー</a>
+          <a href={APP_SERVICE.PRIVACY_POLICY.link} className="mr-2">プライバシーポリシー</a>
           <a
             href="https://github.com/mabotofu06/mochieve"
             target="_blank"

@@ -57,6 +57,18 @@ export const APP_SERVICE = {
     description: "新しい作業内容を作成",
     icon: "post",
     link: "/Work/Group/$workGroupId"
+  },
+  PRIVACY_POLICY: {
+    title: `プライバシーポリシー | ${APP_NAME}`,
+    description: "プライバシーポリシー",
+    icon: "privacy",
+    link: "/Info/Policy"
+  },
+  WELLCOME: {
+    title: `ようこそ | ${APP_NAME}`,
+    description: "Wellcomeページ",
+    icon: "welcome",
+    link: "/Welcome"
   }
 }
 
