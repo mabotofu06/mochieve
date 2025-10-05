@@ -22,11 +22,11 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<bo
     .eq("delete_flag", false)
     .eq("close_flag", false);
 
-  if (openGroupError || !openGroupNum) {
+  if (openGroupError && !openGroupNum) {
     console.error("Failed to retrieve open groups:", openGroupError);
     return resInternalServerError(cookie, "Failed to retrieve open groups");
   }
-  if (openGroupNum >= MAX_WORKING_POST_NUM) {
+  if (openGroupNum && openGroupNum >= MAX_WORKING_POST_NUM) {
     return resSuccess(cookie, false);
   }
 
