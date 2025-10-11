@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { BL_INFO } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 type Props = {
   isAuthor: boolean;
@@ -19,6 +20,7 @@ type Props = {
 export const TemplatesWorkGroup = (props: Props) => {
   const [isAuthor, setIsAuthor] = useState<boolean>(props.isAuthor);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+  const logger = createLogger('TemplatesWorkGroup');
   
   store.dispatch(setLoading(false));
 
@@ -34,14 +36,14 @@ export const TemplatesWorkGroup = (props: Props) => {
           // ログインユーザーのIDと作業グループの作成者IDを比較
           const authResult = userInfo.id === props.workGroup.userInfo.id;
           setIsAuthor(authResult);
-          console.log(`クライアントサイド認証チェック結果: ${authResult ? '作成者' : '非作成者'} (User: ${userInfo.id}, WorkGroup Owner: ${props.workGroup.userInfo.id})`);
+          logger.debug(`クライアントサイド認証チェック結果: ${authResult ? '作成者' : '非作成者'}`, { userId: userInfo.id, workGroupOwnerId: props.workGroup.userInfo.id });
         } else {
           // 認証失敗の場合は非作成者として扱う
           setIsAuthor(false);
-          console.log("認証なし、または認証失敗のため非作成者として表示");
+          logger.debug("認証なし、または認証失敗のため非作成者として表示");
         }
       } catch (error) {
-        console.error("クライアントサイド認証チェックに失敗:", error);
+        logger.error("クライアントサイド認証チェックに失敗", error);
         setIsAuthor(false);
       } finally {
         setIsAuthLoading(false);

@@ -1,11 +1,13 @@
 import { GetPostsData, GetWorkGroupsData, SupabaseResponse } from "@/app/_type/supabase";
 import { supabase } from "./client"
 import { getUserInfo } from "@/app/_composables/userInfo";
+import { createLogger } from "../utils/logger";
 
 const TBL_NAME = 'work_post'
 
 export const fetchPostsByGroupId = async(groupId: string): Promise<SupabaseResponse<GetPostsData[]>> => {
-  console.log(`[${new Date().toISOString()}] fetchPostsByGroupId called for: ${groupId}`)
+  const logger = createLogger('PostClient:fetchPostsByGroupId');
+  logger.debug("fetchPostsByGroupId called", { groupId });
   
   const { data, error } = await supabase
     .from(TBL_NAME)
@@ -18,7 +20,7 @@ export const fetchPostsByGroupId = async(groupId: string): Promise<SupabaseRespo
     throw error;
   }
   
-  console.log(`[${new Date().toISOString()}] fetchPostsByGroupId completed for: ${groupId}`)
+  logger.debug("fetchPostsByGroupId completed", { groupId });
   return data as Array<GetPostsData>;
 }
 

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { getUserInfoByToken, setUserInfoByToken } from "../redis/client";
 import { UserInfo } from "@/app/_type/data";
 import { fetchUserInfoByUid } from "../supabase/userClient";
+import { createLogger } from "./logger";
 
 export const decodeSupabaseJWT = (token: string) => {
   // SupabaseのJWTは公開鍵不要でデコード可能（署名検証は不要ならsecret不要）
@@ -83,6 +84,7 @@ export const checkCookieValidation = (cookie: ReadonlyRequestCookies): boolean =
   };
   
 export const getNewTokenAndSetRedis = async (refreshToken: string): Promise<{ accessToken: string; refreshToken: string; userInfo: UserInfo } | null> => {
+  const logger = createLogger('SessionUtils:getNewTokenAndSetRedis');
   const newToken = await getNewToken(refreshToken);
   const uid = decodeSupabaseJWT(newToken.accessToken)?.sub;
   if (!uid) return null;
@@ -113,7 +115,8 @@ export const getValidTokenFromCookie
 
   // アクセストークンが存在しない場合、新規取得してユーザ情報もセット
   if(!accessToken){
-    console.warn("アクセストークンが存在しませんでしたが、リフレッシュトークンが存在したため新規取得します");
+    const logger = createLogger('SessionUtils:getValidTokenFromCookie');
+    logger.warn("アクセストークンが存在しませんでしたが、リフレッシュトークンが存在したため新規取得します");
     return await getNewTokenAndSetRedis(refreshToken);
   }
 
@@ -123,14 +126,16 @@ export const getValidTokenFromCookie
 
   const now = Math.floor(Date.now() / 1000);
   if (jwtObj.exp <= now){
-    console.warn("アクセストークンの有効期限が切れています。リフレッシュトークンで更新します");
+    const logger = createLogger('SessionUtils:getValidTokenFromCookie');
+    logger.warn("アクセストークンの有効期限が切れています。リフレッシュトークンで更新します");
     return await getNewTokenAndSetRedis(refreshToken);
   }
 
   //ユーザ情報取得（Redisキャッシュから）
   let userInfo: UserInfo | null = await getUserInfoByToken(accessToken);
   if (!userInfo){
-    console.warn("Redisにユーザ情報が存在しませんでしたが、アクセストークンが有効だったため更新します");
+    const logger = createLogger('SessionUtils:getValidTokenFromCookie');
+    logger.warn("Redisにユーザ情報が存在しませんでしたが、アクセストークンが有効だったため更新します");
     // Redisキャッシュにユーザ情報がない場合、Supabaseから取得してキャッシュにセット
     const decoded = decodeSupabaseJWT(accessToken);
     if (!decoded || !decoded.sub) return null;
@@ -152,7 +157,8 @@ export const getValidTokenFromCookie
 
     return { ...newTokens, userInfo };
   } catch (error) {
-    console.error("Error refreshing access token:", error);
+    const logger = createLogger('SessionUtils:getValidTokenFromCookie');
+    logger.error("Error refreshing access token", error);
   }
   return null;
 };

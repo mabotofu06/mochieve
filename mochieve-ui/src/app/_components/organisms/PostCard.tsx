@@ -6,6 +6,7 @@ import { WorkPost } from "@/app/_type/data";
 import { store } from "@/app/_state/store";
 import { openImageModal } from "@/app/_state/slice/modal";
 import { encodeDatetime } from "@/app/_constants/utils/utils";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 export const ActionMenu = ()=>{
   return(
@@ -22,7 +23,8 @@ type Props = {
 }
 
 export function OrganismsPostCard(props: Props) {
-  console.log("Rendering PostCard:", props.post);
+  const logger = createLogger('OrganismsPostCard');
+  logger.debug("Rendering PostCard", { postId: props.post.id });
   const iconSize = props.size === 'small' ? "w-7 h-7" : "w-10 h-10";
   const [footerOpen, setFooterOpen] = useState(false);
   const [footerAnim, setFooterAnim] = useState<'expand'|'collapse'|''>('');

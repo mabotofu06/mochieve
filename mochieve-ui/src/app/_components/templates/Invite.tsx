@@ -8,12 +8,15 @@ import { AtomsGoogleIcon } from "../atoms/icon/Google"
 import { AtomsDiscordIcon } from "../atoms/icon/Discord"
 import { AtomsTwitterIcon } from "../atoms/icon/Twitter"
 import { supabase } from "@/app/_constants/supabase/client"
+import { createLogger } from "@/app/_constants/utils/logger"
 
 type Props = {
   inviteCode: string
 }
 
 export const TemplatesInvite = (props: Props)=>{
+  const logger = createLogger('TemplatesInvite');
+  
   useEffect(()=>{
     store.dispatch(setLoading(false));
   },[])
@@ -26,7 +29,7 @@ export const TemplatesInvite = (props: Props)=>{
     })
 
     if(error){
-      console.error("OAuthサインインエラー:", error);
+      logger.error("OAuthサインインエラー", error);
       return;
     }
   }

@@ -1,6 +1,7 @@
 "use client"
 
 import { createElement, useState } from "react";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 type Props = {
   tabMenu: { label: string; code: number; }[];
@@ -9,8 +10,9 @@ type Props = {
 }
 
 export const OrganismsTabMenu = (props: Props) => {
+  const logger = createLogger('OrganismsTabMenu');
   if(props.tabMenu.length === 0){
-    console.warn("tabMenu is empty");
+    logger.warn("tabMenu is empty");
     return (null);
   }
   const [code, setCode] = useState<number>(props.activeTab);

@@ -6,12 +6,14 @@ import { getFetch } from "@/app/_constants/fetch";
 import { setLoading } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { useEffect, useState } from "react";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 export default function InvitePage() {
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [showError, setShowError] = useState<boolean>(false);
+  const logger = createLogger('InvitePage');
 
-  useEffect(()=>{
+  useEffect(()=>{ 
     const url = new URL(window.location.href);
     const code = url.searchParams.get("invite_code");
     setInviteCode(code);
@@ -22,7 +24,7 @@ export default function InvitePage() {
       return;
     }else if(code === "testInviteCode"){
       //テスト用の招待コード
-      console.log("テスト用の招待コードを検出");
+      logger.debug("テスト用の招待コードを検出");
       store.dispatch(setLoading(false));
       return;
     }
@@ -36,7 +38,7 @@ export default function InvitePage() {
       })
       .catch(err=>{
         setShowError(true);
-        console.error("招待コードの検証エラー:", err);
+        logger.error("招待コードの検証エラー", err);
       })
       .finally(()=>{
         store.dispatch(setLoading(false));

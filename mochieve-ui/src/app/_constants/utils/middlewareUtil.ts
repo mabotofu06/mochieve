@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "./logger";
 
 // DDoS対策: レート制限設定
 export const RATE_LIMIT_CONFIG = {
@@ -54,7 +55,8 @@ export function checkRateLimit(clientIP: string): RateLimitResult {
       ...record,
       blocked: now + RATE_LIMIT_CONFIG.blockDuration
     });
-    console.log(`Rate limit exceeded for IP: ${clientIP}. Blocked for 5 minutes.`);
+    const logger = createLogger('MiddlewareUtil:checkRateLimit');
+    logger.warn(`Rate limit exceeded for IP: ${clientIP}. Blocked for 5 minutes.`);
     return { allowed: false };
   }
 

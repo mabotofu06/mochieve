@@ -9,6 +9,7 @@ import { getUserInfo } from "@/app/_composables/userInfo";
 import { getFetch } from "@/app/_constants/fetch";
 import { APP_SERVICE, BL_INFO, DEFAULT_USER_ICON } from "@/app/_constants/app";
 import { usePathname } from "next/navigation";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 
 interface MenuItem {
@@ -127,7 +128,8 @@ export const OrganismsUserMenu = (props: Props) => {
     iconImg: DEFAULT_USER_ICON
   };
 
-  console.log(pathName, isGuest);
+  const logger = createLogger('OrganismsUserMenu');
+  logger.debug("UserMenu rendered", { pathName, isGuest });
 
   return (
     <div>

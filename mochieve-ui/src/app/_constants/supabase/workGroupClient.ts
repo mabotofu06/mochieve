@@ -3,11 +3,13 @@ import { supabase } from "./client"
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { MAX_POST_NUM } from "../app";
 import { deleteWorkGroupDetailByGroupId, getWorkGroupDetail } from "@/app/_state/storage";
+import { createLogger } from "../utils/logger";
 
 const TBL_NAME = 'work_group'
 
 export const fetchWorkGroupByGroupId = async (groupId: string) => {
-  console.log(`[${new Date().toISOString()}] fetchWorkGroupByGroupId called for: ${groupId}`)
+  const logger = createLogger('WorkGroupClient:fetchWorkGroupByGroupId');
+  logger.debug("fetchWorkGroupByGroupId called", { groupId });
   
   const { data, error } = await supabase
     .from(TBL_NAME)
@@ -19,7 +21,7 @@ export const fetchWorkGroupByGroupId = async (groupId: string) => {
     throw error;
   }
 
-  console.log(`[${new Date().toISOString()}] fetchWorkGroupByGroupId completed for: ${groupId}`)
+  logger.debug("fetchWorkGroupByGroupId completed", { groupId });
   return data as GetWorkGroupsData;
 };
 
@@ -44,7 +46,8 @@ export const fetchWorkGroups = async (limit: number = 20):Promise<SupabaseRespon
     if (cache) {
       const { data, timestamp } = JSON.parse(cache);
       if (Date.now() - timestamp < 5 * 60 * 1000) {
-        console.log("キャッシュに保存されたデータを返却します")
+        const logger = createLogger('WorkGroupClient:fetchWorkGroupsByUserId');
+        logger.debug("キャッシュに保存されたデータを返却します");
         return data;
       }
     }

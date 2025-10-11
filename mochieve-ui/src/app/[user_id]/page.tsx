@@ -8,6 +8,7 @@ import { getMyWorksCache, pushMyWorksCache } from "../_constants/localCache/myWo
 import { store } from "../_state/store";
 import { setLoading } from "../_state/slice/modal";
 import { APP_NAME } from "../_constants/app";
+import { createLogger } from "../_constants/utils/logger";
 
 type Props = {
   params: Promise<{ user_id: string }>;
@@ -16,6 +17,7 @@ type Props = {
 export default function MyWorkGroup(props: Props) {
   const [userId, setUserId] = useState<string | null>(null);
   const [myWorks, setMyWorks] = useState<WorkGroup[] | null>(null);
+  const logger = createLogger('MyWorkGroupPage');
   let isFetch = false;
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function MyWorkGroup(props: Props) {
         setUserId(data.userId);
       })
       .catch((error) => {
-        console.error("Error fetching work groups:", error);
+        logger.error("Error fetching work groups", error);
         setMyWorks([]);
       })
       .finally(() => {
@@ -51,17 +53,20 @@ async function fetchMyWorks(props: Props): Promise<{ myWorks: WorkGroup[], userI
   //キャッシュ確認
   const cache = getMyWorksCache();
   if (cache.length > 0) {
-    console.log("キャッシュから取得");
+    const logger = createLogger('MyWorkGroupPage:fetchMyWorks');
+    logger.debug("キャッシュから取得");
     return { myWorks: cache, userId };
   }
 
   const res = await getFetch<WorkGroup[]>(`/api/v1/work/${userId}`);
   if(res.status !== 200) {
-    console.error("Error fetching work groups:", res);
+    const logger = createLogger('MyWorkGroupPage:fetchMyWorks');
+    logger.error("Error fetching work groups", res);
     throw new Error(res.message || "Unknown error");
   }
   const data = ((res as SuccessResponse<WorkGroup[]>).data);
-  console.log("APIから取得", data);
+  const logger = createLogger('MyWorkGroupPage:fetchMyWorks');
+  logger.debug("APIから取得", { dataCount: data.length });
   pushMyWorksCache(data);
   return { myWorks: data, userId };
 }

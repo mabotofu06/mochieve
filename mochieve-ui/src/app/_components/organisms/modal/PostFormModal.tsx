@@ -10,8 +10,10 @@ import { ApiResponse, PostRequestBody } from "@/app/_type/api";
 import { encodeBlob2Base64, fileToWebp } from "@/app/_constants/utils/fileUtil";
 import { clearCanNewPost } from "@/app/_constants/localCache/canNewPost";
 import { clearMyWorks } from "@/app/_constants/localCache/myWork";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 export const OrganismsPostFormModal = () => {
+  const logger = createLogger('OrganismsPostFormModal');
   const modalOpen = useSelector((state: {modal: {openPostFormModal: boolean}}) => state.modal.openPostFormModal);
   const targetGroupId = useSelector((state: {modal: {postTargetGroupId: string | null}}) => state.modal.postTargetGroupId);
 
@@ -36,12 +38,12 @@ export const OrganismsPostFormModal = () => {
    */
   const validationCheck = (): boolean => {
     if(!image) {
-      console.error("No image selected");
+      logger.error("No image selected");
       store.dispatch(openErrorModal({ title: "入力エラー", message: "画像が選択されていません" }));
       return false;
     }
     if(!note || note.length > 150){
-      console.error("Note is required and must be less than 150 characters");
+      logger.error("Note is required and must be less than 150 characters");
       store.dispatch(openErrorModal({ title: "入力エラー", message: "説明文は必須であり、150文字以内である必要があります" }));
       return false;
     }
@@ -133,7 +135,7 @@ export const OrganismsPostFormModal = () => {
                   className="hidden"
                   onChange={e => {
                     if (e.target.files && e.target.files[0]) {
-                      console.log("imageUp")
+                      logger.debug("Image uploaded");
                       setImage(e.target.files[0]);
                       
                     }

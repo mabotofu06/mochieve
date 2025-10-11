@@ -8,12 +8,14 @@ import { store } from "@/app/_state/store";
 import { AuthUserInfo } from "@/app/_type/data";
 import { Session } from "@supabase/auth-js";
 import { useEffect, useState } from "react";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 const fetchSession = async (): Promise<AuthUserInfo> => {
+  const logger = createLogger('Redirect:Invite:fetchSession');
   //ローカルにはキャッシュされないためリロードされると消える
   const { data, error } = await supabase.auth.getSession();
   if (error) {
-    console.error("Error fetching session:", error);
+    logger.error("Error fetching session:", error);
     throw new Error("User not found");
   }
   
@@ -34,6 +36,7 @@ const fetchSession = async (): Promise<AuthUserInfo> => {
 };
 
 export default function RedirectInvitePage() {
+  const logger = createLogger('RedirectInvitePage');
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [userAuthInfo, setUserAuthInfo] = useState<AuthUserInfo | null>(null);
   const [fetching, setFetching] = useState<boolean>(true);
@@ -43,15 +46,15 @@ export default function RedirectInvitePage() {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("invite_code");
     setInviteCode(code);
-    console.log("招待コード：" + code);
+    logger.debug("招待コード：" + code);
 
     fetchSession()
       .then((authInfo) => {
-        console.log("Session sent successfully", authInfo);
+        logger.info("Session sent successfully", authInfo);
         setUserAuthInfo(authInfo);
       })
       .catch(err => {
-        console.error("Error fetching session:", err);
+        logger.error("Error fetching session:", err);
         setError("ユーザー情報の取得に失敗しました");
       })
       .finally(()=>{

@@ -5,6 +5,7 @@ import { openErrorModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { AuthUserInfo, UserCreateData } from "@/app/_type/data";
 import { useEffect, useState } from "react";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 const Input = (props: {
   className?: string;
@@ -71,6 +72,7 @@ type Props = {
 
 
 export const OrganismsUserRegisterForm = (props: Props) => {
+  const logger = createLogger('OrganismsUserRegisterForm');
   const inviteCode = props.code;
   const token      = props.authInfo.token;
   const uid        = props.authInfo.uid;
@@ -93,7 +95,7 @@ export const OrganismsUserRegisterForm = (props: Props) => {
       return;
     }
     if(!uid || !token){
-      console.error("ユーザ情報が不正です", uid, token);
+      logger.error("ユーザ情報が不正です", { uid, token });
       store.dispatch(openErrorModal({title: "ユーザ情報が不正です", message: "ユーザ情報が不正です。もう一度やり直してください"}));
       return;
     }
@@ -118,7 +120,7 @@ export const OrganismsUserRegisterForm = (props: Props) => {
   }
 
   const toUserNameForm = async ()=>{
-    console.log("ユーザID確認:", userId);
+    logger.debug("ユーザID確認:", { userId });
     if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
       store.dispatch(openErrorModal({title: "ユーザIDが不正です", message: "ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です"}));
       return;

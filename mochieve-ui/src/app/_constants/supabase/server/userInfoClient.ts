@@ -1,5 +1,6 @@
 import { GetUserData } from "@/app/_type/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { createLogger } from "../../utils/logger";
 
 const TBL_NAME = 'user_info'
 
@@ -12,7 +13,8 @@ export const fetchUserInfoByUid = async(supabase: SupabaseClient, uid: string): 
       .eq('delete_flag', false)
       .single();
   if (error) {
-    console.error("UIDを元にユーザー情報が取得できませんでした:", error.message);
+    const logger = createLogger('UserInfoClient:fetchUserInfoByUid');
+    logger.error("UIDを元にユーザー情報が取得できませんでした", { uid, errorMessage: error.message });
     return undefined;
   }
 

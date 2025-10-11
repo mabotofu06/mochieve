@@ -3,9 +3,11 @@ import { resInternalServerError, resSuccess, resValidationError } from "@/app/_c
 import { ApiResponse } from "@/app/_type/api";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
-  console.log("===== GET /api/v1/user/check =====");
+  const logger = createLogger('API:UserCheck');
+  logger.debug("GET /api/v1/user/check");
   const cookie = await cookies();
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("user_id");
@@ -13,7 +15,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
   if(!userId) {
     return resValidationError(cookie, "ユーザIDが指定されていません");
   }
-  console.log("Checking user_id:", userId);
+  logger.debug("Checking user_id", { userId });
 
   // ユーザIDが登録されていないかチェック
   const { count: userIdCount, error: userIdError } = await supabase
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
     .eq("user_id", userId);
 
   if (userIdError) {
-    console.error("Failed to retrieve user ID:", userIdError);
+    logger.error("Failed to retrieve user ID", userIdError);
     return resInternalServerError(cookie, "ユーザIDチェック中にエラーが発生しました");
   }
   // 登録されていないuserIdの場合Count === nullの場合0を返す

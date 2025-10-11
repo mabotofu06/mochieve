@@ -2,6 +2,7 @@ import { CACHE_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
 import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
+import { createLogger } from "@/app/_constants/utils/logger";
 import { ApiResponse } from "@/app/_type/api";
 import { WorkGroup } from "@/app/_type/data";
 import { GetWorkGroupsData } from "@/app/_type/supabase";
@@ -14,6 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns 
  */
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
+  const logger = createLogger('API:Work:Group');
   // Handle GET request
   const cookie = await cookies();
   const { searchParams } = new URL(req.url);
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       ? new Date(period)
       : new Date();
 
-  console.log("Timeline Request Period:", period, datetime.toISOString());
+  logger.debug("Timeline Request Period:", { period, datetime: datetime.toISOString() });
 
   const supabaseResult
     = await supabase
@@ -34,9 +36,10 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       .order("update_datetime", { ascending: false })
       .limit(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
 
-  console.log("Supabase Result:", supabaseResult);
+  logger.debug("Supabase Result:", { resultCount: supabaseResult.data?.length });
 
   if(supabaseResult.error || !supabaseResult.data) {
+    logger.error("Failed to fetch work groups from Supabase", supabaseResult.error);
     return resInternalServerError(cookie);
   }
 
@@ -44,7 +47,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
   // 一括でユーザ情報をSupabaseから取得（N+1問題を回避）
   const userIds: Set<string> = new Set(timelineData.map(data => data.user_id));
-  console.log(`Fetching user info for ${userIds.size} users from Supabase`);
+  logger.debug(`Fetching user info for ${userIds.size} users from Supabase`);
   
   const { data: userInfoList, error }
     = await supabase
@@ -87,6 +90,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
  * @returns 
  */
 export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
+  const logger = createLogger('API:Work:Group:PUT');
   // Handle PUT request
 
   const reqBody = await req.json();
@@ -109,7 +113,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse<any>> {
     update_datetime: isClose ? new Date().toISOString() : undefined,// 作業完了の場合は更新日時も今日のものに
   };
 
-  console.log("Updating work group:", groupId, updateData);
+  logger.info("Updating work group:", { groupId, updateData });
 
   const authedClient = getAuthServerClient(cookie.get("accessToken")?.value || "");
 

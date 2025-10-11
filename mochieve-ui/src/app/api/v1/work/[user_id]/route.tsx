@@ -4,6 +4,7 @@ import { resInternalServerError, resSuccess, resUnauthorized, resValidationError
 import { ApiResponse } from "@/app/_type/api";
 import { WorkGroup } from "@/app/_type/data";
 import { GetWorkGroupsData } from "@/app/_type/supabase";
+import { createLogger } from "@/app/_constants/utils/logger";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { getValidTokenFromCookie } from "@/app/_constants/utils/sessionUtils";
@@ -13,7 +14,8 @@ type Params = {
 }
 
 export async function GET(req: NextRequest,   { params }: Params ): Promise<NextResponse<ApiResponse<WorkGroup[]>>> {
-  console.log("===== GET /api/v1/work/[user_id] =====");
+  const logger = createLogger('API:Work:UserId');
+  logger.debug("GET /api/v1/work/[user_id]");
   const userId = (await params).user_id;
   const cookie = await cookies();
   if(!userId) {
@@ -43,7 +45,7 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
 
   // 一括でユーザ情報をSupabaseから取得（N+1問題を回避）
   const userIds: Set<string> = new Set(result.data.map(data => data.user_id));
-  console.log(`Fetching user info for ${userIds.size} users from Supabase`);
+  logger.debug(`Fetching user info for ${userIds.size} users from Supabase`);
   
   const { data: userInfoList, error }
     = await supabase

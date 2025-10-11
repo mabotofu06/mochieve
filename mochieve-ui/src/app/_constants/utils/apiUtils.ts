@@ -6,6 +6,7 @@ import { getFetch } from "../fetch";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { setSessionCookie } from "./sessionUtils";
 import { getUserInfoByToken } from "../redis/client";
+import { createLogger } from "./logger";
 
 
 export const resSuccess = <T>(cookies: ReadonlyRequestCookies, data: T, message = "Success", code = "SUCCESS"): NextResponse<SuccessResponse<T>> => {
@@ -85,7 +86,8 @@ export const resInternalServerError = (cookies: ReadonlyRequestCookies, message 
 }
 
 export const resTooManyRequests = (cookies: ReadonlyRequestCookies, clientIP: string, maxRequests: number, message = ERROR_INFO.TOO_MANY_REQUESTS.MESSAGE, details = ERROR_INFO.TOO_MANY_REQUESTS.DETAIL): NextResponse<ErrorResponse> => {
-  console.log(`Request blocked due to rate limiting: ${clientIP}`);
+  const logger = createLogger('ApiUtils:resTooManyRequests');
+  logger.warn(`Request blocked due to rate limiting: ${clientIP}`);
   
   const rateLimitHeaders = {
     'Retry-After': '300', // 5分後に再試行

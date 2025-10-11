@@ -4,9 +4,11 @@ import { resInternalServerError, resSuccess, resUnauthorized } from "@/app/_cons
 import { ApiResponse } from "@/app/_type/api";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
   const cookie = await cookies()
+  const logger = createLogger('API:Logout');
   try {
     const accessToken = cookie.get("accessToken")?.value;
 
@@ -24,7 +26,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
 
     return resSuccess(cookie, { status: "success" });
   } catch (err: any) {
-    console.log(err);
+    logger.error("Logout error", err);
     return resInternalServerError(cookie, err.message || "Internal Server Error");
   }
 }

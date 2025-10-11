@@ -6,6 +6,7 @@ import { store } from "@/app/_state/store";
 import { OrganismsUserMenu } from "./UserMenu";
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { useEffect, useState } from "react";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 import {Pacifico} from 'next/font/google'
 import { Hachi_Maru_Pop } from "next/font/google";
@@ -65,7 +66,8 @@ export default function OrganismsHeader() {
         }));
       return;
     }
-    console.log("新しいプロジェクトを作成");
+    const logger = createLogger('OrganismsHeader:handleNewProjectClick');
+    logger.debug("新しいプロジェクトを作成");
     store.dispatch(openPostFormModal({ groupId: null }));
   };
 

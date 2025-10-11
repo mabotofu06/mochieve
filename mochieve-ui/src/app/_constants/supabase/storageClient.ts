@@ -1,5 +1,6 @@
 import { fileToWebp } from "../utils/fileUtil";
 import { supabase } from "./client";
+import { createLogger } from "../utils/logger";
 
 
 /**
@@ -20,7 +21,8 @@ export const uploadPostImage = async (file: File): Promise<string | null> => {
     });
 
   if (error) {
-    console.error("Upload error:", error);
+    const logger = createLogger('StorageClient:uploadPostImage');
+    logger.error("Upload error", error);
     return null;
   }
 

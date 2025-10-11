@@ -4,6 +4,7 @@ import { WorkGroup, WorkPost } from "@/app/_type/data";
 import { BL_INFO, APP_HOST } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 // 30分間のキャッシュを設定（本番用）
 export const revalidate = 1800; // 30分 = 30 * 60秒
@@ -56,7 +57,8 @@ export default async function WorkGroupDetail(props: Props) {
   }
 
   // キャッシング動作確認用ログ
-  console.log(`[${new Date().toISOString()}] WorkGroupDetail rendered for groupId: ${groupId}`);
+  const logger = createLogger('WorkGroupDetail');
+  logger.debug(`WorkGroupDetail rendered for groupId: ${groupId}`);
 
   // 2つのAPIエンドポイントを並行して呼び出し
   const [workGroupResponse, workPostsResponse] = await Promise.all([

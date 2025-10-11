@@ -1,5 +1,6 @@
 import { WorkGroup, WorkPost } from "../_type/data";
 import { GetPostsData } from "../_type/supabase";
+import { createLogger } from "../_constants/utils/logger";
 
 const CACHE_EXPIRE_TIME = 1000 * 60 * 5; // 5 minutes
 
@@ -46,7 +47,8 @@ export const addWorkGroupDetail = (groupId: string, group: WorkGroup, posts: Arr
   // スタックが最大数に達している場合は古いキャッシュを削除
   if (detailsArray.length >= MAX_STACK_NUM) {
     const removed = detailsArray.shift();
-    console.log("古いキャッシュを削除しました", removed);
+    const logger = createLogger('Storage:setWorkGroupDetailCache');
+    logger.debug("古いキャッシュを削除しました", { removedGroupId: removed?.group?.id });
   }
 
   detailsArray.push({group, posts, expire: Date.now() + CACHE_EXPIRE_TIME });

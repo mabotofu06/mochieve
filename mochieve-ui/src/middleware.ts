@@ -3,8 +3,10 @@ import { getNewTokenAndSetRedis, setSessionCookie } from "./app/_constants/utils
 import { checkRateLimit, getClientIP, getRateLimitInfo } from "./app/_constants/utils/middlewareUtil";
 import { resTooManyRequests } from "./app/_constants/utils/apiUtils";
 import { cookies } from "next/headers";
+import { createLogger } from "./app/_constants/utils/logger";
 
 export async function middleware(request: NextRequest) {
+  const logger = createLogger('Middleware');
   // DDoS対策: レート制限チェック
   const clientIP = getClientIP(request);
   const rateLimitResult = checkRateLimit(clientIP);
@@ -16,7 +18,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if(request.nextUrl.pathname === "/api/v1/logout") {
-    console.log("スキップ対象のリクエストのためミドルウェアをスキップします")
+    logger.debug("スキップ対象のリクエストのためミドルウェアをスキップします");
     return NextResponse.next();
   }
   const accessToken = request.cookies.get("accessToken")?.value;
@@ -24,9 +26,9 @@ export async function middleware(request: NextRequest) {
 
   //アクセストークンがなく、リフレッシュトークンがあった場合は再取得
   if(!accessToken && refreshToken){
-    console.log("アクセストークンが存在しないためリフレッシュトークンから再取得を試みます")
+    logger.debug("アクセストークンが存在しないためリフレッシュトークンから再取得を試みます");
     const newToken = await getNewTokenAndSetRedis(refreshToken);
-    console.log("新しいアクセストークンを取得しました:", newToken);
+    logger.info("新しいアクセストークンを取得しました", { hasNewToken: !!newToken });
 
     if(newToken){
       const response = NextResponse.next();

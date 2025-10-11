@@ -4,6 +4,7 @@ import { fetchUserInfoByUid } from '@/app/_constants/supabase/server/userInfoCli
 import { resInternalServerError, resSuccess, resUnauthorized } from '@/app/_constants/utils/apiUtils';
 import { ApiResponse } from '@/app/_type/api';
 import { decodeSupabaseJWT, setSessionCookie } from '@/app/_constants/utils/sessionUtils';
+import { createLogger } from '@/app/_constants/utils/logger';
 import { setUserInfoByToken } from '@/app/_constants/redis/client';
 import { supabase } from '@/app/_constants/supabase/client';
 import { cookies } from 'next/headers';
@@ -11,6 +12,7 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<UserInfo|null>>> {
   const cookie = await cookies();
+  const logger = createLogger('API:CallbackAuth');
   try {
     const { refreshToken, accessToken } = await req.json();
     if (!refreshToken || !accessToken) {
@@ -19,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
 
     const jwt = decodeSupabaseJWT(accessToken);
     const uid = jwt.sub;
-    console.log("Auth UID:", uid);
+    logger.debug("Auth UID", { uid });
     if (!uid) return resUnauthorized(cookie);
 
     const userInfoData = await fetchUserInfoByUid(supabase, uid??'');
@@ -33,9 +35,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
       // Supabaseから認証ユーザを削除
       const { data, error } = await roleSupabase.auth.admin.deleteUser(uid);
       if (error) {
-        console.error("ログイン時、登録されていないユーザーの認証情報削除に失敗しました:", error);
+        logger.error("ログイン時、登録されていないユーザーの認証情報削除に失敗しました", error);
       }
-      console.log("登録されていないユーザーの認証情報を削除しました:", data);
+      logger.info("登録されていないユーザーの認証情報を削除しました", { uid });
       return resUnauthorized(cookie, "ユーザー情報が見つかりませんでした。ログインできるアカウントが登録されていない可能性があります。");
     }
     const userInfo: UserInfo = {
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
     const response = resSuccess(cookie, userInfo);
     return setSessionCookie(response, accessToken, refreshToken);
   } catch (err: any) {
-    console.error("Error in auth callback:", err);
+    logger.error("Error in auth callback", err);
     return resInternalServerError(cookie);
   }
 }

@@ -5,6 +5,7 @@ import { ApiResponse } from "@/app/_type/api";
 import { UserCreateData } from "@/app/_type/data";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 /**
  * ユーザ新規登録API\
@@ -15,6 +16,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
   // Handle POST request
   const cookie = await cookies();
+  const logger = createLogger('API:User');
   const reqBody: UserCreateData = await req.json();
 
   if(!reqBody.token || !reqBody.uid || !reqBody.userId || !reqBody.userName || !reqBody.iconImgUrl || !reqBody.inviteCode) {
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   });
 
   if (rpcError) {
-    console.error("User insert error:", rpcError);
+    logger.error("User insert error", rpcError);
     return resValidationError(cookie, "ユーザ登録に失敗しました", rpcError.message);
   }
 

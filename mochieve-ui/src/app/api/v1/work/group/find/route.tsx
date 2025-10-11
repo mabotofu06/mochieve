@@ -1,6 +1,7 @@
 import { supabase } from "@/app/_constants/supabase/client";
 import { fetchUserInfoByUserId } from "@/app/_constants/supabase/userClient";
 import { resInternalServerError, resNotFound, resSuccess, resValidationError } from "@/app/_constants/utils/apiUtils";
+import { createLogger } from "@/app/_constants/utils/logger";
 import { ApiResponse } from "@/app/_type/api";
 import { WorkGroup } from "@/app/_type/data";
 import { GetWorkGroupsData } from "@/app/_type/supabase";
@@ -13,7 +14,8 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns 
  */
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkGroup>>> {
-  console.log("===== GET /api/v1/work/group/find =====");
+  const logger = createLogger('API:Work:Group:Find');
+  logger.debug("GET /api/v1/work/group/find");
   const cookie = await cookies();
 
   const { searchParams } = new URL(req.url);
@@ -31,21 +33,21 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
     .single();
 
   if (workGroupError || !workGroupData) {
-    console.error("Failed to retrieve work group:", workGroupError);
+    logger.error("Failed to retrieve work group:", workGroupError);
     return resNotFound(cookie, "Work group not found");
   }
 
   const workGroupItem = workGroupData as GetWorkGroupsData;
 
-  console.log("Retrieved Work Group:", workGroupItem);
+  logger.debug("Retrieved Work Group:", { groupId: workGroupItem.group_id });
 
   // ユーザー情報を取得（userClient.tsの関数を使用）
-  console.log(`Fetching user info for user: ${workGroupItem.user_id} from Supabase`);
+  logger.debug(`Fetching user info for user: ${workGroupItem.user_id} from Supabase`);
 
   try {
     const userInfo = await fetchUserInfoByUserId(workGroupItem.user_id);
     if (!userInfo) {
-      console.error("User information not found for user_id:", workGroupItem.user_id);
+      logger.error("User information not found for user_id:", workGroupItem.user_id);
       return resInternalServerError(cookie, "Failed to fetch user information");
     }
 
@@ -66,7 +68,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
     return resSuccess(cookie, workGroup);
   } catch (error) {
-    console.error("Failed to fetch user information:", error);
+    logger.error("Failed to fetch user information:", error);
     return resInternalServerError(cookie, "Failed to fetch user information");
   }
 }

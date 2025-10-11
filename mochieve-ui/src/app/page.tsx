@@ -9,9 +9,11 @@ import { getFetch } from "./_constants/fetch";
 import { getTimelineCache, addTimelineCacheToEnd } from "./_constants/localCache/timeline";
 import { ApiResponse, SuccessResponse } from "./_type/api";
 import { WorkGroup } from "./_type/data";
+import { createLogger } from "./_constants/utils/logger";
 
 export default function Page() {
   const [groups, setGroups] = useState<WorkGroup[] | null>(null);
+  const logger = createLogger('TopPage');
   let isFetching = false;
 
   useEffect(()=>{
@@ -31,7 +33,7 @@ export default function Page() {
 
     //TODO:0件以上だと少ないので50件以上など条件を後々変更
     if (cachedData.length > 0) {
-      console.log("キャッシュから取得:" + JSON.stringify(cachedData));
+      logger.debug("キャッシュから取得", { dataCount: cachedData.length });
       store.dispatch(setLoading(false));
       setGroups(cachedData)
       return;
@@ -52,11 +54,11 @@ export default function Page() {
           addTimelineCacheToEnd(data);  //TODO:後々上へスクロール、下にスクロールでキャッシュへの追加方法を分ける
           setGroups(data);
         } else {
-          console.error("Invalid data format:", res);
+          logger.error("Invalid data format", res);
         }
     })
     .catch((error)=>{
-      console.error(error)
+      logger.error("Timeline data fetch error", error);
     })
     .finally(() => {
       store.dispatch(setLoading(false));

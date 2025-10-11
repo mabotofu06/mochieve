@@ -3,6 +3,7 @@ export async function signInWithGoogle() {
 }
 import { GetWorkGroupsData, SupabaseResponse } from '@/app/_type/supabase';
 import { createClient } from '@supabase/supabase-js';
+import { createLogger } from "../utils/logger";
 
 export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 export const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -38,7 +39,8 @@ export async function fetchMyWorkingGroups(): Promise<SupabaseResponse<GetWorkGr
     if (cache) {
       const { data, timestamp } = JSON.parse(cache);
       // 自身の投稿のためキャッシュに永続的に保持、新規投稿があったタイミングで削除し、リフレッシュする
-      console.log("キャッシュに保存されたデータを返却します")
+      const logger = createLogger('SupabaseClient:getMyWorkingGroups');
+      logger.debug("キャッシュに保存されたデータを返却します");
       return data;
     }
   }

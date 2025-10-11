@@ -1,12 +1,14 @@
 import { MAX_WORKING_POST_NUM } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthedUserFromCookie, resUnauthorized, resSuccess, resInternalServerError } from "@/app/_constants/utils/apiUtils";
+import { createLogger } from "@/app/_constants/utils/logger";
 import { ApiResponse } from "@/app/_type/api";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<boolean>>> {
-  console.log("===== GET /api/v1/work/group/check =====");
+  const logger = createLogger('API:Work:Group:Check');
+  logger.debug("GET /api/v1/work/group/check");
 
   const cookie = await cookies();
   const userInfo = await getAuthedUserFromCookie(cookie);
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<bo
     .eq("close_flag", false);
 
   if (openGroupError && !openGroupNum) {
-    console.error("Failed to retrieve open groups:", openGroupError);
+    logger.error("Failed to retrieve open groups:", openGroupError);
     return resInternalServerError(cookie, "Failed to retrieve open groups");
   }
   if (openGroupNum && openGroupNum >= MAX_WORKING_POST_NUM) {

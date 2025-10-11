@@ -9,6 +9,9 @@ import { MoleculesTimeline } from "../molecules/Timeline";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
 import { pushMyWorksCache } from "@/app/_constants/localCache/myWork";
+import { store } from "@/app/_state/store";
+import { setLoading, openErrorModal } from "@/app/_state/slice/modal";
+import { createLogger } from "@/app/_constants/utils/logger";
 
 type Props = {
   userId: string;
@@ -16,6 +19,7 @@ type Props = {
 }
 
 export const TemplatesMyWorks = (props: Props) => {
+  const logger = createLogger('TemplatesMyWorks');
   const NAV_LIST = Object.values(MY_WORK_NAV_MENU);
   const [activeTab, setActiveTab] = useState<number>(NAV_LIST[0].code);
   const [groups, setGroups] = useState<WorkGroup[]>(props.myWorks);
@@ -34,28 +38,54 @@ export const TemplatesMyWorks = (props: Props) => {
 
   const displayData = getFilteredWorkGroup();
 
-    //TODO: 読み込み中ローディングなどで操作できないようにする
-    const fetchData = async()=>{
-      if(isMax){
-        window.alert("データはこれ以上ありません")
-        return;
-      }
-      const oldgroup: WorkGroup = groups[groups.length - 1];
-      const res = await getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}` + `?period=${new Date(oldgroup.updatedAt).getTime()}`)
-      if(res.status !== 200){
-        console.error(res.message)
-        return;
-      }
-      const newDataList: WorkGroup[] = (res as SuccessResponse<WorkGroup[]>).data || [];
-  
-      if(newDataList.length === 0){
-        setIsMax(true);
-        window.alert("データはこれ以上ありません")
-        return;
-      }
-      setGroups([...groups, ...newDataList])
-      pushMyWorksCache(newDataList);
+  const fetchData = async () => {
+    if (isMax) {
+      store.dispatch(openErrorModal({
+        title: "お知らせ",
+        message: "データはこれ以上ありません"
+      }));
+      return;
     }
+
+    // ローディング開始
+    store.dispatch(setLoading(true));
+
+    try {
+      const oldgroup: WorkGroup = groups[groups.length - 1];
+      const res = await getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}` + `?period=${new Date(oldgroup.updatedAt).getTime()}`);
+      
+      if (res.status !== 200) {
+        store.dispatch(openErrorModal({
+          title: "エラー",
+          message: "データの取得に失敗しました。しばらく時間をおいてから再度お試しください。"
+        }));
+        return;
+      }
+
+      const newDataList: WorkGroup[] = (res as SuccessResponse<WorkGroup[]>).data || [];
+
+      if (newDataList.length === 0) {
+        setIsMax(true);
+        store.dispatch(openErrorModal({
+          title: "お知らせ",
+          message: "データはこれ以上ありません"
+        }));
+        return;
+      }
+
+      setGroups([...groups, ...newDataList]);
+      pushMyWorksCache(newDataList);
+    } catch (error) {
+      logger.error("My works data fetch failed", error);
+      store.dispatch(openErrorModal({
+        title: "エラー",
+        message: "予期しないエラーが発生しました。再度お試しください。"
+      }));
+    } finally {
+      // ローディング終了
+      store.dispatch(setLoading(false));
+    }
+  }
   
 
   return (
