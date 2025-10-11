@@ -70,6 +70,7 @@ export function OrganismsGroupCard(props: Props) {
         className="hover:opacity-80"
         src={props.group.images[imgIdx]}
         alt={`Post Image ${imgIdx+1}`}
+        loading="lazy"
         onClick={()=>{openImage(props.group.images[imgIdx])}}
       />
       </div>

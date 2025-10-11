@@ -65,7 +65,7 @@ export default function TemplateTop(props: Props) {
           ? (<div className="w-full text-center mt-10">投稿はまだありません</div>)
           : <MoleculesTimeline onclick={fetchData}>
               {displayData.map((group) => (
-                <OrganismsGroupCard key={group.id} className="mt-3" group={group} />
+                <OrganismsGroupCard key={group.id} className="mt-3 w-full" group={group} />
               ))}
             </MoleculesTimeline>
         }

@@ -5,34 +5,20 @@ import { getUserInfo } from "@/app/_composables/userInfo";
 const TBL_NAME = 'work_post'
 
 export const fetchPostsByGroupId = async(groupId: string): Promise<SupabaseResponse<GetPostsData[]>> => {
-  // const cacheKey = "posts_" + groupId;
-  // if (typeof window !== 'undefined') {
-  //   const cache = localStorage.getItem(cacheKey);
-  //   if (cache) {
-  //     const { data, timestamp } = JSON.parse(cache);
-  //     if (Date.now() - timestamp < 5 * 60 * 1000) {
-  //       console.log("キャッシュに保存されたデータを返却します")
-  //       return data;
-  //     }
-  //   }
-  // }
-
-  const { data, error }
-    = await supabase
-      .from(TBL_NAME)
-      .select('*')
-      .eq('group_id', groupId)
-      .eq('delete_flag', false)
-      .order('update_datetime', { ascending: true })  //古い順に表示
+  console.log(`[${new Date().toISOString()}] fetchPostsByGroupId called for: ${groupId}`)
+  
+  const { data, error } = await supabase
+    .from(TBL_NAME)
+    .select('*')
+    .eq('group_id', groupId)
+    .eq('delete_flag', false)
+    .order('update_datetime', { ascending: true })  //古い順に表示
+  
   if (error) {
     throw error;
   }
-
-  // if (typeof window !== 'undefined') {
-  //   //一度読み込んでから5分間はキャッシュを利用する
-  //   //TODO:このままだとキャッシュが蓄積されるため、一定数を超えたら古いものから削除するようにする
-  //   localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
-  // }
+  
+  console.log(`[${new Date().toISOString()}] fetchPostsByGroupId completed for: ${groupId}`)
   return data as Array<GetPostsData>;
 }
 

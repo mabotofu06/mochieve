@@ -7,23 +7,8 @@ import { deleteWorkGroupDetailByGroupId, getWorkGroupDetail } from "@/app/_state
 const TBL_NAME = 'work_group'
 
 export const fetchWorkGroupByGroupId = async (groupId: string) => {
-  const cacheKey = `work_group_cache`;
-
-  if(typeof window !== 'undefined'){
-    const cache = localStorage.getItem(cacheKey);
-    if (cache) {
-      const { data, timestamp } = JSON.parse(cache);
-      if (Date.now() - timestamp < 5 * 60 * 1000) {
-        console.log(cache)
-        const result = data.find((item: GetWorkGroupsData) => item.group_id === groupId);
-        if (result) {
-          console.log("キャッシュに保存されたデータを返却します")
-          return result as GetWorkGroupsData;
-        }
-      }
-    }
-  }
-  console.log("キャッシュに保存されたデータが存在しないため、DBからデータを取得します")
+  console.log(`[${new Date().toISOString()}] fetchWorkGroupByGroupId called for: ${groupId}`)
+  
   const { data, error } = await supabase
     .from(TBL_NAME)
     .select('*')
@@ -34,6 +19,7 @@ export const fetchWorkGroupByGroupId = async (groupId: string) => {
     throw error;
   }
 
+  console.log(`[${new Date().toISOString()}] fetchWorkGroupByGroupId completed for: ${groupId}`)
   return data as GetWorkGroupsData;
 };
 

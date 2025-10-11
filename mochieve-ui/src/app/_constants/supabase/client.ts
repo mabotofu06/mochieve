@@ -7,11 +7,28 @@ import { createClient } from '@supabase/supabase-js';
 export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 export const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+// サーバーサイド用のSupabaseクライアント（キャッシング対応 + DDoS対策）
 export const supabase = createClient(
   supabaseUrl,
   supabaseKey,
   {
-    auth: { persistSession: false }
+    auth: { persistSession: false },
+    global: {
+      fetch: (url, options = {}) => {
+        // DDoS対策: タイムアウトとアボートコントローラー
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒タイムアウト
+        
+        return fetch(url, {
+          ...options,
+          cache: 'force-cache', // Next.js fetchキャッシュを強制
+          next: { revalidate: 1800 }, // 30分間キャッシュ
+          signal: controller.signal
+        }).finally(() => {
+          clearTimeout(timeoutId);
+        });
+      }
+    }
   });
 
 export async function fetchMyWorkingGroups(): Promise<SupabaseResponse<GetWorkGroupsData[]>> {

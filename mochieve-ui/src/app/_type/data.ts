@@ -40,7 +40,7 @@ export interface WorkGroup {
 
 export interface WorkPost {
   id: string;
-  userInfo: UserInfo;
+  userId: string;
   note: string;
   image: string;
   createdAt: string;

@@ -1,8 +1,20 @@
-// import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { getNewTokenAndSetRedis, setSessionCookie } from "./app/_constants/utils/sessionUtils";
+import { checkRateLimit, getClientIP, getRateLimitInfo } from "./app/_constants/utils/middlewareUtil";
+import { resTooManyRequests } from "./app/_constants/utils/apiUtils";
+import { cookies } from "next/headers";
 
 export async function middleware(request: NextRequest) {
+  // DDoS対策: レート制限チェック
+  const clientIP = getClientIP(request);
+  const rateLimitResult = checkRateLimit(clientIP);
+  
+  if (!rateLimitResult.allowed) {
+    const cookie = await cookies();
+    const rateLimitInfo = getRateLimitInfo(clientIP);
+    return resTooManyRequests(cookie, rateLimitInfo.clientIP, rateLimitInfo.maxRequests);
+  }
+
   if(request.nextUrl.pathname === "/api/v1/logout") {
     console.log("スキップ対象のリクエストのためミドルウェアをスキップします")
     return NextResponse.next();

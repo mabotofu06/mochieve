@@ -14,6 +14,7 @@ export const BL_INFO = {
     CACHE_USER_AUTH: "/api/v1/cache/user/auth",
     WORK_POST: "/api/v1/work/post",
     WORK_GROUP: "/api/v1/work/group",
+    WORK_GROUP_FIND: "/api/v1/work/group/find",
     WORK_GROUP_CHECK: "/api/v1/work/group/check",
     // USER_REGISTER: "/api/user/register",
     // USER_PROFILE: "/api/user/profile",

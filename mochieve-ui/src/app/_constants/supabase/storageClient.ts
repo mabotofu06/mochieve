@@ -15,6 +15,8 @@ export const uploadPostImage = async (file: File): Promise<string | null> => {
     .from("post-content")
     .upload(fileName, webpBlob, {
       contentType: "image/webp",
+      cacheControl: 'public, max-age=31536000, immutable', // キャッシュ設定（1年）
+      upsert: true // 同名ファイルがあれば上書き
     });
 
   if (error) {

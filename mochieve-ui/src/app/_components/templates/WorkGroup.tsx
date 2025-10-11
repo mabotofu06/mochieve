@@ -1,11 +1,14 @@
-'use client'
-import { WorkGroup, WorkPost } from "@/app/_type/data";
+"use client";
+import { WorkGroup, WorkPost, UserInfo } from "@/app/_type/data";
 import { OrganismsPostCard } from "../organisms/PostCard";
 import { OrganismsPostListHeaderCard } from "../organisms/PostListHeaderCard";
 import { store } from "@/app/_state/store";
 import { openErrorModal, openPostFormModal, setLoading } from "@/app/_state/slice/modal";
-import { useState } from "react";
 import { DateTime } from "luxon";
+import { useState, useEffect } from "react";
+import { BL_INFO } from "@/app/_constants/app";
+import { getFetch } from "@/app/_constants/fetch";
+import { SuccessResponse } from "@/app/_type/api";
 
 type Props = {
   isAuthor: boolean;
@@ -14,8 +17,39 @@ type Props = {
 }
 
 export const TemplatesWorkGroup = (props: Props) => {
-  const [cardSize, setCardSize] = useState<number>(0); // 0:大, 1:小
+  const [isAuthor, setIsAuthor] = useState<boolean>(props.isAuthor);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
+  
   store.dispatch(setLoading(false));
+
+  // クライアントサイドで認証状態を確認
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        // Cookieからアクセストークンを取得してユーザー情報を取得
+        const response = await getFetch<UserInfo>(BL_INFO.API_ENDPOINT.CACHE_USER_INFO);
+        
+        if (response.status === 200) {
+          const userInfo = (response as SuccessResponse<UserInfo>).data;
+          // ログインユーザーのIDと作業グループの作成者IDを比較
+          const authResult = userInfo.id === props.workGroup.userInfo.id;
+          setIsAuthor(authResult);
+          console.log(`クライアントサイド認証チェック結果: ${authResult ? '作成者' : '非作成者'} (User: ${userInfo.id}, WorkGroup Owner: ${props.workGroup.userInfo.id})`);
+        } else {
+          // 認証失敗の場合は非作成者として扱う
+          setIsAuthor(false);
+          console.log("認証なし、または認証失敗のため非作成者として表示");
+        }
+      } catch (error) {
+        console.error("クライアントサイド認証チェックに失敗:", error);
+        setIsAuthor(false);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, [props.workGroup.userInfo.id]);
 
   const addPostForm = () => {
     if(props.workPosts.length < 1){
@@ -34,12 +68,24 @@ export const TemplatesWorkGroup = (props: Props) => {
     store.dispatch(openPostFormModal({ groupId: props.workGroup.id }));
   }
 
+  // 認証チェック中はローディング表示
+  if (isAuthLoading) {
+    return (
+      <div className="flex flex-col relative w-full h-screen items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          <p className="text-gray-600">認証情報を確認中...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col relative w-full h-screen items-center">
       <OrganismsPostListHeaderCard
         id={props.workGroup.id}
         userInfo={props.workGroup.userInfo}
-        isAuthor={props.isAuthor}
+        isAuthor={isAuthor}
         title={props.workGroup.title}
         note={props.workGroup.note}
         likeNum={0}
@@ -58,7 +104,7 @@ export const TemplatesWorkGroup = (props: Props) => {
         ))}
       </div>
 
-      {props.isAuthor &&
+      {isAuthor &&
           <button
             className="bg-green-600 text-white py-4 px-6 rounded-4xl text-xl opacity-100 w-fit my-5"
             onClick={addPostForm}

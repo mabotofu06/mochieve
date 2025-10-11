@@ -1,11 +1,12 @@
 import { APP_HOST, BL_INFO } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { supabase } from "@/app/_constants/supabase/client";
+import { fetchPostsByGroupId } from "@/app/_constants/supabase/postClient";
 import { getAuthServerClient } from "@/app/_constants/supabase/server/client";
 import { getAuthedUserFromCookie, resInternalServerError, resSuccess, resUnauthorized, resValidationError } from "@/app/_constants/utils/apiUtils";
 import { decodeBase64ToBuffer, validBase64MimeType } from "@/app/_constants/utils/fileUtil";
 import { ApiResponse, ErrorResponse, PostRequestBody } from "@/app/_type/api";
-import { UserInfo } from "@/app/_type/data";
+import { UserInfo, WorkPost } from "@/app/_type/data";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -37,6 +38,41 @@ const uploadImage = async (authedClient: SupabaseClient, userInfo: UserInfo, fil
 
   return publicUrlData.publicUrl;
 };
+
+export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkPost[]>>> {
+  console.log("===== GET /api/v1/work/post =====");
+  const cookie = await cookies();
+
+  const { searchParams } = new URL(req.url);
+  const groupId = searchParams.get("groupId");
+  if (!groupId) {
+    return resValidationError(cookie, "Invalid parameter", "groupId is required");
+  }
+
+  try {
+    const rawData = await fetchPostsByGroupId(groupId);
+    
+    // データが配列であることを確認
+    if (Array.isArray(rawData)) {
+      // WorkPost形式に変換
+      const workPosts: WorkPost[] = rawData.map(post => ({
+        id: post.post_id,
+        userId: post.user_id,
+        note: post.content ?? "",
+        image: post.image ?? "",
+        createdAt: post.create_datetime,
+      }));
+      
+      return resSuccess(cookie, workPosts);
+    } else {
+      console.error("Invalid data format received from fetchPostsByGroupId");
+      return resInternalServerError(cookie, "Failed to retrieve work posts");
+    }
+  } catch (error) {
+    console.error("Failed to retrieve work posts:", error);
+    return resInternalServerError(cookie, "Failed to retrieve work posts");
+  }
+}
 
 /**
  * 作業ポスト新規投稿API

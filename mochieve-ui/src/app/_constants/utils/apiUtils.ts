@@ -24,10 +24,19 @@ export const ERROR_INFO = {
   NOT_FOUND   : {CODE: "NOT_FOUND", STATUS: 404, MESSAGE: "Not Found", DETAIL: "The requested resource was not found"},
   VALIDATION_ERROR: {CODE: "VALIDATION_ERROR", STATUS: 400, MESSAGE: "Validation Error", DETAIL: "One or more validation errors occurred"},
   INTERNAL_SERVER_ERROR: {CODE: "INTERNAL_SERVER_ERROR", STATUS: 500, MESSAGE: "Internal Server Error", DETAIL: "An unexpected error occurred on the server"},
+  TOO_MANY_REQUESTS: {CODE: "TOO_MANY_REQUESTS", STATUS: 429, MESSAGE: "Too Many Requests", DETAIL: "Rate limit exceeded. Please try again later."},
 }
 
-export const resError = (error: ErrorResponse, cookies: ReadonlyRequestCookies): NextResponse<ErrorResponse> => {
-  const res = NextResponse.json<ErrorResponse>(error, { status: error.status });
+export const resError = (error: ErrorResponse, cookies: ReadonlyRequestCookies, additionalHeaders?: Record<string, string>): NextResponse<ErrorResponse> => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...additionalHeaders
+  };
+  
+  const res = NextResponse.json<ErrorResponse>(error, { 
+    status: error.status,
+    headers
+  });
   return res;
 }
 
@@ -73,6 +82,23 @@ export const resInternalServerError = (cookies: ReadonlyRequestCookies, message 
     message,
     details
   }, cookies);
+}
+
+export const resTooManyRequests = (cookies: ReadonlyRequestCookies, clientIP: string, maxRequests: number, message = ERROR_INFO.TOO_MANY_REQUESTS.MESSAGE, details = ERROR_INFO.TOO_MANY_REQUESTS.DETAIL): NextResponse<ErrorResponse> => {
+  console.log(`Request blocked due to rate limiting: ${clientIP}`);
+  
+  const rateLimitHeaders = {
+    'Retry-After': '300', // 5分後に再試行
+    'X-RateLimit-Limit': maxRequests.toString(),
+    'X-RateLimit-Remaining': '0',
+  };
+  
+  return resError({
+    status: 429,
+    code: ERROR_INFO.TOO_MANY_REQUESTS.CODE,
+    message,
+    details: `${details} Client IP: ${clientIP}`
+  }, cookies, rateLimitHeaders);
 }
 
 /**

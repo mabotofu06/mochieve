@@ -41,8 +41,10 @@ export async function GET(req: NextRequest,   { params }: Params ): Promise<Next
     return resInternalServerError(cookie);
   }
 
-    // 一括でユーザ情報を取得(TODO: キャッシュに保持している場合はそちらを優先)
+  // 一括でユーザ情報をSupabaseから取得（N+1問題を回避）
   const userIds: Set<string> = new Set(result.data.map(data => data.user_id));
+  console.log(`Fetching user info for ${userIds.size} users from Supabase`);
+  
   const { data: userInfoList, error }
     = await supabase
       .from("user_info")

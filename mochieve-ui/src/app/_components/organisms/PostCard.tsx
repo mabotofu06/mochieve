@@ -57,6 +57,7 @@ export function OrganismsPostCard(props: Props) {
           className="post-image hover:opacity-80"
           src={props.post.image}
           alt="Post Image"
+          loading="lazy"
           onClick={() => store.dispatch(openImageModal(props.post.image))}
         />
       </div>
@@ -71,7 +72,13 @@ export function OrganismsPostCard(props: Props) {
             className={`w-full ${footerAnim === 'expand' ? 'animate-footer-expand' : ''} ${footerAnim === 'collapse' ? 'animate-footer-collapse' : ''}`}
             style={{bottom: '60px', maxHeight: footerAnim === '' ? '0' : undefined, overflow: 'hidden'}}
           >
-            <p className="post-content m-3">{props.post.note}</p>
+            <p
+              //XSSの脆弱性あり
+              className="post-content m-3"
+              dangerouslySetInnerHTML={{
+              __html: props.post.note.replace(/\n/g, "<br />"),
+              }}
+            />
           </div>
         )}
         <div className="flex justify-end items-center">

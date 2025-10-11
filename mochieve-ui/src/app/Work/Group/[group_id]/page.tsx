@@ -1,10 +1,45 @@
-import { fetchWorkGroupByGroupId } from "@/app/_constants/supabase/workGroupClient";
-import { GetPostsData } from "@/app/_type/supabase";
-import { UserInfo, WorkGroup, WorkPost } from "@/app/_type/data";
-import { fetchPostsByGroupId } from "@/app/_constants/supabase/postClient";
 import { TemplatesWorkGroup } from "@/app/_components/templates/WorkGroup";
-import { cookies } from "next/headers";
-import { getUserInfoByToken } from "@/app/_constants/redis/client";
+import { Metadata } from "next";
+import { WorkGroup, WorkPost } from "@/app/_type/data";
+import { BL_INFO, APP_HOST } from "@/app/_constants/app";
+import { getFetch } from "@/app/_constants/fetch";
+import { SuccessResponse } from "@/app/_type/api";
+
+// 30分間のキャッシュを設定（本番用）
+export const revalidate = 1800; // 30分 = 30 * 60秒
+
+// 動的ルートの事前生成を無効化し、オンデマンド生成を使用
+export const dynamicParams = true;
+
+// 強制的に静的生成を行う（DBアクセスをキャッシュ）
+export const dynamic = 'force-static';
+
+// メタデータ生成（キャッシュされる）
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const groupId = decodeURIComponent(resolvedParams.group_id);
+  
+  try {
+    // 特定のWorkGroup取得APIを使用してグループ情報を取得（メタデータ生成用）
+    const workGroupResponse = await getFetch<WorkGroup>(`${APP_HOST}${BL_INFO.API_ENDPOINT.WORK_GROUP_FIND}?groupId=${encodeURIComponent(groupId)}`);
+    
+    if (workGroupResponse.status === 200) {
+      const workGroup = (workGroupResponse as SuccessResponse<WorkGroup>).data;
+      
+      return {
+        title: `${workGroup.title || '作業グループ'} | Mochieve`,
+        description: workGroup.note || '作業進捗を共有するページです',
+      };
+    }
+  } catch {
+    // エラー時はデフォルトメタデータを返す
+  }
+  
+  return {
+    title: '作業グループ | Mochieve',
+    description: '作業進捗を共有するページです',
+  };
+}
 
 type Props = {
   params: Promise<{
@@ -20,60 +55,27 @@ export default async function WorkGroupDetail(props: Props) {
     throw new Error("Group ID is required");
   }
 
-  const workGroupRes = await fetchWorkGroupByGroupId(groupId);
-  const workPostsRes = await fetchPostsByGroupId(groupId);
+  // キャッシング動作確認用ログ
+  console.log(`[${new Date().toISOString()}] WorkGroupDetail rendered for groupId: ${groupId}`);
 
-  if (!workGroupRes || !workPostsRes) {
+  // 2つのAPIエンドポイントを並行して呼び出し
+  const [workGroupResponse, workPostsResponse] = await Promise.all([
+    getFetch<WorkGroup>(`${APP_HOST}${BL_INFO.API_ENDPOINT.WORK_GROUP_FIND}?groupId=${encodeURIComponent(groupId)}`),
+    getFetch<WorkPost[]>(`${APP_HOST}${BL_INFO.API_ENDPOINT.WORK_POST}?groupId=${encodeURIComponent(groupId)}`)
+  ]);
+
+  if (workGroupResponse.status !== 200 || workPostsResponse.status !== 200) {
     throw new Error("Failed to fetch work group detail");
   }
 
-  const newWorkGroup: WorkGroup = {
-    id: workGroupRes.group_id,
-    userInfo: {
-      id: workGroupRes.user_id,
-      name: "不明なユーザー",
-      iconImg: "",
-    },
-    note: workGroupRes.content ?? "",
-    updatedAt: workGroupRes.update_datetime,
-    title: workGroupRes.title ?? "",
-    images: workGroupRes.images,
-    isClose: workGroupRes.close_flag,
-  }
-
-  // ここ（ポスト一覧）はクライアント側から取得したほうがよさそう
-  const newWorkPosts: Array<WorkPost>
-    = (workPostsRes as GetPostsData[])
-      .map(item => ({
-        id: item.post_id,
-        userInfo: {
-          id: item.user_id,
-          name: "不明なユーザー",
-          iconImg: "",
-        },
-        note: item.content ?? "",
-        image: item.image ?? "",
-        createdAt: item.create_datetime,
-      }));
+  const newWorkGroup = (workGroupResponse as SuccessResponse<WorkGroup>).data;
+  const newWorkPosts = (workPostsResponse as SuccessResponse<WorkPost[]>).data;
 
 
-  //以下、認証しているユーザ情報を元に投稿者かどうかを判定
-  const cookie = await cookies();
-  const accessToken = cookie.get("accessToken")?.value;
-  const refreshToken = cookie.get("refreshToken")?.value;
-
-  const userInfo: UserInfo | null = await getUserInfoByToken(accessToken || ""); //RedisのTTL更新のためにアクセス
-  console.log("userInfo取得結果:", userInfo);
-  if(userInfo){
-    console.log("認証されたユーザの情報:", userInfo);
-  }
-  else{
-    console.log("認証されたユーザの投稿でないため閲覧専用として表示");
-  }
-
+  // 認証チェックはクライアントサイドで実行（WorkGroupコンポーネント内）
   return (
     <TemplatesWorkGroup
-      isAuthor={userInfo?.id === newWorkGroup.userInfo.id}
+      isAuthor={false} // 初期値、クライアントサイドで動的に判定
       workGroup={newWorkGroup}
       workPosts={newWorkPosts}
     />

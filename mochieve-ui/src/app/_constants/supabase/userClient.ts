@@ -17,3 +17,18 @@ export const fetchUserInfoByUid = async(uid: string): Promise<GetUserData|undefi
 
   return data as GetUserData;
 }
+
+export const fetchUserInfoByUserId = async(userId: string): Promise<GetUserData|undefined> => {
+  const { data, error }
+    = await supabase
+      .from(TBL_NAME)
+      .select('user_id, name, icon_image, info, create_datetime, update_datetime, delete_flag, delete_datetime')
+      .eq('user_id', userId)
+      .eq('delete_flag', false)
+      .single();
+  if (error) {
+    throw error;
+  }
+
+  return data as GetUserData;
+}

@@ -32,7 +32,15 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
     <div className="shadow rounded-4xl w-full">
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center">
-            <div className={"user-icon bg-green-800 rounded-full " + iconSize}></div>
+            {props.userInfo.iconImg ? (
+              <img 
+                src={props.userInfo.iconImg} 
+                alt={`${props.userInfo.name}のアイコン`}
+                className={"user-icon object-cover rounded-full " + iconSize}
+              />
+            ) : (
+              <div className={"user-icon bg-green-800 rounded-full " + iconSize}></div>
+            )}
             <div className="user-info ml-3 flex flex-col justify-center text-md">
               <h2 className="user-name font-semibold">{props.userInfo.name}</h2>
               <p className="user-id text-xs">{props.userInfo.id}</p>

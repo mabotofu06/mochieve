@@ -1,0 +1,14 @@
+{
+  "github.copilot.chat.retrieval.enabled": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.workspace.contextFiles": [
+    ".github/copilot-instructions.md",
+    "src/app/_type/data.ts",
+    "src/app/_constants/redis/client.ts",
+    "src/app/_constants/supabase/client.ts",
+    "src/app/_constants/utils/apiUtils.ts",
+    "src/app/_constants/app.ts",
+    "src/app/_constants/fetch.ts",
+    "src/app/api/v1/"
+  ]
+}

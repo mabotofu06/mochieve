@@ -72,7 +72,7 @@ export const TemplatesMyWorks = (props: Props) => {
             </div>)
           : <MoleculesTimeline onclick={fetchData}>
               {displayData.map((group, index) => (
-                <OrganismsGroupCard className="mt-3" key={index} group={group} />
+                <OrganismsGroupCard className="mt-3 w-full" key={index} group={group} />
               ))}
             </MoleculesTimeline>
         }
