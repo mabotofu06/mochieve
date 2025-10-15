@@ -32,7 +32,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       .from("work_group")
       .select("*")
       .eq("delete_flag", false)
-      .lt("update_datetime", datetime.toISOString())
+      .lte("update_datetime", datetime.toISOString())
       .order("update_datetime", { ascending: false })
       .limit(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
 
@@ -56,6 +56,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       .in("user_id", Array.from(userIds));
 
     if (error || !userInfoList) {
+      logger.error("Failed to fetch user information from Supabase", error);
       return resInternalServerError(cookie, "Failed to fetch user information");
     }
     //user_idをキーにしたマップを作成

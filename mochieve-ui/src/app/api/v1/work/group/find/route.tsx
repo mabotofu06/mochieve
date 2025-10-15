@@ -27,7 +27,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
   // 特定のワークグループを取得
   const { data: workGroupData, error: workGroupError } = await supabase
     .from("work_group")
-    .select("*")
+    .select(`group_id, user_id, title, content, images, close_flag, update_datetime`)
     .eq("group_id", groupId)
     .eq("delete_flag", false)
     .single();
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
   const workGroupItem = workGroupData as GetWorkGroupsData;
 
-  logger.debug("Retrieved Work Group:", { groupId: workGroupItem.group_id });
+  logger.debug("Retrieved Work Group:", { groupId: workGroupItem });
 
   // ユーザー情報を取得（userClient.tsの関数を使用）
   logger.debug(`Fetching user info for user: ${workGroupItem.user_id} from Supabase`);

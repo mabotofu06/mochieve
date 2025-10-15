@@ -10,6 +10,7 @@ import { openImageModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { DateTime } from "luxon";
 import { encodeDatetime } from "@/app/_constants/utils/utils";
+import { AtomsDisplayTextArea } from "../atoms/DisplayTextArea";
 
 export const ActionMenu = ()=>{
   return(
@@ -38,6 +39,9 @@ export function OrganismsGroupCard(props: Props) {
   const handleNext = () => setImgIdx(idx => (idx + 1) % total);
   const updatedAt = encodeDatetime(props.group.updatedAt);
 
+  const displayTitle = props.group.title || "無題の作業";
+  const displayNote = props.group.note || "説明文はまだありません";
+
   const NavigateToWorkGroupPage = (groupId: string) => {
     //セッションに本ワークグループを登録
     addWorkGroupDetail(groupId, props.group, []);
@@ -51,7 +55,9 @@ export function OrganismsGroupCard(props: Props) {
   return createElement("div", { className: `post-card relative border rounded-lg overflow-hidden ${props.className}` }, (
     <div>
       {/* Header */}
-      {createElement("div", { className: `header absolute top-0 flex items-center justify-between w-full p-2 z-50 ${props.group.isClose?" bg-green-100": "bg-white"}` }, [
+      {createElement(
+        "div",
+        { className: `header absolute top-0 flex items-center justify-between w-full p-2 z-50 border-b border-green-600 ${props.group.isClose?" bg-green-100": "bg-white"}` }, [
         <div key="header-user" className="flex items-center">
           <img className={"user-icon bg-green-800 rounded-full " + iconSize} src={props.group.userInfo.iconImg} />
           <div className="user-info ml-3 flex flex-col justify-center text-md">
@@ -65,7 +71,7 @@ export function OrganismsGroupCard(props: Props) {
       ]
       )
     }
-      <div className="image-container flex items-center h-[600px] overflow-hidden bg-gray-100">
+      <div className="image-container flex justify-center h-[600px] overflow-hidden bg-gray-100">
       <img
         className="hover:opacity-80"
         src={props.group.images[imgIdx]}
@@ -95,8 +101,10 @@ export function OrganismsGroupCard(props: Props) {
       )}
 
       {/* Footer */}
-      {createElement('div', {className: `footer absolute bottom-0 p-4 w-full ${props.group.isClose?" bg-green-100": "bg-white"}`}, [
-        <div key="footer-dots" className="flex justify-center">
+      {createElement(
+        'div',
+        {className: `footer absolute bottom-0 p-4 w-full border-t border-green-600 ${props.group.isClose?" bg-green-100": "bg-white"}`}, [
+        <div className="image-indicator flex justify-center mb-5">
           <div className="flex gap-2 z-50">
             {props.group.images.map((_, i) => (
               <span
@@ -106,23 +114,40 @@ export function OrganismsGroupCard(props: Props) {
             ))}
           </div>
         </div>,
-        <div key="footer-details" className="post-details flex flex-col w-full items-center">
-          <div className="flex max-h-16 justify-between w-full items-center">
-            <div className="w-4/5 overflow-hidden">
-              <h2 className="post-title text-xl font-semibold">{props.group.title}</h2>
-              <p className="post-content">{props.group.note}</p>
+
+        <div className="post-details flex flex-col w-full items-center">
+          <div className="flex h-20 justify-between w-full items-top mb-3">
+            <div className="w-2/3 overflow-hidden">
+              <div className="relative">
+                <h2 className="post-title text-xl font-semibold mb-1 h-8 overflow-hidden">
+                  {displayTitle}
+                </h2>
+                <div
+                  className={`absolute right-0 top-0 h-full w-12 pointer-events-none bg-gradient-to-r ${props.group.isClose ? "from-transparent to-green-100" : "from-transparent to-white"}`}
+                />
+              </div>
+              <div className="relative">
+                <AtomsDisplayTextArea
+                  className="post-content w-full px-3 overflow-y-hidden text-gray-500"
+                  value={displayNote}
+                  rows={2}
+                />
+                <div className={`absolute w-full bottom-0 h-10 bg-gradient-to-b ${props.group.isClose ? "from-transparent to-green-100" : "from-transparent to-white"}`}></div>
+              </div>
             </div>
-            <div className="ms-8">
-              投稿数:
-              <span className="post-num text-green-600 font-semibold ms-3">
-                {props.group.images.length}
-              </span>
+            <div className="ms-8 flex flex-col justify-between">
+              <div className="post-stats text-lg">
+                投稿数:
+                <span className="post-num text-green-600 font-semibold ms-3">
+                  {props.group.images.length}
+                </span>
+              </div>
+              <button className="text-green-600 bg-white font-bold hover:opacity-60 cursor-pointer border border-lime-500 py-1 px-3 rounded-3xl" onClick={() => NavigateToWorkGroupPage(props.group.id)}>
+                もっとみる＞
+              </button>
             </div>
 
           </div>
-          <button className="mt-2 hover:underline cursor-pointer" onClick={() => NavigateToWorkGroupPage(props.group.id)}>
-            → これまでの作業進捗をみてみる
-          </button>
         </div>
       ])}
     </div>

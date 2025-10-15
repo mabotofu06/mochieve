@@ -92,3 +92,45 @@ sequenceDiagram
     BL-->>-UI: 対象の投稿データを返却
     UI-->>-User: SSRでページを返却(セッション情報から自分の投稿ページでなければエラー画面へ)
 ```
+
+
+
+### テーブル定義
+作業グループテーブル
+物理名|型|備考
+---|---|---
+group_id       | uuid         |pk
+user_id        | varchar(50)  |fk
+title          | varchar(50)
+content        | varchar(2000)
+images         | URL[]
+close_flag     | boolean
+create_datetime| timestanp
+update_datetime| timestanp
+delete_flag    | boolean
+delete_datetime| timestanp
+
+作業ポストテーブル
+物理名|型|備考
+---|---|---
+post_id        | uuid         |pk
+group_id       | uuid         |fk
+image          | URL
+content        | varchar(300)
+create_datetime| timestanp
+update_datetime| timestanp
+delete_flag    | boolean
+delete_datetime| timestanp
+
+ユーザ情報テーブル
+物理名|型|備考
+---|---|---
+user_id        | varchar(50)|pk
+uid            | uuid       |fk
+user_name      | string
+icon_image     | string
+note           | string
+create_datetime| timestanp
+update_datetime| timestanp
+delete_flag    | boolean
+delete_datetime| timestanp

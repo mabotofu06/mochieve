@@ -100,9 +100,9 @@ export const TemplatesWorkGroup = (props: Props) => {
       />
       <div className="flex justify-center items-center bg-white gap-5 my-3">
       </div>
-      <div className="work-posts flex-1 overflow-y-scroll custom-scrollbar px-3 pt-3">
+      <div className="work-posts flex-1 overflow-y-scroll custom-scrollbar px-3 pt-3 w-full">
         {props.workPosts.map(post => (
-          <OrganismsPostCard className="my-8" key={post.id} post={post} />
+          <OrganismsPostCard className="my-8 w-full min-h-[600px]" key={post.id} post={post} />
         ))}
       </div>
 

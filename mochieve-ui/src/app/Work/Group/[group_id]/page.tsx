@@ -13,7 +13,7 @@ export const revalidate = 1800; // 30分 = 30 * 60秒
 export const dynamicParams = true;
 
 // 強制的に静的生成を行う（DBアクセスをキャッシュ）
-export const dynamic = 'force-static';
+// export const dynamic = 'force-static';
 
 // メタデータ生成（キャッシュされる）
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

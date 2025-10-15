@@ -1,7 +1,9 @@
+import { logger } from "@/app/_constants/utils/logger";
 import { encodeDatetime } from "@/app/_constants/utils/utils";
 import { openGroupFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { UserInfo } from "@/app/_type/data";
+import { AtomsDisplayTextArea } from "../atoms/DisplayTextArea";
 
 type Props = {
   id: string;
@@ -23,6 +25,11 @@ type Props = {
 export const OrganismsPostListHeaderCard = (props: Props) => {
   const iconSize = "w-15 h-15";
   const updatedAt = encodeDatetime(props.updated);
+  const displayTitle = props.title || "無題の作業";
+  const displayNote = props.note || "説明文はまだありません";
+
+
+  logger.info("Rendering PostListHeaderCard for group:", props);
 
   const openGroupForm = () => {
     store.dispatch(openGroupFormModal({id: props.id, title: props.title, note: props.note}));
@@ -63,9 +70,15 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
 
         <div>
           <div className="post-details flex w-full">
-            <div className="w-full ms-5">
-              <h2 className="post-title text-xl font-semibold mb-3">{props.title}</h2>
-              <p className="post-content ms-3 max-h-42 overflow-y-scroll mb-8 custom-scrollbar" dangerouslySetInnerHTML={{ __html: props.note }} />
+            <div className="w-full mx-5">
+              <h2 className="post-title text-xl font-semibold">
+                {displayTitle}
+              </h2>
+              <AtomsDisplayTextArea
+                className="post-content w-full overflow-y-auto p-3 rounded-lg"
+                rows={3}
+                value={displayNote}
+              />
             </div>
           </div>
           <div className="flex justify-between items-center p-5 border-t border-t-green-600">

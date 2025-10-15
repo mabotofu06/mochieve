@@ -22,8 +22,8 @@ export const supabase = createClient(
         
         return fetch(url, {
           ...options,
-          cache: 'force-cache', // Next.js fetchキャッシュを強制
-          next: { revalidate: 1800 }, // 30分間キャッシュ
+          // cache: 'force-cache', // Next.js fetchキャッシュを強制
+          // next: { revalidate: 1800 }, // 30分間キャッシュ
           signal: controller.signal
         }).finally(() => {
           clearTimeout(timeoutId);
