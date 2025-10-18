@@ -48,7 +48,7 @@ export const addWorkGroupDetail = (groupId: string, group: WorkGroup, posts: Arr
   if (detailsArray.length >= MAX_STACK_NUM) {
     const removed = detailsArray.shift();
     const logger = createLogger('Storage:setWorkGroupDetailCache');
-    logger.debug("古いキャッシュを削除しました", { removedGroupId: removed?.group?.id });
+    logger.info("古いキャッシュを削除しました", { removedGroupId: removed?.group?.id });
   }
 
   detailsArray.push({group, posts, expire: Date.now() + CACHE_EXPIRE_TIME });

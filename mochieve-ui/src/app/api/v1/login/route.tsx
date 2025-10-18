@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   const logger = createLogger('API:Login');
   try {
     const { email, password } = await req.json();
-    logger.debug("Login Attempt", { email, hasPassword: !!password });
+    logger.info("Login Attempt", { email, hasPassword: !!password });
 
     return NextResponse.json({status: "success"});
 

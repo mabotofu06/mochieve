@@ -21,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<U
 
     const jwt = decodeSupabaseJWT(accessToken);
     const uid = jwt.sub;
-    logger.debug("Auth UID", { uid });
+    logger.info("Auth UID", { uid });
     if (!uid) return resUnauthorized(cookie);
 
     const userInfoData = await fetchUserInfoByUid(supabase, uid??'');

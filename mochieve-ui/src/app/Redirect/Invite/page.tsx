@@ -46,7 +46,7 @@ export default function RedirectInvitePage() {
     const url = new URL(window.location.href);
     const code = url.searchParams.get("invite_code");
     setInviteCode(code);
-    logger.debug("招待コード：" + code);
+    logger.info("招待コード：" + code);
 
     fetchSession()
       .then((authInfo) => {

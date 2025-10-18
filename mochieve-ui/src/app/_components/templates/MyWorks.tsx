@@ -4,7 +4,7 @@ import { WorkGroup } from "@/app/_type/data";
 import { OrganismsGroupCard } from "../organisms/GroupCard";
 import { useEffect, useState } from "react";
 import { OrganismsTabMenu } from "../organisms/TabMenu";
-import { BL_INFO, MY_WORK_NAV_MENU } from "@/app/_constants/app";
+import { API_INFO, MY_WORK_NAV_MENU } from "@/app/_constants/app";
 import { MoleculesTimeline } from "../molecules/Timeline";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
@@ -12,6 +12,7 @@ import { pushMyWorksCache } from "@/app/_constants/localCache/myWork";
 import { store } from "@/app/_state/store";
 import { setLoading, openErrorModal } from "@/app/_state/slice/modal";
 import { createLogger } from "@/app/_constants/utils/logger";
+import { group } from "console";
 
 type Props = {
   userId: string;
@@ -48,8 +49,7 @@ export const TemplatesMyWorks = (props: Props) => {
     }
 
     // ローディング開始
-    store.dispatch(setLoading(true));
-
+    // store.dispatch(setLoading(true));
     try {
       const oldgroup: WorkGroup = groups[groups.length - 1];
       const res = await getFetch<WorkGroup[]>(`/api/v1/work/${props.userId}` + `?period=${new Date(oldgroup.updatedAt).getTime()}`);
@@ -74,7 +74,6 @@ export const TemplatesMyWorks = (props: Props) => {
       }
 
       setGroups([...groups, ...newDataList]);
-      pushMyWorksCache(newDataList);
     } catch (error) {
       logger.error("My works data fetch failed", error);
       store.dispatch(openErrorModal({
@@ -83,7 +82,7 @@ export const TemplatesMyWorks = (props: Props) => {
       }));
     } finally {
       // ローディング終了
-      store.dispatch(setLoading(false));
+      // store.dispatch(setLoading(false));
     }
   }
   
@@ -96,12 +95,12 @@ export const TemplatesMyWorks = (props: Props) => {
         onChange={(code) => setActiveTab(code)}
       />
       <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
-        {displayData.length === 0
+        {groups.length === 0
           ? (<div className="w-full bg-white content-center text-center mt-10">
               投稿がまだありません。
             </div>)
           : <MoleculesTimeline onclick={fetchData}>
-              {displayData.map((group, index) => (
+              {groups.map((group, index) => (
                 <OrganismsGroupCard className="mt-3 w-full" key={index} group={group} />
               ))}
             </MoleculesTimeline>

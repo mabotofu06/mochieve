@@ -2,7 +2,7 @@ import { GetWorkGroupsData, SupabaseResponse } from "@/app/_type/supabase";
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { deleteWorkGroupDetailByGroupId } from "@/app/_state/storage";
 import { serverSupabaseClient } from "./client";
-import { MAX_POST_NUM } from "../../app";
+import { VALIDATION_LENGTH } from "../../app";
 
 const TBL_NAME = 'work_group'
 
@@ -87,7 +87,7 @@ export const updateWorkGroup = async (groupId: string, image: string, closeFlag:
       title,
       content,
       images,
-      close_flag: MAX_POST_NUM <= images.length ? true : closeFlag  //10件の投稿数を超えたら自動的にクローズする
+      close_flag: VALIDATION_LENGTH.WORK_GROUP.POST_NUM.MAX <= images.length ? true : closeFlag  //12件の投稿数を超えたら自動的にクローズする
     })
     .eq('group_id', groupId);
 

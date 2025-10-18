@@ -2,11 +2,10 @@ import { OrganismsTabMenu } from "../organisms/TabMenu";
 import { useState } from "react";
 import { OrganismsGroupCard } from "../organisms/GroupCard";
 import { WorkGroup } from "@/app/_type/data";
-import { BL_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
+import { API_INFO, TOP_NAV_MENU } from "@/app/_constants/app";
 import { MoleculesTimeline } from "../molecules/Timeline";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
-import { addTimelineCacheToEnd } from "@/app/_constants/localCache/timeline";
 import { store } from "@/app/_state/store";
 import { setLoading, openErrorModal } from "@/app/_state/slice/modal";
 import { createLogger } from "@/app/_constants/utils/logger";
@@ -33,7 +32,7 @@ export default function TemplateTop(props: Props) {
     }
   }
 
-  const displayData = getFilteredWorkGroup();
+  // const displayData = getFilteredWorkGroup();
 
   const fetchData = async () => {
     if (isMax) {
@@ -45,11 +44,11 @@ export default function TemplateTop(props: Props) {
     }
 
     // ローディング開始
-    store.dispatch(setLoading(true));
+    // store.dispatch(setLoading(true));
 
     try {
       const oldgroup: WorkGroup = groupList[groupList.length - 1];
-      const res = await getFetch<WorkGroup[]>(BL_INFO.API_ENDPOINT.WORK_GROUP + `?period=${new Date(oldgroup.updatedAt).getTime()}`);
+      const res = await getFetch<WorkGroup[]>(API_INFO.ENDPOINT.WORK_GROUP + `?period=${new Date(oldgroup.updatedAt).getTime()}`);
       
       if (res.status !== 200) {
         store.dispatch(openErrorModal({
@@ -71,7 +70,6 @@ export default function TemplateTop(props: Props) {
       }
 
       setGroupList([...groupList, ...newDataList]);
-      addTimelineCacheToEnd(newDataList);
     } catch (error) {
       logger.error("Timeline data fetch failed", error);
       store.dispatch(openErrorModal({
@@ -80,7 +78,7 @@ export default function TemplateTop(props: Props) {
       }));
     } finally {
       // ローディング終了
-      store.dispatch(setLoading(false));
+      // store.dispatch(setLoading(false));
     }
   }
 
@@ -92,10 +90,10 @@ export default function TemplateTop(props: Props) {
         onChange={(number)=>{setActiveTab(number)}}
       />
       <div className="timeline flex-1 overflow-y-scroll custom-scrollbar px-3">
-        {displayData.length === 0
+        {groupList.length === 0
           ? (<div className="w-full text-center mt-10">投稿はまだありません</div>)
           : <MoleculesTimeline onclick={fetchData}>
-              {displayData.map((group) => (
+              {groupList.map((group) => (
                 <OrganismsGroupCard key={group.id} className="mt-3 w-full" group={group} />
               ))}
             </MoleculesTimeline>

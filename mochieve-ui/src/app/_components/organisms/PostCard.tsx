@@ -24,7 +24,7 @@ type Props = {
 
 export function OrganismsPostCard(props: Props) {
   const logger = createLogger('OrganismsPostCard');
-  logger.debug("Rendering PostCard", { postId: props.post.id });
+  logger.info("Rendering PostCard", { postId: props.post.id });
   const iconSize = props.size === 'small' ? "w-7 h-7" : "w-10 h-10";
   const [footerOpen, setFooterOpen] = useState(false);
   const [footerAnim, setFooterAnim] = useState<'expand'|'collapse'|''>('');

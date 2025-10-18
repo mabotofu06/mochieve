@@ -1,14 +1,13 @@
 import { TemplatesWorkGroup } from "@/app/_components/templates/WorkGroup";
 import { Metadata } from "next";
 import { WorkGroup, WorkPost } from "@/app/_type/data";
-import { BL_INFO, APP_HOST } from "@/app/_constants/app";
+import { API_INFO, APP_HOST } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
 import { createLogger } from "@/app/_constants/utils/logger";
 
 // 30分間のキャッシュを設定（本番用）
 export const revalidate = 1800; // 30分 = 30 * 60秒
-
 // 動的ルートの事前生成を無効化し、オンデマンド生成を使用
 export const dynamicParams = true;
 
@@ -22,16 +21,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   try {
     // 特定のWorkGroup取得APIを使用してグループ情報を取得（メタデータ生成用）
-    const workGroupResponse = await getFetch<WorkGroup>(`${APP_HOST}${BL_INFO.API_ENDPOINT.WORK_GROUP_FIND}?groupId=${encodeURIComponent(groupId)}`);
-    
-    if (workGroupResponse.status === 200) {
-      const workGroup = (workGroupResponse as SuccessResponse<WorkGroup>).data;
-      
-      return {
-        title: `${workGroup.title || '作業グループ'} | Mochieve`,
-        description: workGroup.note || '作業進捗を共有するページです',
-      };
+    const workGroupResponse = await getFetch<WorkGroup>(`${APP_HOST}${API_INFO.ENDPOINT.WORK_GROUP_FIND}?groupId=${encodeURIComponent(groupId)}`);
+
+    if (workGroupResponse.status !== 200) {
+      throw new Error("Failed to fetch work group");
     }
+
+    const workGroup = (workGroupResponse as SuccessResponse<WorkGroup>).data;
+      
+    return {
+      title: `${workGroup.title || '作業グループ'} | Mochieve`,
+      description: workGroup.note || '作業進捗を共有するページです',
+    };
   } catch {
     // エラー時はデフォルトメタデータを返す
   }
@@ -58,12 +59,12 @@ export default async function WorkGroupDetail(props: Props) {
 
   // キャッシング動作確認用ログ
   const logger = createLogger('WorkGroupDetail');
-  logger.debug(`WorkGroupDetail rendered for groupId: ${groupId}`);
+  logger.info(`WorkGroupDetail rendered for groupId: ${groupId}`);
 
   // 2つのAPIエンドポイントを並行して呼び出し
   const [workGroupResponse, workPostsResponse] = await Promise.all([
-    getFetch<WorkGroup>(`${APP_HOST}${BL_INFO.API_ENDPOINT.WORK_GROUP_FIND}?groupId=${encodeURIComponent(groupId)}`),
-    getFetch<WorkPost[]>(`${APP_HOST}${BL_INFO.API_ENDPOINT.WORK_POST}?groupId=${encodeURIComponent(groupId)}`)
+    getFetch<WorkGroup>(`${APP_HOST}${API_INFO.ENDPOINT.WORK_GROUP_FIND}?groupId=${encodeURIComponent(groupId)}`),
+    getFetch<WorkPost[]>(`${APP_HOST}${API_INFO.ENDPOINT.WORK_POST}?groupId=${encodeURIComponent(groupId)}`)
   ]);
 
   if (workGroupResponse.status !== 200 || workPostsResponse.status !== 200) {

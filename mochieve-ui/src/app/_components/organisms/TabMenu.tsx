@@ -18,8 +18,8 @@ export const OrganismsTabMenu = (props: Props) => {
   const [code, setCode] = useState<number>(props.activeTab);
 
   return (
-      <div className="nav-tab flex justify-center mt-3 border-b-2 border-green-500 overflow-x-auto">
-        {props.tabMenu.map((item, index) => {
+      <div className="nav-tab flex justify-center mt-3 border-b-2 border-green-500 overflow-x-auto h-10">
+        {/* {props.tabMenu.map((item, index) => {
           return createElement(
             'button',
             {
@@ -29,7 +29,7 @@ export const OrganismsTabMenu = (props: Props) => {
             },
             item.label
           )
-        })}
+        })} */}
       </div>
   )
 }

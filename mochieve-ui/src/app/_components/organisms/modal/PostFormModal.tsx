@@ -5,11 +5,9 @@ import { useSelector } from "react-redux";
 import { closePostFormModal, openErrorModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { postFetch, putFetch } from "@/app/_constants/fetch";
-import { BL_INFO } from "@/app/_constants/app";
+import { API_INFO } from "@/app/_constants/app";
 import { ApiResponse, PostRequestBody } from "@/app/_type/api";
 import { encodeBlob2Base64, fileToWebp } from "@/app/_constants/utils/fileUtil";
-import { clearCanNewPost } from "@/app/_constants/localCache/canNewPost";
-import { clearMyWorks } from "@/app/_constants/localCache/myWork";
 import { createLogger } from "@/app/_constants/utils/logger";
 
 export const OrganismsPostFormModal = () => {
@@ -72,17 +70,14 @@ export const OrganismsPostFormModal = () => {
 
     const response = 
       targetGroupId
-        ? await putFetch<PostRequestBody, ApiResponse<boolean>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody)
-        : await postFetch<PostRequestBody, ApiResponse<boolean>>(BL_INFO.API_ENDPOINT.WORK_POST, reqBody);
+        ? await putFetch<PostRequestBody, ApiResponse<boolean>>(API_INFO.ENDPOINT.WORK_POST, reqBody)
+        : await postFetch<PostRequestBody, ApiResponse<boolean>>(API_INFO.ENDPOINT.WORK_POST, reqBody);
 
     if(response.status !== 200) {
       store.dispatch(openErrorModal({ title: "投稿エラー", message: "投稿に失敗しました" }));
       return;
     }
     closeModal();
-    clearCanNewPost();
-    clearMyWorks();
-
     window.location.reload();
   }
 
@@ -135,7 +130,7 @@ export const OrganismsPostFormModal = () => {
                   className="hidden"
                   onChange={e => {
                     if (e.target.files && e.target.files[0]) {
-                      logger.debug("Image uploaded");
+                      logger.info("Image uploaded");
                       setImage(e.target.files[0]);
                       
                     }

@@ -1,12 +1,11 @@
 "use client"
 
-import { APP_NAME, BL_INFO } from "./_constants/app";
+import { APP_NAME, API_INFO } from "./_constants/app";
 import TemplateTop from "./_components/templates/Top";
 import { useEffect, useState } from "react";
 import { store } from "./_state/store";
 import { openErrorModal, setLoading } from "./_state/slice/modal";
 import { getFetch } from "./_constants/fetch";
-import { getTimelineCache, addTimelineCacheToEnd } from "./_constants/localCache/timeline";
 import { ApiResponse, SuccessResponse } from "./_type/api";
 import { WorkGroup } from "./_type/data";
 import { createLogger } from "./_constants/utils/logger";
@@ -29,19 +28,9 @@ export default function Page() {
     //複数回Fetchされるのを防止
     isFetching = true;
 
-    const cachedData: WorkGroup[] = getTimelineCache();
-
-    //TODO:0件以上だと少ないので50件以上など条件を後々変更
-    if (cachedData.length > 0) {
-      logger.debug("キャッシュから取得", { dataCount: cachedData.length });
-      store.dispatch(setLoading(false));
-      setGroups(cachedData)
-      return;
-    }
-
+    //TODO:後々キャッシュも考慮
     const period = new Date().getTime();
-
-    getFetch<WorkGroup[]>(BL_INFO.API_ENDPOINT.WORK_GROUP + `?period=${period}`)
+    getFetch<WorkGroup[]>(API_INFO.ENDPOINT.WORK_GROUP + `?period=${period}`,{}, false)
       .then((res: ApiResponse<WorkGroup[]>) => {
         if(res.status !== 200) {
           throw new Error("Failed to fetch timeline data");
@@ -51,7 +40,6 @@ export default function Page() {
         }
         const data = (res as SuccessResponse<WorkGroup[]>).data;
         if (Array.isArray(data)) {
-          addTimelineCacheToEnd(data);  //TODO:後々上へスクロール、下にスクロールでキャッシュへの追加方法を分ける
           setGroups(data);
         } else {
           logger.error("Invalid data format", res);

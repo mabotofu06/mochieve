@@ -40,7 +40,7 @@ export async function fetchMyWorkingGroups(): Promise<SupabaseResponse<GetWorkGr
       const { data, timestamp } = JSON.parse(cache);
       // 自身の投稿のためキャッシュに永続的に保持、新規投稿があったタイミングで削除し、リフレッシュする
       const logger = createLogger('SupabaseClient:getMyWorkingGroups');
-      logger.debug("キャッシュに保存されたデータを返却します");
+      logger.info("キャッシュに保存されたデータを返却します");
       return data;
     }
   }

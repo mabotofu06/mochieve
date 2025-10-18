@@ -4,8 +4,9 @@ import { getFetch, postFetch } from "@/app/_constants/fetch";
 import { openErrorModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { AuthUserInfo, UserCreateData } from "@/app/_type/data";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createLogger } from "@/app/_constants/utils/logger";
+import { API_INFO, VALIDATION_LENGTH } from "@/app/_constants/app";
 
 const Input = (props: {
   className?: string;
@@ -40,12 +41,11 @@ const UserIcon = (props: { url: string }) => {
 
 const UserIdForm = (props: { userId: string, setUserId: (id: string)=>void }) => {
   return (
-    <div key="userId" className="flex flex-col items-center mb-5 text-lg w-98">
-      <p className="mb-2">MochieveアカウントのユーザIDを設定してください</p>
-      <p className="text-sm mb-8">※5~20文字の半角英数とアンダースコア(_)のみ使用可能です</p>
+    <div key="userId" className="flex flex-col items-center mb-5 text-lg w-120">
+      <p className="mb-5">Mochieveアカウントで使用するユーザIDを設定してください</p>
       <Input
         className="mb-5 w-full"
-        placeholder="ユーザIDを入力"
+        placeholder={`ユーザIDを入力（${VALIDATION_LENGTH.USER_ID.MIN}~${VALIDATION_LENGTH.USER_ID.MAX}文字の半角英数とアンダースコア(_)のみ）`}
         initialValue={props.userId}
         onChange={(e) => { props.setUserId(e.target.value) }}
       />
@@ -69,8 +69,6 @@ type Props = {
  * @param props 
  * @returns 
  */
-
-
 export const OrganismsUserRegisterForm = (props: Props) => {
   const logger = createLogger('OrganismsUserRegisterForm');
   const inviteCode = props.code;
@@ -82,25 +80,37 @@ export const OrganismsUserRegisterForm = (props: Props) => {
   const [pageNum , setPageNum]  = useState(0); // 1: ユーザー情報入力、2: 登録完了
 
   const submitUser = async () => {
-    if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
-      store.dispatch(openErrorModal({title: "ユーザIDが不正です", message: "ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です"}));
+    if(!userId || userId.length < VALIDATION_LENGTH.USER_ID.MIN || userId.length > VALIDATION_LENGTH.USER_ID.MAX || !/^[a-zA-Z0-9_]+$/.test(userId)){
+      store.dispatch(openErrorModal({
+        title: "ユーザIDが不正です",
+        message: `ユーザIDは${VALIDATION_LENGTH.USER_ID.MIN}~${VALIDATION_LENGTH.USER_ID.MAX}文字の半角英数とアンダースコア(_)のみ使用可能です`
+      }));
       return;
     }
-    if(!userName || userName.length < 3 || userName.length > 50){
-      store.dispatch(openErrorModal({title: "ユーザ名が不正です", message: "ユーザ名は3~50文字で入力してください"}));
+    if(!userName || userName.length < VALIDATION_LENGTH.USER_NAME.MIN || userName.length > VALIDATION_LENGTH.USER_NAME.MAX){
+      store.dispatch(openErrorModal({
+        title: "ユーザ名が不正です",
+        message: `ユーザ名は${VALIDATION_LENGTH.USER_NAME.MIN}~${VALIDATION_LENGTH.USER_NAME.MAX}文字で入力してください`
+      }));
       return;
     }
     if(!inviteCode){
-      store.dispatch(openErrorModal({title: "招待コードが不正です", message: "招待コードが不正です。もう一度やり直してください"}));
+      store.dispatch(openErrorModal({
+        title: "招待コードが不正です",
+        message: "招待コードが不正です。もう一度やり直してください"
+      }));
       return;
     }
     if(!uid || !token){
       logger.error("ユーザ情報が不正です", { uid, token });
-      store.dispatch(openErrorModal({title: "ユーザ情報が不正です", message: "ユーザ情報が不正です。もう一度やり直してください"}));
+      store.dispatch(openErrorModal({
+        title: "ユーザ情報が不正です",
+        message: "ユーザ情報が不正です。もう一度やり直してください"
+      }));
       return;
     }
     //ユーザ登録APIを叩く
-    const res = await postFetch<UserCreateData, any>("/api/v1/user", {
+    const res = await postFetch<UserCreateData, any>(API_INFO.ENDPOINT.USER, {
       token,
       inviteCode,
       uid,
@@ -110,7 +120,10 @@ export const OrganismsUserRegisterForm = (props: Props) => {
     });
 
     if(res.status !== 200){
-      store.dispatch(openErrorModal({title: "ユーザ登録に失敗しました", message: res.message}));
+      store.dispatch(openErrorModal({
+        title: "ユーザ登録に失敗しました",
+        message: res.message
+      }));
       return;
     }
 
@@ -120,15 +133,21 @@ export const OrganismsUserRegisterForm = (props: Props) => {
   }
 
   const toUserNameForm = async ()=>{
-    logger.debug("ユーザID確認:", { userId });
-    if(!userId || userId.length < 5 || userId.length > 20 || !/^[a-zA-Z0-9_]+$/.test(userId)){
-      store.dispatch(openErrorModal({title: "ユーザIDが不正です", message: "ユーザIDは5~20文字の半角英数とアンダースコア(_)のみ使用可能です"}));
+    logger.info("ユーザID確認:", { userId });
+    if(!userId || userId.length < VALIDATION_LENGTH.USER_ID.MIN || userId.length > VALIDATION_LENGTH.USER_ID.MAX || !/^[a-zA-Z0-9_]+$/.test(userId)){
+      store.dispatch(openErrorModal({
+        title: "ユーザIDが不正です",
+        message: `ユーザIDは${VALIDATION_LENGTH.USER_ID.MIN}~${VALIDATION_LENGTH.USER_ID.MAX}文字の半角英数とアンダースコア(_)のみ使用可能です`
+      }));
       return;
     }
-    const res = await getFetch("/api/v1/user/check?user_id=@" + userId);
+    const res = await getFetch(API_INFO.ENDPOINT.USER_VALIDATION + "?user_id=@" + userId);
     if(res.status !== 200){
       const data = res;
-      store.dispatch(openErrorModal({title: "ユーザID確認エラー", message: data.message}));
+      store.dispatch(openErrorModal({
+        title: "ユーザID確認エラー",
+        message: data.message
+      }));
       return;
     }
     setPageNum(1);

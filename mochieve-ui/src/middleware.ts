@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if(request.nextUrl.pathname === "/api/v1/logout") {
-    logger.debug("スキップ対象のリクエストのためミドルウェアをスキップします");
+    logger.info("スキップ対象のリクエストのためミドルウェアをスキップします");
     return NextResponse.next();
   }
   const accessToken = request.cookies.get("accessToken")?.value;
@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
   //アクセストークンがなく、リフレッシュトークンがあった場合は再取得
   if(!accessToken && refreshToken){
-    logger.debug("アクセストークンが存在しないためリフレッシュトークンから再取得を試みます");
+    logger.info("アクセストークンが存在しないためリフレッシュトークンから再取得を試みます");
     const newToken = await getNewTokenAndSetRedis(refreshToken);
     logger.info("新しいアクセストークンを取得しました", { hasNewToken: !!newToken });
 

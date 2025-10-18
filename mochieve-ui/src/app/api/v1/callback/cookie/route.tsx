@@ -12,12 +12,12 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
   const accessToken = cookie.get("accessToken")?.value;
   const refreshToken = cookie.get("refreshToken")?.value;
 
-  logger.debug("Token check", { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
+  logger.info("Token check", { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken });
 
   const userInfo = await getUserInfoByToken(accessToken || "")
   if (!userInfo) {
     return resUnauthorized(cookie);
   }
-  logger.debug("User info retrieved via cookie callback", { userId: userInfo.id });
+  logger.info("User info retrieved via cookie callback", { userId: userInfo.id });
   return resSuccess(cookie, userInfo);
 }

@@ -24,7 +24,7 @@ export default function InvitePage() {
       return;
     }else if(code === "testInviteCode"){
       //テスト用の招待コード
-      logger.debug("テスト用の招待コードを検出");
+      logger.info("テスト用の招待コードを検出");
       store.dispatch(setLoading(false));
       return;
     }

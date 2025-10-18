@@ -7,7 +7,7 @@ import { openLoginModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { getUserInfo } from "@/app/_composables/userInfo";
 import { getFetch } from "@/app/_constants/fetch";
-import { APP_SERVICE, BL_INFO, DEFAULT_USER_ICON } from "@/app/_constants/app";
+import { APP_SERVICE, API_INFO, DEFAULT_USER_ICON } from "@/app/_constants/app";
 import { usePathname } from "next/navigation";
 import { createLogger } from "@/app/_constants/utils/logger";
 
@@ -25,7 +25,7 @@ const menuList: MenuItem[] = [
     name: "ホーム",
     link: APP_SERVICE.TOP.link,
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <svg key="home-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
       </svg>
     ),
@@ -34,7 +34,7 @@ const menuList: MenuItem[] = [
     name: "自分の投稿",
     link: `/${getUserInfo()?.id || undefined}`,
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <svg key="my-posts-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
       </svg>
     ),
@@ -48,7 +48,7 @@ const menuList: MenuItem[] = [
     name: "お知らせ",
     link: "/News",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <svg key="news-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
       </svg>
     ),
@@ -57,7 +57,7 @@ const menuList: MenuItem[] = [
     name: "ログイン",
     link: "/Login",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <svg key="login-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
       </svg>
     ),
@@ -67,13 +67,13 @@ const menuList: MenuItem[] = [
     name: "ログアウト",
     link: "/Logout",
     icon: (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+      <svg key="logout-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
       </svg>
     ),
     type: "user",
     onClick: async ()=>{
-      await getFetch(BL_INFO.API_ENDPOINT.LOGOUT);
+      await getFetch(API_INFO.ENDPOINT.LOGOUT);
       if(typeof window === 'undefined') return;
       localStorage.removeItem("user_info");
       window.location.href = "/";
@@ -129,7 +129,7 @@ export const OrganismsUserMenu = (props: Props) => {
   };
 
   const logger = createLogger('OrganismsUserMenu');
-  logger.debug("UserMenu rendered", { pathName, isGuest });
+  logger.info("UserMenu rendered", { pathName, isGuest });
 
   return (
     <div>

@@ -1,4 +1,4 @@
-import { MAX_WORKING_POST_NUM } from "@/app/_constants/app";
+import { VALIDATION_LENGTH } from "@/app/_constants/app";
 import { supabase } from "@/app/_constants/supabase/client";
 import { getAuthedUserFromCookie, resUnauthorized, resSuccess, resInternalServerError } from "@/app/_constants/utils/apiUtils";
 import { createLogger } from "@/app/_constants/utils/logger";
@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<boolean>>> {
   const logger = createLogger('API:Work:Group:Check');
-  logger.debug("GET /api/v1/work/group/check");
+  logger.info("GET /api/v1/work/group/check");
 
   const cookie = await cookies();
   const userInfo = await getAuthedUserFromCookie(cookie);
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<bo
     logger.error("Failed to retrieve open groups:", openGroupError);
     return resInternalServerError(cookie, "Failed to retrieve open groups");
   }
-  if (openGroupNum && openGroupNum >= MAX_WORKING_POST_NUM) {
+  if (openGroupNum && openGroupNum >= VALIDATION_LENGTH.WORK_GROUP.POST_NUM.MAX) {
     return resSuccess(cookie, false);
   }
 

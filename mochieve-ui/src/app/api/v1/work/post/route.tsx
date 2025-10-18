@@ -1,4 +1,4 @@
-import { APP_HOST, BL_INFO } from "@/app/_constants/app";
+import { APP_HOST, API_INFO } from "@/app/_constants/app";
 import { getFetch } from "@/app/_constants/fetch";
 import { supabase } from "@/app/_constants/supabase/client";
 import { fetchPostsByGroupId } from "@/app/_constants/supabase/postClient";
@@ -14,7 +14,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 const uploadImage = async (authedClient: SupabaseClient, userInfo: UserInfo, file: string): Promise<string | null> => {
-  const fileName = `images/${userInfo.id.replace(/^@/g, "")}/${Date.now()}.webp`;
+  const fileName = `images/${userInfo.id.replace(/^@/g, "")}/${Date.now()}.webp`; // ユーザーIDとタイムスタンプで一意のファイル名を生成
 
   //ファイルをアップロードして公開リンクを取得
   const { data, error }
@@ -44,7 +44,7 @@ const uploadImage = async (authedClient: SupabaseClient, userInfo: UserInfo, fil
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkPost[]>>> {
   const logger = createLogger('API:WorkPost:GET');
-  logger.debug("GET /api/v1/work/post");
+  logger.info("GET /api/v1/work/post");
   const cookie = await cookies();
 
   const { searchParams } = new URL(req.url);
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
  */
 export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
   const logger = createLogger('API:WorkPost:POST');
-  logger.debug("POST /api/v1/work/post");
+  logger.info("POST /api/v1/work/post");
   const cookie = await cookies();
   const accessToken = cookie.get("accessToken")?.value;
   if (!accessToken) return resUnauthorized(cookie);
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
 
   // リクエストボディを取得
   const {note, imageFile}: PostRequestBody = await req.json();
-  logger.debug("Request data:", {note, imageFile: imageFile.slice(0,30) + "..."}); // 先頭30文字だけ表示
+  logger.info("Request data:", {note, imageFile: imageFile.slice(0,30) + "..."}); // 先頭30文字だけ表示
 
   if(!note || !imageFile) return resValidationError(cookie);
   if(note.length > 150) return resValidationError(cookie, "Note is too long", "Note must be 150 characters or less");
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   // 投稿グループを追加できるかチェック
   const checkRes
     = await getFetch<any>(
-        APP_HOST + BL_INFO.API_ENDPOINT.WORK_GROUP_CHECK,
+        APP_HOST + API_INFO.ENDPOINT.WORK_GROUP_CHECK,
         {headers: {cookie: `accessToken=${accessToken}`}}
       )
   if(checkRes.status !== 200) {
@@ -135,14 +135,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
   if (rpcError) {
     // 失敗したらアップロードした画像を削除
     const deleteFilePath = imageUrl.replace(/^.*\/post-content\//, "");
-    logger.debug("Deleting uploaded file:", deleteFilePath);
+    logger.info("Deleting uploaded file:", deleteFilePath);
 
     const { data, error } = await authedClient
       .storage
       .from("post-content")
       .remove([deleteFilePath]);
 
-    logger.debug("File deletion result:", { data, error });
+    logger.info("File deletion result:", { data, error });
     logger.error("RPC error:", rpcError);
     return resInternalServerError(cookie, "Failed to create work group and post");
   }
@@ -167,7 +167,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<a
  */
 export async function PUT(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
   const logger = createLogger('API:WorkPost:PUT');
-  logger.debug("PUT /api/v1/work/post");
+  logger.info("PUT /api/v1/work/post");
 
   const cookie = await cookies();
   const accessToken = cookie.get("accessToken")?.value;
@@ -213,14 +213,14 @@ export async function PUT(req: NextRequest): Promise<NextResponse<ApiResponse<an
   if(rpcError){
     // 失敗したらアップロードした画像を削除
     const deleteFilePath = imageUrl.replace(/^.*\/post-content\//, "");
-    logger.debug("Deleting uploaded file:", deleteFilePath);
+    logger.info("Deleting uploaded file:", deleteFilePath);
 
     const { data, error } = await authedClient
       .storage
       .from("post-content")
       .remove([deleteFilePath]);
 
-    logger.debug("File deletion result:", { data, error });
+    logger.info("File deletion result:", { data, error });
     logger.error("RPC error:", rpcError);
     return resInternalServerError(cookie, "Failed to update work group and post");
   }

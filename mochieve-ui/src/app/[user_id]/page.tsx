@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { WorkGroup } from "../_type/data";
 import { getFetch } from "../_constants/fetch";
 import { SuccessResponse } from "../_type/api";
-import { getMyWorksCache, pushMyWorksCache } from "../_constants/localCache/myWork";
 import { store } from "../_state/store";
 import { setLoading } from "../_state/slice/modal";
 import { APP_NAME } from "../_constants/app";
@@ -26,6 +25,7 @@ export default function MyWorkGroup(props: Props) {
 
     fetchMyWorks(props)
       .then((data) => {
+        logger.info("Fetched work groups", data.myWorks);
         setMyWorks(data.myWorks);
         setUserId(data.userId);
       })
@@ -50,14 +50,7 @@ async function fetchMyWorks(props: Props): Promise<{ myWorks: WorkGroup[], userI
   const params = await props.params;
   const userId = decodeURIComponent(params.user_id);
   if (!userId) throw new Error("User ID is required");
-  //キャッシュ確認
-  const cache = getMyWorksCache();
-  if (cache.length > 0) {
-    const logger = createLogger('MyWorkGroupPage:fetchMyWorks');
-    logger.debug("キャッシュから取得");
-    return { myWorks: cache, userId };
-  }
-
+  //TODO:後々キャッシュ導入も検討
   const res = await getFetch<WorkGroup[]>(`/api/v1/work/${userId}`);
   if(res.status !== 200) {
     const logger = createLogger('MyWorkGroupPage:fetchMyWorks');
@@ -66,7 +59,6 @@ async function fetchMyWorks(props: Props): Promise<{ myWorks: WorkGroup[], userI
   }
   const data = ((res as SuccessResponse<WorkGroup[]>).data);
   const logger = createLogger('MyWorkGroupPage:fetchMyWorks');
-  logger.debug("APIから取得", { dataCount: data.length });
-  pushMyWorksCache(data);
+  logger.info("APIから取得", { dataCount: data.length });
   return { myWorks: data, userId };
 }

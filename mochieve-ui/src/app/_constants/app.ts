@@ -2,21 +2,22 @@ export const APP_NAME = 'Mochieve';
 export const APP_VERSION = '0.0.1';
 export const APP_HOST = process.env.NEXT_PUBLIC_APP_HOST!;
 
-export const BL_INFO = {
-  HOST: "https://localhost",
-  PORT: 5000,
-  API_ENDPOINT: {
+export const API_INFO = {
+  // HOST: "https://localhost",
+  // PORT: 5000,
+  ENDPOINT: {
     READINESS_HEALTH_CHECK: "/api/health",
     AUTH_CALLBACK: "/api/v1/callback/auth",
     LOGIN: "/api/v1/login",
     LOGOUT: "/api/v1/logout",
     CACHE_USER_INFO: "/api/v1/cache/user/info",
-    CACHE_USER_AUTH: "/api/v1/cache/user/auth",
+    // CACHE_USER_AUTH: "/api/v1/cache/user/auth",
     WORK_POST: "/api/v1/work/post",
     WORK_GROUP: "/api/v1/work/group",
     WORK_GROUP_FIND: "/api/v1/work/group/find",
     WORK_GROUP_CHECK: "/api/v1/work/group/check",
-    // USER_REGISTER: "/api/user/register",
+    USER: "/api/v1/user",
+    USER_VALIDATION: "/api/v1/user/check",
     // USER_PROFILE: "/api/user/profile",
     // USER_UPDATE: "/api/user/update",
     // POST_CREATE: "/api/post/create",
@@ -29,10 +30,24 @@ export const BL_INFO = {
   }
 }
 
-export const MAX_POST_NUM = 10;
-export const MAX_WORKING_POST_NUM = 3;
+/**
+ * 各種入力値のバリデーション定数
+ */
+export const VALIDATION_LENGTH = {
+  USER_ID: {MIN: 5, MAX: 25},     // ユーザーID
+  USER_NAME: {MIN: 2, MAX: 50},   // ユーザー名
+  WORK_GROUP:{
+    TITLE: {MIN: 0, MAX: 100},    // 作業グループタイトル
+    NOTE:  {MIN: 0, MAX: 2000},   // 作業グループ説明文
+    ON_WORKING: {MIN: 0, MAX: 3}, // 同時作業中の作業グループ最大数
+    POST_NUM: {MIN: 1, MAX: 12}   // 1つの作業グループ内の投稿最大数
+  },
+  WORK_POST:{
+    NOTE:  {MIN: 1, MAX: 150}     // 作業ポスト説明文
+  }
+}
 
-export const DEFAULT_USER_ICON = "https://wzzpmyztchwnljdqzvkh.supabase.co/storage/v1/object/public/user-info-content/image.webp";
+export const DEFAULT_USER_ICON = process.env.DEFAULT_USER_ICON;
 
 export const APP_SERVICE = {
   TOP: {
@@ -73,6 +88,7 @@ export const APP_SERVICE = {
   }
 }
 
+//TODO:今後利用想定
 export const MY_WORK_NAV_MENU = {
   WORKING  : { label: "作業中", code: 1 },
   ALL      : { label: "すべて", code: 0 },
@@ -87,7 +103,7 @@ export const TOP_NAV_MENU = {
 
 export const CACHE_INFO = {
   USER_INFO    : { key: "user_info"    , MAX_SIZE: 20 , expires: 60 * 60 * 24 * 30 },// 1 month
-  TIMELINE_DATA: { key: "timeline_data", MAX_SIZE: 100, expires: 60 * 30      },     // 30 minutes
-  MY_WORKS_DATA: { key: "my_works_data", MAX_SIZE: 100 , expires: 0 },
+  TIMELINE_DATA: { key: "timeline_data", MAX_SIZE: 20, expires: 60 * 30      },     // 30 minutes
+  MY_WORKS_DATA: { key: "my_works_data", MAX_SIZE: 20 , expires: 0 },
   CAN_NEW_POST : { key: "can_new_post" , MAX_SIZE: 1  , expires: 0 }
 }

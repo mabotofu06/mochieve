@@ -1,6 +1,6 @@
 "use client"
 
-import { APP_HOST, APP_NAME, APP_SERVICE, BL_INFO, MAX_POST_NUM, MAX_WORKING_POST_NUM } from "@/app/_constants/app";
+import { APP_HOST, APP_NAME, APP_SERVICE, API_INFO, VALIDATION_LENGTH } from "@/app/_constants/app";
 import { openErrorModal, openPostFormModal } from "@/app/_state/slice/modal";
 import { store } from "@/app/_state/store";
 import { OrganismsUserMenu } from "./UserMenu";
@@ -12,9 +12,7 @@ import {Pacifico} from 'next/font/google'
 import { Hachi_Maru_Pop } from "next/font/google";
 import { getFetch } from "@/app/_constants/fetch";
 import { ErrorResponse, SuccessResponse } from "@/app/_type/api";
-import { getMyWorksCache } from "@/app/_constants/localCache/myWork";
 import { UserInfo } from "@/app/_type/data";
-import { getCanNewPost, setCanNewPost } from "@/app/_constants/localCache/canNewPost";
 
 const pacifico = Pacifico({
   variable: "--font-pacifico",
@@ -37,17 +35,7 @@ export default function OrganismsHeader() {
   }, []);
 
   const createNewWorks = async () => {
-    const canNewPost = getCanNewPost();
-    if(canNewPost === false) {
-      store.dispatch(
-        openErrorModal({
-          title: "新しいプロジェクトの作成上限に達しています",
-          message: `1ユーザーあたりのプロジェクト作成上限は${MAX_WORKING_POST_NUM}件です。既存のプロジェクトを削除してから再度お試しください。`
-        }));
-      return;
-    }
-
-    const checkRes = await getFetch<boolean>(BL_INFO.API_ENDPOINT.WORK_GROUP_CHECK);
+    const checkRes = await getFetch<boolean>(API_INFO.ENDPOINT.WORK_GROUP_CHECK);
     if(checkRes.status !== 200) {
       const checkResError = checkRes as ErrorResponse;
       store.dispatch(openErrorModal({
@@ -56,18 +44,17 @@ export default function OrganismsHeader() {
       }));
       return;
     }
-    const data = (checkRes as SuccessResponse<boolean>).data;
-    setCanNewPost(data);
-    if(!data){
+    const result = (checkRes as SuccessResponse<boolean>).data;
+    if(!result){
       store.dispatch(
         openErrorModal({
           title: "新しいプロジェクトの作成上限に達しています",
-          message: `1ユーザーあたりのプロジェクト作成上限は${MAX_WORKING_POST_NUM}件です。既存のプロジェクトを削除してから再度お試しください。`
+          message: `1ユーザーあたりのプロジェクト作成上限は${VALIDATION_LENGTH.WORK_GROUP.ON_WORKING.MAX}件です。既存のプロジェクトを削除してから再度お試しください。`
         }));
       return;
     }
     const logger = createLogger('OrganismsHeader:handleNewProjectClick');
-    logger.debug("新しいプロジェクトを作成");
+    logger.info("新しいプロジェクトを作成");
     store.dispatch(openPostFormModal({ groupId: null }));
   };
 

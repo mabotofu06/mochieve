@@ -1,7 +1,7 @@
 import { ApiResponse, ErrorResponse, SuccessResponse } from "@/app/_type/api";
 import { UserInfo } from "@/app/_type/data";
 import { NextResponse } from "next/server";
-import { APP_HOST, BL_INFO } from "../app";
+import { APP_HOST, API_INFO } from "../app";
 import { getFetch } from "../fetch";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { setSessionCookie } from "./sessionUtils";

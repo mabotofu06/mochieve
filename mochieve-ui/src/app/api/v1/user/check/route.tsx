@@ -7,7 +7,7 @@ import { createLogger } from "@/app/_constants/utils/logger";
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<any>>> {
   const logger = createLogger('API:UserCheck');
-  logger.debug("GET /api/v1/user/check");
+  logger.info("GET /api/v1/user/check");
   const cookie = await cookies();
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("user_id");
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<an
   if(!userId) {
     return resValidationError(cookie, "ユーザIDが指定されていません");
   }
-  logger.debug("Checking user_id", { userId });
+  logger.info("Checking user_id", { userId });
 
   // ユーザIDが登録されていないかチェック
   const { count: userIdCount, error: userIdError } = await supabase

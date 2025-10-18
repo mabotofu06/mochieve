@@ -1,9 +1,11 @@
+import { setLoadingModal } from "../_state/slice/modal";
+import { store } from "../_state/store";
 import { ApiResponse, ErrorResponse, SuccessResponse } from "../_type/api";
-import { BL_INFO } from "./app";
 
-const API_URL = "" //`${BL_INFO.HOST}:${BL_INFO.PORT}`;TODO: 後々BFF追加の場合は修正
+const API_URL = "" //`${API_INFO.HOST}:${API_INFO.PORT}`;TODO: 後々BFF追加の場合は修正
 
-export const getFetch = async <T>(url: string, options = {}): Promise<ApiResponse<T>> => {
+export const getFetch = async <T>(url: string, options = {}, showLoading = true): Promise<ApiResponse<T>> => {
+  if (showLoading) store.dispatch(setLoadingModal(true));
   const response = await fetch(API_URL + url, {
     method: "GET",
     headers: {
@@ -13,6 +15,8 @@ export const getFetch = async <T>(url: string, options = {}): Promise<ApiRespons
     credentials: "include",
     ...options,
   });
+  if (showLoading) store.dispatch(setLoadingModal(false));
+
   if (!response.ok) {
     return await response.json() as ErrorResponse; // エラーレスポンスを返す
   }
@@ -21,7 +25,8 @@ export const getFetch = async <T>(url: string, options = {}): Promise<ApiRespons
   return resBody as SuccessResponse<T>; // 成功レスポンスを返す
 }
 
-export const postFetch = async <T, U>(url: string, body: T, options = {}): Promise<ApiResponse<U>> => {
+export const postFetch = async <T, U>(url: string, body: T, options = {}, showLoading = true): Promise<ApiResponse<U>> => {
+  if (showLoading) store.dispatch(setLoadingModal(true));
   const response = await fetch(API_URL + url, {
     method: "POST",
     headers: {
@@ -32,6 +37,8 @@ export const postFetch = async <T, U>(url: string, body: T, options = {}): Promi
     credentials: "include",
     ...options,
   });
+  if (showLoading) store.dispatch(setLoadingModal(false));
+
   if (!response.ok) {
     return await response.json() as ErrorResponse; // エラーレスポンスを返す
   }
@@ -40,7 +47,8 @@ export const postFetch = async <T, U>(url: string, body: T, options = {}): Promi
   return resBody as SuccessResponse<U>; // 成功レスポンスを返す
 }
 
-export const putFetch = async <T, U>(url: string, body: T, options = {}): Promise<ApiResponse<U>> => {
+export const putFetch = async <T, U>(url: string, body: T, options = {}, showLoading = true): Promise<ApiResponse<U>> => {
+  if (showLoading) store.dispatch(setLoadingModal(true));
   const response = await fetch(API_URL + url, {
     method: "PUT",
     headers: {
@@ -51,6 +59,8 @@ export const putFetch = async <T, U>(url: string, body: T, options = {}): Promis
     credentials: "include",
     ...options,
   });
+  if (showLoading) store.dispatch(setLoadingModal(false));
+
   if (!response.ok) {
     return await response.json() as ErrorResponse; // エラーレスポンスを返す
   }
@@ -59,7 +69,8 @@ export const putFetch = async <T, U>(url: string, body: T, options = {}): Promis
   return resBody as SuccessResponse<U>; // 成功レスポンスを返す
 }
 
-export const deleteFetch = async (url: string, options = {}): Promise<void> => {
+export const deleteFetch = async (url: string, options = {}, showLoading = true): Promise<void> => {
+  if (showLoading) store.dispatch(setLoadingModal(true));
   const response = await fetch(API_URL + url, {
     method: "DELETE",
     headers: {
@@ -69,4 +80,9 @@ export const deleteFetch = async (url: string, options = {}): Promise<void> => {
     credentials: "include",
     ...options,
   });
-}
+  if (showLoading) store.dispatch(setLoadingModal(false));
+
+  if (!response.ok) {
+    throw new Error(`delete処理に失敗しました: ${response.statusText}`);
+  }
+};

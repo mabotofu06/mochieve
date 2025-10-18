@@ -10,6 +10,7 @@ type Props = {
   isAuthor: boolean;
   userInfo: UserInfo;
   updated: string;
+  isClose: boolean;
 
   title: string;
   note: string;
@@ -36,7 +37,7 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
   }
 
   return (
-    <div className="shadow rounded-4xl w-full">
+    <div className="shadow rounded-4xl w-full bg-white">
         <div className="flex justify-between items-center p-4">
           <div className="flex items-center">
             {props.userInfo.iconImg ? (
@@ -56,8 +57,9 @@ export const OrganismsPostListHeaderCard = (props: Props) => {
           <div className="flex items-center">
             {props.isAuthor && (
               <button
-                className="edit-button bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded"
+                className="edit-button bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded disabled:opacity-30"
                 onClick={openGroupForm}
+                disabled={props.isClose}
               >
                 編集
               </button>

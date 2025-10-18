@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { store } from "@/app/_state/store";
 import { closeGroupFormModal, openErrorModal } from "@/app/_state/slice/modal";
 import { putFetch } from "@/app/_constants/fetch";
-import { BL_INFO } from "@/app/_constants/app";
+import { API_INFO } from "@/app/_constants/app";
   
 export const OrganismsGroupFormModal = () => {
   const groupFormInit = useSelector((state: any) => state.modal.groupFormInit);
@@ -38,7 +38,7 @@ export const OrganismsGroupFormModal = () => {
     }
 
     const response
-      = await putFetch<any, any>(BL_INFO.API_ENDPOINT.WORK_GROUP, reqBody);
+      = await putFetch<any, any>(API_INFO.ENDPOINT.WORK_GROUP, reqBody);
 
     if (response?.status !== 200) {
       store.dispatch(openErrorModal({message: 'グループの更新に失敗しました。時間をおいて再度お試しください。', title: 'エラー'}));
@@ -46,6 +46,7 @@ export const OrganismsGroupFormModal = () => {
     }
 
     store.dispatch(closeGroupFormModal());
+    window.location.reload();
   };
 
   if (!modalOpen) return null;

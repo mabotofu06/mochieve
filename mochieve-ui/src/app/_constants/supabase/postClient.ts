@@ -7,7 +7,7 @@ const TBL_NAME = 'work_post'
 
 export const fetchPostsByGroupId = async(groupId: string): Promise<SupabaseResponse<GetPostsData[]>> => {
   const logger = createLogger('PostClient:fetchPostsByGroupId');
-  logger.debug("fetchPostsByGroupId called", { groupId });
+  logger.info("fetchPostsByGroupId called", { groupId });
   
   const { data, error } = await supabase
     .from(TBL_NAME)
@@ -20,7 +20,7 @@ export const fetchPostsByGroupId = async(groupId: string): Promise<SupabaseRespo
     throw error;
   }
   
-  logger.debug("fetchPostsByGroupId completed", { groupId });
+  logger.info("fetchPostsByGroupId completed", { groupId });
   return data as Array<GetPostsData>;
 }
 

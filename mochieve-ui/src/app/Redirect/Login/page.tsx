@@ -1,7 +1,7 @@
 "use client"
 
 import { setUserInfo } from "@/app/_composables/userInfo";
-import { APP_SERVICE, BL_INFO } from "@/app/_constants/app";
+import { APP_SERVICE, API_INFO } from "@/app/_constants/app";
 import { postFetch } from "@/app/_constants/fetch";
 import { supabase } from "@/app/_constants/supabase/client";
 import { ApiResponse, SuccessResponse } from "@/app/_type/api";
@@ -24,11 +24,12 @@ const fetchUserInfo = async (): Promise<UserInfo> => {
   if(!session) throw new Error("User not found");
 
   const res: ApiResponse<UserInfo> = await postFetch<any, UserInfo>(
-    BL_INFO.API_ENDPOINT.AUTH_CALLBACK,
+    API_INFO.ENDPOINT.AUTH_CALLBACK,
     {
       accessToken: session.access_token,
       refreshToken: session.refresh_token,
-    }
+    },
+    false
   );
 
   if(res.status !== 200) {

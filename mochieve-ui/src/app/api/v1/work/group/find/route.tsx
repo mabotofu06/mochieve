@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<WorkGroup>>> {
   const logger = createLogger('API:Work:Group:Find');
-  logger.debug("GET /api/v1/work/group/find");
+  logger.info("GET /api/v1/work/group/find");
   const cookie = await cookies();
 
   const { searchParams } = new URL(req.url);
@@ -39,10 +39,10 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
   const workGroupItem = workGroupData as GetWorkGroupsData;
 
-  logger.debug("Retrieved Work Group:", { groupId: workGroupItem });
+  logger.info("Retrieved Work Group:", { groupId: workGroupItem });
 
   // ユーザー情報を取得（userClient.tsの関数を使用）
-  logger.debug(`Fetching user info for user: ${workGroupItem.user_id} from Supabase`);
+  logger.info(`Fetching user info for user: ${workGroupItem.user_id} from Supabase`);
 
   try {
     const userInfo = await fetchUserInfoByUserId(workGroupItem.user_id);

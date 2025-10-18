@@ -25,7 +25,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       ? new Date(period)
       : new Date();
 
-  logger.debug("Timeline Request Period:", { period, datetime: datetime.toISOString() });
+  logger.info("Timeline Request Period:", { period, datetime: datetime.toISOString() });
 
   const supabaseResult
     = await supabase
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
       .order("update_datetime", { ascending: false })
       .limit(CACHE_INFO.TIMELINE_DATA.MAX_SIZE);
 
-  logger.debug("Supabase Result:", { resultCount: supabaseResult.data?.length });
+  logger.info("Supabase Result:", { resultCount: supabaseResult.data?.length });
 
   if(supabaseResult.error || !supabaseResult.data) {
     logger.error("Failed to fetch work groups from Supabase", supabaseResult.error);
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<Wo
 
   // 一括でユーザ情報をSupabaseから取得（N+1問題を回避）
   const userIds: Set<string> = new Set(timelineData.map(data => data.user_id));
-  logger.debug(`Fetching user info for ${userIds.size} users from Supabase`);
+  logger.info(`Fetching user info for ${userIds.size} users from Supabase`);
   
   const { data: userInfoList, error }
     = await supabase

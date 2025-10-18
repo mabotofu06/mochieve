@@ -1,7 +1,7 @@
 import { GetWorkGroupsData, SupabaseResponse } from "@/app/_type/supabase";
 import { supabase } from "./client"
 import { getUserInfo } from "@/app/_composables/userInfo";
-import { MAX_POST_NUM } from "../app";
+import { VALIDATION_LENGTH } from "../app";
 import { deleteWorkGroupDetailByGroupId, getWorkGroupDetail } from "@/app/_state/storage";
 import { createLogger } from "../utils/logger";
 
@@ -9,7 +9,7 @@ const TBL_NAME = 'work_group'
 
 export const fetchWorkGroupByGroupId = async (groupId: string) => {
   const logger = createLogger('WorkGroupClient:fetchWorkGroupByGroupId');
-  logger.debug("fetchWorkGroupByGroupId called", { groupId });
+  logger.info("fetchWorkGroupByGroupId called", { groupId });
   
   const { data, error } = await supabase
     .from(TBL_NAME)
@@ -21,7 +21,7 @@ export const fetchWorkGroupByGroupId = async (groupId: string) => {
     throw error;
   }
 
-  logger.debug("fetchWorkGroupByGroupId completed", { groupId });
+  logger.info("fetchWorkGroupByGroupId completed", { groupId });
   return data as GetWorkGroupsData;
 };
 
@@ -47,7 +47,7 @@ export const fetchWorkGroups = async (limit: number = 20):Promise<SupabaseRespon
       const { data, timestamp } = JSON.parse(cache);
       if (Date.now() - timestamp < 5 * 60 * 1000) {
         const logger = createLogger('WorkGroupClient:fetchWorkGroupsByUserId');
-        logger.debug("キャッシュに保存されたデータを返却します");
+        logger.info("キャッシュに保存されたデータを返却します");
         return data;
       }
     }
@@ -108,7 +108,7 @@ export const updateWorkGroup = async (groupId: string, image: string, closeFlag:
       title,
       content,
       images,
-      close_flag: MAX_POST_NUM <= images.length ? true : closeFlag  //10件の投稿数を超えたら自動的にクローズする
+      close_flag: VALIDATION_LENGTH.WORK_GROUP.POST_NUM.MAX <= images.length ? true : closeFlag  //12件の投稿数を超えたら自動的にクローズする
     })
     .eq('group_id', groupId);
 
