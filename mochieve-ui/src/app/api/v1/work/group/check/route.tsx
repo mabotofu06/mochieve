@@ -28,7 +28,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<bo
     logger.error("Failed to retrieve open groups:", openGroupError);
     return resInternalServerError(cookie, "Failed to retrieve open groups");
   }
-  if (openGroupNum && openGroupNum >= VALIDATION_LENGTH.WORK_GROUP.POST_NUM.MAX) {
+  if (openGroupNum && openGroupNum >= VALIDATION_LENGTH.WORK_GROUP.ON_WORKING.MAX) {
     return resSuccess(cookie, false);
   }
 

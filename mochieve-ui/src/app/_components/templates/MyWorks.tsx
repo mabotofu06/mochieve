@@ -2,17 +2,15 @@
 
 import { WorkGroup } from "@/app/_type/data";
 import { OrganismsGroupCard } from "../organisms/GroupCard";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { OrganismsTabMenu } from "../organisms/TabMenu";
-import { API_INFO, MY_WORK_NAV_MENU } from "@/app/_constants/app";
+import { MY_WORK_NAV_MENU } from "@/app/_constants/app";
 import { MoleculesTimeline } from "../molecules/Timeline";
 import { getFetch } from "@/app/_constants/fetch";
 import { SuccessResponse } from "@/app/_type/api";
-import { pushMyWorksCache } from "@/app/_constants/localCache/myWork";
 import { store } from "@/app/_state/store";
-import { setLoading, openErrorModal } from "@/app/_state/slice/modal";
+import { openErrorModal } from "@/app/_state/slice/modal";
 import { createLogger } from "@/app/_constants/utils/logger";
-import { group } from "console";
 
 type Props = {
   userId: string;
